@@ -1,25 +1,28 @@
 import { createAnonClient, createAdminClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 
-function generateMemberId(collegeName: string): string {
-    const collegeCode = collegeName
-        .split(' ')
-        .map(word => word[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 4);
-    const year = new Date().getFullYear().toString().slice(-2);
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    return `OF-${collegeCode}-${year}-${randomNum}`;
+function generateEntityId(): string {
+    const year = new Date().getFullYear();
+    const randomSuffix = crypto.randomBytes(2).toString('hex').toUpperCase();
+    return `OF-${year}-${randomSuffix}`;
+}
+
+function generateQRToken(entityId: string): string {
+    const timestamp = Date.now();
+    const secret = process.env.QR_SIGNING_SECRET || 'default-secret-change-in-production';
+    const data = `${entityId}:${timestamp}`;
+    const signature = crypto.createHmac('sha256', secret).update(data).digest('hex');
+    return `${data}:${signature}`;
 }
 
 export async function POST(request: NextRequest) {
     try {
-        const { email, password, fullName, collegeId, phoneNumber } = await request.json();
+        const { email, password, fullName, phoneNumber, teamId } = await request.json();
 
-        if (!email || !password || !fullName || !collegeId || !phoneNumber) {
+        if (!email || !password || !fullName) {
             return NextResponse.json(
-                { error: 'All fields are required' },
+                { error: 'Email, password, and full name are required' },
                 { status: 400 }
             );
         }
@@ -27,28 +30,13 @@ export async function POST(request: NextRequest) {
         const supabase = await createAnonClient();
         const supabaseAdmin = createAdminClient();
 
-        // Get college name for member ID
-        const { data: college } = await supabaseAdmin
-            .from('colleges')
-            .select('name')
-            .eq('id', collegeId)
-            .single();
-
-        if (!college) {
-            return NextResponse.json(
-                { error: 'College not found' },
-                { status: 400 }
-            );
-        }
-
-        // Create auth user
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        // Create auth user with admin client (auto-confirms email)
+        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email,
             password,
-            options: {
-                data: {
-                    full_name: fullName,
-                },
+            email_confirm: true, // Auto-confirm email for event
+            user_metadata: {
+                full_name: fullName,
             },
         });
 
@@ -66,7 +54,9 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const memberId = generateMemberId(college.name);
+        // Generate Entity ID and QR Token
+        const entityId = generateEntityId();
+        const qrToken = generateQRToken(entityId);
 
         // Create profile using service role (bypasses RLS)
         const { data: profile, error: profileError } = await supabaseAdmin
@@ -75,33 +65,38 @@ export async function POST(request: NextRequest) {
                 id: authData.user.id,
                 email,
                 full_name: fullName,
-                college_id: collegeId,
-                member_id: memberId,
-                role: 'student',
-                phone_number: phoneNumber,
+                phone_number: phoneNumber || null,
+                team_id: teamId || null,
+                role: 'participant',
+                entity_id: entityId,
+                qr_token: qrToken,
+                qr_generated_at: new Date().toISOString(),
+                password_changed: false,
             })
-            .select(`
-        *,
-        college:colleges(*)
-      `)
+            .select('*')
             .single();
 
         if (profileError) {
             console.error('Profile creation error:', profileError);
             return NextResponse.json(
-                { error: 'Failed to create profile' },
+                { error: 'Failed to create profile: ' + profileError.message },
                 { status: 500 }
             );
         }
+
+        // Auto-login the user after registration
+        const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
 
         return NextResponse.json({
             user: {
                 id: authData.user.id,
                 email: authData.user.email,
                 profile,
-                team: null,
             },
-            session: authData.session,
+            session: sessionData?.session,
         });
     } catch (error) {
         console.error('Register error:', error);

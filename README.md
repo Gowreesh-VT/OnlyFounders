@@ -71,7 +71,6 @@ npm install
 
 # Set up environment variables
 cp .env.example .env.local
-# (Fill in your Supabase and VAPID keys)
 
 # Run development server
 npm run dev

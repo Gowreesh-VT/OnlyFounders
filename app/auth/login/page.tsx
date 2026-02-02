@@ -38,6 +38,10 @@ export default function LoginPage() {
         router.push('/super-admin/dashboard');
       } else if (role === 'admin') {
         router.push('/admin/dashboard');
+      } else if (role === 'gate_volunteer') {
+        router.push('/gate/scanner');
+      } else if (role === 'event_coordinator') {
+        router.push('/coordinator/dashboard');
       } else {
         router.push('/dashboard');
       }
@@ -57,8 +61,8 @@ export default function LoginPage() {
           className="absolute top-0 right-0 w-full h-2/3 bg-cover bg-center opacity-10 mix-blend-color-dodge"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')" }}
         />
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent z-10" />
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#0A0A0A]/80 via-transparent to-[#0A0A0A] z-10" />
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to from-[#0A0A0A] via-[#0A0A0A] to-transparent z-10" />
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to from-[#0A0A0A]/80 via-transparent to-[#0A0A0A] z-10" />
         <div className="absolute top-1/4 right-0 w-64 h-64 bg-red-900/20 rounded-full blur-3xl" />
       </div>
 
@@ -66,7 +70,7 @@ export default function LoginPage() {
         {/* Login Card */}
         <div className="glass-panel rounded-sm border border-[#2A2A2A] p-8 shadow-2xl">
           {/* Gold accent line */}
-          <div className="h-[2px] bg-primary mb-8 -mt-8 -mx-8" />
+          <div className="h-0.5 bg-primary mb-8 -mt-8 -mx-8" />
 
           {/* Logo */}
           <div className="text-center mb-8">

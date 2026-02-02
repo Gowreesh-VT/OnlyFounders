@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, Settings } from "lucide-react";
+import { LayoutDashboard, Users, Upload, Settings } from "lucide-react";
 
 const navItems = [
     { href: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/admin/submissions", icon: FileText, label: "Submissions" },
+    { href: "/admin/bulk-import", icon: Upload, label: "Import" },
     { href: "/admin/settings", icon: Settings, label: "Settings" },
 ];
 
@@ -19,7 +19,7 @@ export default function AdminBottomNav() {
                 {navItems.map((item) => {
                     const isActive = pathname === item.href ||
                         (item.label === "Dashboard" && pathname === "/admin/dashboard") ||
-                        (item.label === "Submissions" && pathname.startsWith("/admin/submissions")) ||
+                        (item.label === "Import" && pathname.startsWith("/admin/bulk-import")) ||
                         (item.label === "Settings" && pathname.startsWith("/admin/settings"));
 
                     return (
