@@ -2,39 +2,45 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, FileText } from "lucide-react";
+import { Home, TrendingUp, Fingerprint, Users, User } from "lucide-react";
 
 const navItems = [
-    { href: "/dashboard", icon: Home, label: "Home" },
-    { href: "/team", icon: Users, label: "Team" },
-    { href: "/submission", icon: FileText, label: "Submit" },
+    { href: "/dashboard", icon: Home, label: "HOME" },
+    { href: "/invest", icon: TrendingUp, label: "INVEST" },
+    { href: "/eid", icon: Fingerprint, label: "E-ID" },
+    { href: "/team", icon: Users, label: "TEAM" },
+    { href: "/profile", icon: User, label: "PROFILE" },
 ];
 
 export default function StudentBottomNav() {
     const pathname = usePathname();
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#121212]/95 backdrop-blur-md border-t border-[#262626] pb-6 pt-3 px-6">
-            <div className="flex justify-around items-center max-w-lg mx-auto">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A] border-t border-primary/20">
+            <div className="flex justify-around items-center max-w-lg mx-auto px-4 py-3">
                 {navItems.map((item) => {
-                    const isActive =
-                        pathname === item.href ||
-                        (item.label === "Home" && pathname === "/dashboard") ||
-                        (item.label === "Team" && pathname.startsWith("/team"));
+                    const isActive = pathname === item.href;
 
                     return (
                         <Link
                             key={item.label}
                             href={item.href}
-                            className="flex flex-col items-center gap-1 group"
+                            className="flex flex-col items-center gap-1.5 group min-w-[60px]"
                         >
-                            <item.icon
-                                className={`w-6 h-6 transition-colors ${isActive ? "text-primary" : "text-gray-500 group-hover:text-gray-300"
+                            <div className={`p-2 rounded-lg transition-all ${
+                                isActive ? "bg-primary/20" : "bg-transparent"
+                            }`}>
+                                <item.icon
+                                    className={`w-5 h-5 transition-colors ${
+                                        isActive ? "text-primary" : "text-gray-600 group-hover:text-gray-400"
                                     }`}
-                            />
+                                    strokeWidth={1.5}
+                                />
+                            </div>
                             <span
-                                className={`text-[9px] font-medium uppercase tracking-wider transition-colors ${isActive ? "text-primary" : "text-gray-500 group-hover:text-gray-300"
-                                    }`}
+                                className={`text-[8px] font-mono uppercase tracking-wider transition-colors ${
+                                    isActive ? "text-primary" : "text-gray-700 group-hover:text-gray-500"
+                                }`}
                             >
                                 {item.label}
                             </span>
