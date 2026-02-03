@@ -27,6 +27,7 @@ export default function GateScannerPage() {
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [recentScans, setRecentScans] = useState<ScanRecord[]>([]);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isCameraReady, setIsCameraReady] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -36,14 +37,17 @@ export default function GateScannerPage() {
   }, []);
 
   useEffect(() => {
-    if (scanning && !verified && !error && !showManualEntry) {
-      startCamera();
+    if (!loading && scanning && !verified && !error && !showManualEntry && videoRef.current) {
+      setIsCameraReady(true);
+      const timer = setTimeout(() => {
+        startCamera();
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
+      setIsCameraReady(false);
       stopCamera();
     }
-    
-    return () => stopCamera();
-  }, [scanning, verified, error, showManualEntry]);
+  }, [loading, scanning, verified, error, showManualEntry]);
 
   const updateTime = () => {
     const now = new Date();
@@ -75,13 +79,21 @@ export default function GateScannerPage() {
 
   const startCamera = async () => {
     try {
+      console.log('Starting camera...');
       setCameraError(null);
+      
+      if (!videoRef.current) {
+        console.error('Video ref not ready');
+        return;
+      }
       
       if (!codeReaderRef.current) {
         codeReaderRef.current = new BrowserMultiFormatReader();
       }
 
+      console.log('Listing video devices...');
       const videoInputDevices = await codeReaderRef.current.listVideoInputDevices();
+      console.log('Found devices:', videoInputDevices.length);
       
       if (videoInputDevices.length === 0) {
         setCameraError('No camera found');
@@ -94,23 +106,26 @@ export default function GateScannerPage() {
         device.label.toLowerCase().includes('rear')
       ) || videoInputDevices[0];
 
-      if (videoRef.current) {
-        await codeReaderRef.current.decodeFromVideoDevice(
-          selectedDevice.deviceId,
-          videoRef.current,
-          (result, error) => {
-            if (result) {
-              const qrText = result.getText();
-              if (qrText) {
-                handleScan(qrText);
-              }
+      console.log('Starting camera with device:', selectedDevice.label);
+      
+      await codeReaderRef.current.decodeFromVideoDevice(
+        selectedDevice.deviceId,
+        videoRef.current,
+        (result, error) => {
+          if (result) {
+            const qrText = result.getText();
+            console.log('QR Code detected:', qrText);
+            if (qrText) {
+              handleScan(qrText);
             }
           }
-        );
-      }
-    } catch (err) {
+        }
+      );
+      
+      console.log('Camera started successfully');
+    } catch (err: any) {
       console.error('Camera error:', err);
-      setCameraError('Camera access denied. Please enable camera permissions.');
+      setCameraError(err.message || 'Camera access denied. Please enable camera permissions.');
     }
   };
 
