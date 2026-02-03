@@ -88,6 +88,23 @@ export default function DashboardPage() {
         return;
       }
       const userData = await userRes.json();
+      
+      // Redirect based on role
+      const role = userData.user?.profile?.role;
+      if (role === 'super_admin') {
+        router.push('/super-admin/dashboard');
+        return;
+      } else if (role === 'admin') {
+        router.push('/admin/dashboard');
+        return;
+      } else if (role === 'gate_volunteer') {
+        router.push('/gate/scanner');
+        return;
+      } else if (role === 'event_coordinator') {
+        router.push('/coordinator/dashboard');
+        return;
+      }
+      
       setUser(userData.user);
 
       // Fetch notifications

@@ -6,7 +6,7 @@ const QR_SECRET = process.env.QR_SECRET || 'onlyfounders-qr-secret-key-2026';
 
 export async function POST(request: NextRequest) {
   try {
-    const { qrData } = await request.json();
+    const { qrData, gateLocation } = await request.json();
 
     if (!qrData || typeof qrData !== 'string') {
       return NextResponse.json(
@@ -55,6 +55,10 @@ export async function POST(request: NextRequest) {
     // Fetch participant from database
     const supabase = await createClient();
     
+    // Get current user (gate volunteer)
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const gateVolunteerId = user?.id || null;
+    
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select(`
@@ -77,6 +81,21 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    // Check last scan session
+    const { data: lastSession } = await supabase
+      .from('scan_sessions')
+      .select('session_start, session_end, is_active')
+      .eq('profile_id', profile.id)
+      .order('session_start', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // Get total scan count (completed sessions)
+    const { count: scanCount } = await supabase
+      .from('scan_sessions')
+      .select('*', { count: 'exact', head: true })
+      .eq('profile_id', profile.id);
 
     // Fetch college name
     let collegeName = null;
@@ -121,6 +140,41 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Log this entry scan
+    const { data: entryLog, error: entryLogError } = await supabase
+      .from('entry_logs')
+      .insert({
+        entity_id: entityId,
+        profile_id: profile.id,
+        scanned_by: gateVolunteerId,
+        status: 'valid',
+        location: gateLocation || 'GATE1',
+        scan_type: 'entry',
+      })
+      .select()
+      .single();
+
+    if (entryLogError) {
+      console.error('Error logging entry:', entryLogError);
+    }
+
+    // Create or update scan session
+    if (entryLog && !lastSession?.is_active) {
+      // Create new session if no active session exists
+      const { error: sessionError } = await supabase
+        .from('scan_sessions')
+        .insert({
+          profile_id: profile.id,
+          entry_scan_id: entryLog.id,
+          session_start: new Date().toISOString(),
+          is_active: true,
+        });
+
+      if (sessionError) {
+        console.error('Error creating session:', sessionError);
+      }
+    }
+
     // Return verified participant data
     return NextResponse.json({
       verified: true,
@@ -137,6 +191,10 @@ export async function POST(request: NextRequest) {
         cluster: clusterName,
         cluster_tier: clusterTier,
         verified_at: new Date().toISOString(),
+        last_scanned: lastSession?.session_start || null,
+        last_scanned_by: null, // Can join with entry_logs if needed
+        total_scans: (scanCount || 0) + 1, // +1 for current scan
+        is_active_session: lastSession?.is_active || false,
       },
     });
 
