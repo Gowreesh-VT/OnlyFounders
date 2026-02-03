@@ -55,11 +55,11 @@ export default function ProfilePage() {
   const profile = user?.profile;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pb-24">
+    <div className="min-h-screen bg-[#3a3a2e] text-white pb-24">
       {/* Header */}
-      <div className="bg-black border-b border-primary/20 px-4 py-4 sticky top-0 z-40">
+      <div className="bg-[#2a2a20] border-b border-primary/20 px-4 py-4 sticky top-0 z-40">
         <div className="max-w-lg mx-auto flex items-center justify-between">
-          <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-300">
+          <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-300">
             <ChevronLeft size={24} />
           </button>
           <h1 className="tech-text text-white tracking-widest text-sm">ONLYFOUNDERS</h1>
@@ -72,62 +72,55 @@ export default function ProfilePage() {
         {/* Photo Section */}
         <div className="flex justify-center mb-8">
           <div className="relative">
-            <div className="w-48 h-48 border-2 border-primary/30 border-dashed p-2">
+            <div className="w-48 h-48 border-2 border-primary border-dashed p-2">
               {profile?.photo_url ? (
                 <img 
                   src={profile.photo_url} 
                   alt={profile.full_name}
-                  className="w-full h-full object-cover grayscale"
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-[#1A1A1A] flex items-center justify-center">
-                  <span className="text-gray-700 text-4xl">{profile?.full_name?.[0] || '?'}</span>
+                <div className="w-full h-full bg-[#4a4a3e] flex items-center justify-center">
+                  <span className="text-gray-500 text-4xl">{profile?.full_name?.[0] || '?'}</span>
                 </div>
               )}
             </div>
-            {profile?.photo_url && (
-              <div className="absolute -bottom-2 -right-2 bg-primary text-black px-3 py-1 text-xs tech-text">
-                ● ACTIVE
-              </div>
-            )}
           </div>
         </div>
 
         {/* Profile Info */}
-        <div className="border-2 border-primary/30 p-6 mb-6 bg-black/40">
+        <div className="space-y-6 mb-6">
           {/* Full Name */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="border-l-4 border-primary pl-4">
+            <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 bg-primary rounded-full"></div>
-              <span className="tech-text text-primary text-xs">FULL NAME</span>
+              <span className="tech-text text-primary text-xs tracking-wider">FULL NAME</span>
             </div>
-            <p className="text-white text-2xl font-serif ml-4">{profile?.full_name || 'Unknown'}</p>
+            <p className="text-white text-2xl font-serif">{profile?.full_name || 'Unknown'}</p>
           </div>
 
           {/* Email */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="border-l-4 border-transparent pl-4">
+            <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 bg-primary rounded-full"></div>
-              <span className="tech-text text-primary text-xs">EMAIL ADDRESS</span>
+              <span className="tech-text text-primary text-xs tracking-wider">EMAIL ADDRESS</span>
             </div>
-            <p className="text-gray-400 text-sm ml-4">{user?.email || 'N/A'}</p>
+            <p className="text-gray-300 text-base">{user?.email || 'N/A'}</p>
           </div>
 
           {/* Entity ID and Access Level */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="border-l-4 border-transparent pl-4">
+              <div className="flex items-center gap-2 mb-1">
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
-                <span className="tech-text text-primary text-xs">ENTITY ID</span>
+                <span className="tech-text text-primary text-xs tracking-wider">ENTITY ID</span>
               </div>
-              <p className="text-white tech-text text-sm ml-4">{profile?.entity_id || '8X-992-ALPHA'}</p>
+              <p className="text-white tech-text text-sm">{profile?.entity_id || '8X-992-ALPHA'}</p>
             </div>
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="tech-text text-primary text-xs">ACCESS LEVEL</span>
-              </div>
-              <div className="ml-4">
-                <span className="border border-primary/50 text-primary px-3 py-1 text-xs tech-text">
+            <div className="pl-4">
+              <span className="tech-text text-primary text-xs tracking-wider mb-1 block">ACCESS LEVEL</span>
+              <div className="mt-2">
+                <span className="border border-primary bg-primary/10 text-primary px-3 py-1.5 text-xs tech-text tracking-wider inline-block">
                   {profile?.role?.toUpperCase() || 'PARTICIPANT'}
                 </span>
               </div>
@@ -139,23 +132,18 @@ export default function ProfilePage() {
         <button
           onClick={handleLogout}
           disabled={loggingOut}
-          className="w-full border-2 border-primary/30 bg-black hover:bg-primary/10 text-primary py-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full border-2 border-primary bg-transparent hover:bg-primary/5 text-primary py-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-8 text-center"
         >
-          <div className="flex items-center justify-center gap-3">
-            {loggingOut ? (
-              <span className="tech-text text-sm">DISCONNECTING...</span>
-            ) : (
-              <>
-                <LogOut size={18} strokeWidth={1.5} />
-                <span className="tech-text text-sm">DISCONNECT SESSION</span>
-              </>
-            )}
-          </div>
+          {loggingOut ? (
+            <span className="tech-text text-md tracking-wider">DISCONNECTING...</span>
+          ) : (
+            <span className="tech-text text-md tracking-wider">DISCONNECT SESSION</span>
+          )}
         </button>
 
         {/* Footer Info */}
-        <div className="mt-8 text-center">
-          <p className="tech-text text-gray-700 text-[10px] tracking-wider">
+        <div className="mt-12 text-center">
+          <p className="tech-text text-gray-600 text-[10px] tracking-widest">
             SYS_VER 4.2 // NODE_ID 09A // ENCRYPTED
           </p>
         </div>

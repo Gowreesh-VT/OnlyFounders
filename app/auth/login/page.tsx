@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { FeedbackButton } from '@/components/ui/FeedbackButton';
+import { usePhotoUpload } from '@/app/components/PhotoUploadProvider';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { setProfileFromLogin } = usePhotoUpload();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -32,8 +34,19 @@ export default function LoginPage() {
         return;
       }
 
+      // Pass profile data to PhotoUploadProvider - shows modal IMMEDIATELY if no photo
+      const profile = data.user?.profile;
+      if (profile) {
+        setProfileFromLogin({
+          id: data.user.id,
+          full_name: profile.full_name || '',
+          photo_url: profile.photo_url,
+          role: profile.role,
+        });
+      }
+
       // Redirect based on role
-      const role = data.user?.profile?.role;
+      const role = profile?.role;
       if (role === 'super_admin') {
         router.push('/super-admin/dashboard');
       } else if (role === 'admin') {

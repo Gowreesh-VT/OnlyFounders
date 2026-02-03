@@ -46,8 +46,8 @@ export default function EIDPage() {
         width: 256,
         margin: 1,
         color: {
-          dark: '#FFD700',
-          light: '#000000',
+          dark: '#000000',
+          light: '#FFFFFF',
         },
       });
       setQrDataUrl(url);
@@ -71,11 +71,11 @@ export default function EIDPage() {
   const formattedDate = `${istDate.getDate().toString().padStart(2, '0')} ${istDate.toLocaleString('en', { month: 'short' }).toUpperCase()} ${istDate.getFullYear()} // ${istDate.toISOString().split('T')[1].split('.')[0]} IST`;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pb-24">
+    <div className="min-h-screen bg-[#3a3a2e] text-white pb-24">
       {/* Header */}
-      <div className="bg-black border-b border-primary/20 px-4 py-4 sticky top-0 z-40">
+      <div className="bg-[#2a2a20] border-b border-primary/20 px-4 py-4 sticky top-0 z-40">
         <div className="max-w-lg mx-auto flex items-center justify-between">
-          <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-300">
+          <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-300">
             <ChevronLeft size={24} />
           </button>
           <h1 className="tech-text text-white tracking-widest text-sm">ONLYFOUNDERS</h1>
@@ -85,47 +85,40 @@ export default function EIDPage() {
 
       {/* E-ID Content */}
       <div className="max-w-lg mx-auto px-6 py-8">
-        {/* Main Card */}
-        <div className="border-2 border-primary p-6 bg-black">
+        {/* Main Card with Golden Border */}
+        <div className="border-4 border-primary p-0 bg-black">
           {/* Photo Section */}
-          <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="w-40 h-40 bg-[#1A1A1A]">
-                {profile?.photo_url ? (
-                  <img 
-                    src={profile.photo_url} 
-                    alt={profile.full_name}
-                    className="w-full h-full object-cover grayscale"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-gray-700 text-4xl">{profile?.full_name?.[0] || '?'}</span>
-                  </div>
-                )}
-              </div>
-              {profile?.photo_url && (
-                <div className="absolute -bottom-2 -right-2 bg-primary text-black px-3 py-1 text-xs tech-text">
-                  ● ACTIVE
+          <div className="flex justify-center pt-8 pb-6">
+            <div className="w-44 h-44 bg-gray-700">
+              {profile?.photo_url ? (
+                <img 
+                  src={profile.photo_url} 
+                  alt={profile.full_name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-gray-500 text-4xl">{profile?.full_name?.[0] || '?'}</span>
                 </div>
               )}
             </div>
           </div>
 
           {/* Name and Title */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-serif mb-2">{profile?.full_name || 'Unknown'}</h2>
+          <div className="text-center mb-8 px-6">
+            <h2 className="text-3xl font-serif mb-2 text-white">{profile?.full_name || 'Unknown'}</h2>
             <p className="text-primary text-sm italic font-serif">
               Venture Capital / Tier 1
             </p>
           </div>
 
           {/* QR Code */}
-          <div className="flex justify-center mb-6">
-            <div className="bg-black p-6">
+          <div className="flex justify-center mb-8 px-6">
+            <div className="bg-white p-6 rounded">
               {qrDataUrl ? (
                 <img src={qrDataUrl} alt="QR Code" className="w-64 h-64" />
               ) : (
-                <div className="w-64 h-64 bg-gray-900 flex items-center justify-center">
+                <div className="w-64 h-64 bg-gray-100 flex items-center justify-center">
                   <span className="tech-text text-gray-600 text-xs">GENERATING...</span>
                 </div>
               )}
@@ -133,17 +126,19 @@ export default function EIDPage() {
           </div>
 
           {/* Info Section */}
-          <div className="space-y-4 border-t border-primary/30 pt-4">
-            <div className="flex justify-between items-center">
-              <span className="tech-text text-gray-500 text-xs">ENTITY_ID</span>
-              <span className="tech-text text-white text-sm">{profile?.entity_id || 'N/A'}</span>
+          <div className="px-6 pb-6">
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <span className="tech-text text-gray-500 text-xs block mb-1">ENTITY_ID</span>
+                <span className="tech-text text-white text-sm">{profile?.entity_id || 'N/A'}</span>
+              </div>
+              <div className="text-right">
+                <span className="tech-text text-gray-500 text-xs block mb-1">ACCESS_LEVEL</span>
+                <span className="tech-text text-green-500 text-sm">GRANTED</span>
+              </div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="tech-text text-gray-500 text-xs">ACCESS_LEVEL</span>
-              <span className="tech-text text-green-500 text-sm">GRANTED</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="tech-text text-gray-500 text-xs">TIMESTAMP</span>
+            <div className="border-t border-gray-800 pt-4">
+              <span className="tech-text text-gray-500 text-xs block mb-1">TIMESTAMP</span>
               <span className="tech-text text-primary text-xs">{formattedDate}</span>
             </div>
           </div>
@@ -151,7 +146,7 @@ export default function EIDPage() {
 
         {/* Footer Note */}
         <div className="mt-6 text-center">
-          <p className="tech-text text-gray-700 text-xs tracking-wider">
+          <p className="tech-text text-gray-600 text-xs tracking-wider">
             BRIGHTNESS INCREASED FOR SCANNING
           </p>
         </div>
