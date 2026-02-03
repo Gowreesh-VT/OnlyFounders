@@ -568,6 +568,46 @@ export default function DashboardPage() {
             </section>             
           </>
         )}
+        {/* Schedule */}
+        <section className="mt-8">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-serif text-2xl font-bold text-white flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              Schedule
+            </h3>
+            <button
+              onClick={() => setShowSchedule(true)}
+              className="text-primary text-[9px] uppercase tracking-[0.2em] font-bold"
+            >
+              View All
+            </button>
+          </div>
+
+          {scheduleItems.length === 0 ? (
+            <div className="bg-[#121212] border border-[#262626] rounded-xl p-6 text-center text-gray-500">
+              No upcoming events
+            </div>
+          ) : (
+            scheduleItems.slice(0, 2).map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setShowSchedule(true)}
+                className="w-full mb-3 bg-[#121212] border border-[#262626] rounded-xl p-4 flex justify-between items-center text-left"
+              >
+                <div className="flex gap-4 items-center">
+                  <div className="text-center px-3 py-2 rounded-lg bg-[#0A0A0A]">
+                    <p className="text-[9px] font-bold tracking-widest text-gray-500">{item.month}</p>
+                    <p className="text-lg font-bold text-white">{item.date}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white">{item.title}</p>
+                    <p className="text-sm text-gray-500 mt-1">{item.time}</p>
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
+        </section>
 
         <footer className="mt-12 text-center">
           <div className="flex items-center justify-center gap-3 text-[10px] text-gray-600 tracking-widest">
