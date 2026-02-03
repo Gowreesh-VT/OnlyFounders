@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Fingerprint, Zap, Check, X, Keyboard, LogOut } from 'lucide-react';
+import { BrowserMultiFormatReader } from '@zxing/library';
 
 interface ScanRecord {
   id: string;
@@ -14,6 +15,8 @@ interface ScanRecord {
 
 export default function GateScannerPage() {
   const router = useRouter();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(true);
@@ -23,6 +26,7 @@ export default function GateScannerPage() {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [recentScans, setRecentScans] = useState<ScanRecord[]>([]);
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -30,6 +34,16 @@ export default function GateScannerPage() {
     const timer = setInterval(updateTime, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (scanning && !verified && !error && !showManualEntry) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+    
+    return () => stopCamera();
+  }, [scanning, verified, error, showManualEntry]);
 
   const updateTime = () => {
     const now = new Date();
@@ -59,6 +73,53 @@ export default function GateScannerPage() {
     }
   };
 
+  const startCamera = async () => {
+    try {
+      setCameraError(null);
+      
+      if (!codeReaderRef.current) {
+        codeReaderRef.current = new BrowserMultiFormatReader();
+      }
+
+      const videoInputDevices = await codeReaderRef.current.listVideoInputDevices();
+      
+      if (videoInputDevices.length === 0) {
+        setCameraError('No camera found');
+        return;
+      }
+
+      // Prefer back camera on mobile
+      const selectedDevice = videoInputDevices.find(device => 
+        device.label.toLowerCase().includes('back') || 
+        device.label.toLowerCase().includes('rear')
+      ) || videoInputDevices[0];
+
+      if (videoRef.current) {
+        await codeReaderRef.current.decodeFromVideoDevice(
+          selectedDevice.deviceId,
+          videoRef.current,
+          (result, error) => {
+            if (result) {
+              const qrText = result.getText();
+              if (qrText) {
+                handleScan(qrText);
+              }
+            }
+          }
+        );
+      }
+    } catch (err) {
+      console.error('Camera error:', err);
+      setCameraError('Camera access denied. Please enable camera permissions.');
+    }
+  };
+
+  const stopCamera = () => {
+    if (codeReaderRef.current) {
+      codeReaderRef.current.reset();
+    }
+  };
+
   const handleScan = async (qrData: string) => {
     if (!qrData.trim()) return;
 
@@ -67,9 +128,6 @@ export default function GateScannerPage() {
     setError(null);
     setParticipant(null);
     setShowManualEntry(false);
-
-    // Simulate scanning delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
 
     try {
       const response = await fetch('/api/gate/verify-qr', {
@@ -187,18 +245,38 @@ export default function GateScannerPage() {
         {scanning && !verified && !error && (
           <div>
             {/* Scanner Frame */}
-            <div className="relative w-full aspect-square sm:aspect-4/3 mb-4 sm:mb-6">
+            <div className="relative w-full aspect-square sm:aspect-4/3 mb-4 sm:mb-6 bg-black rounded-lg overflow-hidden">
+              {/* Camera Video */}
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                autoPlay
+                playsInline
+                muted
+              />
+              
+              {/* Camera Error Overlay */}
+              {cameraError && (
+                <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
+                  <div className="text-center p-4">
+                    <X className="text-red-500 mx-auto mb-2" size={32} />
+                    <p className="text-white text-sm mb-2">{cameraError}</p>
+                    <p className="text-gray-500 text-xs">Use manual entry below</p>
+                  </div>
+                </div>
+              )}
+              
               {/* Corner Brackets */}
-              <div className="absolute top-0 left-0 w-32 h-32 border-t-4 border-l-4 border-primary"></div>
-              <div className="absolute top-0 right-0 w-32 h-32 border-t-4 border-r-4 border-primary"></div>
-              <div className="absolute bottom-0 left-0 w-32 h-32 border-b-4 border-l-4 border-primary"></div>
-              <div className="absolute bottom-0 right-0 w-32 h-32 border-b-4 border-r-4 border-primary"></div>
+              <div className="absolute top-0 left-0 w-20 h-20 sm:w-32 sm:h-32 border-t-4 border-l-4 border-primary pointer-events-none"></div>
+              <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 border-t-4 border-r-4 border-primary pointer-events-none"></div>
+              <div className="absolute bottom-0 left-0 w-20 h-20 sm:w-32 sm:h-32 border-b-4 border-l-4 border-primary pointer-events-none"></div>
+              <div className="absolute bottom-0 right-0 w-20 h-20 sm:w-32 sm:h-32 border-b-4 border-r-4 border-primary pointer-events-none"></div>
               
               {/* Scanning Line Animation */}
-              <div className="absolute top-0 left-0 w-full h-1 bg-primary animate-pulse"></div>
+              <div className="absolute top-0 left-0 w-full h-1 bg-primary animate-pulse pointer-events-none"></div>
               
               {/* Center Crosshair */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
                 <div className="w-12 h-12">
                   <div className="absolute w-12 h-0.5 bg-primary/50 top-1/2 left-0"></div>
                   <div className="absolute w-0.5 h-12 bg-primary/50 left-1/2 top-0"></div>
@@ -206,8 +284,10 @@ export default function GateScannerPage() {
               </div>
 
               {/* Instruction Text */}
-              <div className="absolute bottom-8 left-0 right-0 text-center">
-                <p className="text-gray-400 text-sm">Align QR code within frame</p>
+              <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 text-center pointer-events-none">
+                <p className="text-white text-xs sm:text-sm bg-black/60 px-3 py-1.5 rounded-full inline-block">
+                  Align QR code within frame
+                </p>
               </div>
             </div>
 
