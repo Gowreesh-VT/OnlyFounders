@@ -55,8 +55,15 @@ export default function LoginPage() {
         router.push('/gate/scanner');
       } else if (role === 'event_coordinator') {
         router.push('/coordinator/dashboard');
+      } else if (role === 'cluster_monitor') {
+        router.push('/monitor/dashboard');
       } else {
-        router.push('/dashboard');
+        // Participant: check if onboarding is complete
+        if (!profile?.photo_url || !profile?.entity_id) {
+          router.push('/onboarding');
+        } else {
+          router.push('/dashboard');
+        }
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
