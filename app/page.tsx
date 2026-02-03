@@ -18,8 +18,8 @@ export default function LandingPage() {
           className="absolute top-0 right-0 w-full h-2/3 bg-cover bg-center opacity-10 mix-blend-color-dodge"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')" }}
         />
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent z-10" />
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#0A0A0A]/80 via-transparent to-[#0A0A0A] z-10" />
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to from-[#0A0A0A] via-[#0A0A0A] to-transparent z-10" />
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to from-[#0A0A0A]/80 via-transparent to-[#0A0A0A] z-10" />
         <div className="absolute top-1/4 right-0 w-64 h-64 bg-red-900/20 rounded-full blur-3xl" />
       </div>
 
@@ -79,7 +79,7 @@ export default function LandingPage() {
             {colleges.map((college) => (
               <div
                 key={college.name}
-                className="flex-shrink-0 college-logo-mask"
+                className="shrink-0 college-logo-mask"
                 title={college.name}
               >
                 <Image

@@ -40,6 +40,7 @@ export const viewport: Viewport = {
 };
 
 import NotificationManager from "@/components/NotificationManager";
+import PhotoUploadProvider from "./components/PhotoUploadProvider";
 
 export default function RootLayout({
   children,
@@ -52,8 +53,10 @@ export default function RootLayout({
         className={`${playfair.variable} ${inter.variable} antialiased`}
       >
         <Providers>
-          {children}
-          <NotificationManager />
+          <PhotoUploadProvider>
+            {children}
+            <NotificationManager />
+          </PhotoUploadProvider>
         </Providers>
       </body>
     </html>
