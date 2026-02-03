@@ -14,7 +14,7 @@ export default function AdminBottomNav() {
     const pathname = usePathname();
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#121212]/95 backdrop-blur-md border-t border-[#262626] pb-6 pt-3 px-6">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-surface-elevated/95 backdrop-blur-md border-t border-[#262626] pb-6 pt-3 px-6">
             <div className="flex justify-between items-center max-w-lg mx-auto">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href ||

@@ -148,6 +148,11 @@ case "ADD_USER":
 case "DELETE_USER":
   return await handleDeleteUser(supabaseAdmin, payload);
 
+case "ASSIGN_CLUSTER":
+  return await handleAssignCluster(supabaseAdmin, payload);
+
+case "FETCH_CLUSTERS":
+  return await handleFetchClusters(supabaseAdmin);
 
       default:
         return NextResponse.json({ error: 'Invalid Action' }, { status: 400 });
@@ -341,5 +346,57 @@ async function handleFetchUsers(supabaseAdmin: any) {
   return NextResponse.json({
     success: true,
     users: users || [],
+  });
+}
+
+// ------------------------------------------------------------------
+// ✅ Assign User to Cluster (for cluster_monitor role)
+// ------------------------------------------------------------------
+async function handleAssignCluster(supabaseAdmin: any, payload: any) {
+  const { userId, clusterId } = payload;
+
+  // First, remove this user from any other cluster they might be monitoring
+  await supabaseAdmin
+    .from("clusters")
+    .update({ monitor_id: null })
+    .eq("monitor_id", userId);
+
+  // Assign user to the new cluster
+  const { error } = await supabaseAdmin
+    .from("clusters")
+    .update({ monitor_id: userId })
+    .eq("id", clusterId);
+
+  if (error) {
+    console.error("Assign cluster failed:", error);
+    return NextResponse.json({ error: "Failed to assign cluster" }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
+
+// ------------------------------------------------------------------
+// ✅ Fetch All Clusters
+// ------------------------------------------------------------------
+async function handleFetchClusters(supabaseAdmin: any) {
+  const { data: clusters, error } = await supabaseAdmin
+    .from("clusters")
+    .select(`
+      id,
+      name,
+      location,
+      monitor_id,
+      monitor:profiles!clusters_monitor_id_fkey(id, full_name, email)
+    `)
+    .order("name");
+
+  if (error) {
+    console.error("Fetch clusters failed:", error);
+    return NextResponse.json({ error: "Failed to fetch clusters" }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    success: true,
+    clusters: clusters || [],
   });
 }

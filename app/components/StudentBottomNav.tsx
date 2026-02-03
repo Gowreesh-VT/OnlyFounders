@@ -25,7 +25,7 @@ export default function StudentBottomNav() {
                         <Link
                             key={item.label}
                             href={item.href}
-                            className="flex flex-col items-center gap-1.5 group min-w-[60px]"
+                            className="flex flex-col items-center gap-1.5 group min-w-15"
                         >
                             <div className={`p-2 rounded-lg transition-all ${
                                 isActive ? "bg-primary/20" : "bg-transparent"

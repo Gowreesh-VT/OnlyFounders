@@ -55,7 +55,9 @@ const [newUserName, setNewUserName] = useState("");
 const [newUserEmail, setNewUserEmail] = useState("");
 const [newUserRole, setNewUserRole] = useState("admin");
 
-
+// Cluster assignment state
+const [clusters, setClusters] = useState<any[]>([]);
+const [selectedClusterForUser, setSelectedClusterForUser] = useState<Record<string, string>>({});
 
   // --- State ---
   const [searchQuery, setSearchQuery] = useState("");
@@ -280,6 +282,39 @@ const updateUserRole = async (id: string, role: string) => {
 
   fetchUsers();
 };
+
+// Fetch all clusters for assignment
+const fetchClusters = async () => {
+  try {
+    const res = await fetch("/api/super-admin/colleges", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "FETCH_CLUSTERS" }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setClusters(data.clusters);
+    }
+  } catch (err) {
+    console.error("Fetch clusters error:", err);
+  }
+};
+
+// Assign user to cluster
+const assignCluster = async (userId: string, clusterId: string) => {
+  await fetch("/api/super-admin/colleges", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "ASSIGN_CLUSTER",
+      payload: { userId, clusterId },
+    }),
+  });
+  
+  setSelectedClusterForUser(prev => ({ ...prev, [userId]: clusterId }));
+  fetchClusters(); // Refresh to update monitor info
+};
+
 const deleteUser = async (id: string) => {
   const confirmDelete = confirm(
     "Are you sure you want to disable this user?"
@@ -498,6 +533,7 @@ const togglePermission = async (id: string, key: string, value: boolean) => {
   onClick={() => {
   setShowUserModal(true);
   fetchUsers(); // ✅ Load profiles when modal opens
+  fetchClusters(); // ✅ Load clusters for assignment
 }}
 
   className="bg-[#121212] border border-[#262626] rounded-xl p-5 hover:border-purple-500/50 transition-all group"
@@ -852,11 +888,38 @@ const togglePermission = async (id: string, key: string, value: boolean) => {
                   onChange={(e) => updateUserRole(u.id, e.target.value)}
                   className="bg-[#111] border border-[#333] px-2 py-1 rounded text-xs text-white"
                 >
-                  <option value="admin">Admin</option>
-                  <option value="team_lead">team lead</option>
+                  <option value="participant">Participant</option>
+                  <option value="team_lead">Team Lead</option>
+                  <option value="gate_volunteer">Gate Volunteer</option>
+                  <option value="admin">Cluster Admin</option>
                   <option value="super_admin">Super Admin</option>
                 </select>
               </div>
+
+              {/* ✅ Cluster Assignment (for admin/cluster admin role) */}
+              {u.role === 'admin' && (
+                <div className="bg-[#1a1a1a] border border-[#333] rounded-lg p-3">
+                  <label className="text-xs text-gray-400 block mb-2">Assign to Cluster:</label>
+                  <select
+                    value={clusters.find(c => c.monitor_id === u.id)?.id || ''}
+                    onChange={(e) => assignCluster(u.id, e.target.value)}
+                    className="w-full bg-[#111] border border-[#444] px-2 py-1 rounded text-xs text-white"
+                  >
+                    <option value="">-- Select Cluster --</option>
+                    {clusters.map((cluster) => (
+                      <option key={cluster.id} value={cluster.id}>
+                        {cluster.name} {cluster.monitor_id && cluster.monitor_id !== u.id ? `(Assigned: ${cluster.monitor?.full_name})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {clusters.find(c => c.monitor_id === u.id) && (
+                    <p className="text-green-400 text-[10px] mt-1">
+                      ✓ Currently admin of: {clusters.find(c => c.monitor_id === u.id)?.name}
+                    </p>
+                  )}
+                </div>
+              )}
+
               <button
   onClick={() => deleteUser(u.id)}
   className="text-red-400 hover:text-red-500 text-xs font-bold uppercase tracking-widest"
