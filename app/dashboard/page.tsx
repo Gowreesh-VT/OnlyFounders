@@ -27,6 +27,7 @@ import {
   Settings,
   Edit3,
   User,
+  Menu,
 } from "lucide-react";
 import StudentBottomNav from "../components/StudentBottomNav";
 import NotificationCenter from "@/components/NotificationCenter";
@@ -75,7 +76,7 @@ export default function DashboardPage() {
   const [isSavingName, setIsSavingName] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const hasTeam = !!user?.team;
+  const hasTeam = true;
   const unreadAlerts = notifications.filter(n => !n.read).length;
 
   // Fetch user data
@@ -308,13 +309,24 @@ export default function DashboardPage() {
       </div>
 
       <div className="relative z-10 max-w-md mx-auto">
-        {/* Top Bar */}
+        {/* Top Status Bar */}
         {hasTeam && (
-          <div className="flex items-center justify-between pb-4 border-b border-[#262626]">
-            <img src="/only-founders-logo.png" alt="OnlyFounders Logo" className="mx-auto h-20 w-auto left-2" />
+          <div className="flex items-center justify-between mb-6">
+            <Menu className="text-gray-400" />
+
+            <div className="text-center">
+              <p className="text-[9px] tracking-[0.3em] text-gray-500 uppercase">
+                Event Status
+              </p>
+              <p className="text-[10px] tracking-widest text-primary font-bold">
+                PHASE 02 · HACKING
+              </p>
+            </div>
+
             <NotificationCenter />
           </div>
         )}
+
 
         {/* Header */}
         <header className="mt-6 flex justify-between items-start">
@@ -385,128 +397,10 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        {/* No Team State */}
-        {!hasTeam && (
-          <>
-            <section className="flex flex-col items-center text-center mt-14">
-
-              <img src="/only-founders-logo.png" alt="OnlyFounders Logo" className="mx-auto h-40 w-auto left-2" />
-              
-            </section>
-
-            <p className="mt-10 px-6 text-center text-gray-400 leading-relaxed">
-              Your portfolio is empty. Initialize your startup journey.
-            </p>
-
-            <section className="mt-10 flex flex-col gap-4">
-              <Link
-                href="/team/create"
-                className="group w-full bg-[#121212] border border-[#262626] rounded-xl p-5 flex items-center justify-between transition-all hover:border-primary hover:shadow-[0_0_30px_rgba(255,215,0,0.1)]"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
-                    <Plus size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Create Team</h3>
-                    <p className="mt-1 text-sm text-gray-500">Register a new startup idea</p>
-                  </div>
-                </div>
-                <ArrowRight className="text-gray-500 group-hover:text-primary transition-colors" />
-              </Link>
-
-              <Link
-                href="/team/join"
-                className="group w-full bg-[#121212] border border-[#262626] rounded-xl p-5 flex items-center justify-between transition-all hover:border-primary hover:shadow-[0_0_30px_rgba(255,215,0,0.1)]"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
-                    <KeySquare size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Join Team</h3>
-                    <p className="mt-1 text-sm text-gray-500">Enter access code</p>
-                  </div>
-                </div>
-                <ArrowRight className="text-gray-500 group-hover:text-primary transition-colors" />
-              </Link>
-            </section>
-          </>
-        )}
 
         {/* Has Team State */}
         {hasTeam && (
           <>
-            {/* Premium Membership Card */}
-            <section className="mt-8 mb-8">
-              <div className="relative w-full aspect-[1.586/1] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_40px_rgba(255,215,0,0.05)] transition-all duration-500 group hover:shadow-[0_25px_60px_rgba(0,0,0,0.6),0_0_60px_rgba(255,215,0,0.1)] hover:scale-[1.02]">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#0d0d0d] to-[#050505]" />
-                <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent_0%,rgba(255,215,0,0.03)_50%,transparent_100%)] group-hover:animate-pulse" />
-                <div className="absolute inset-0 opacity-30 mix-blend-overlay" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E\")" }} />
-                <div className="absolute -right-10 -top-10 w-32 h-32 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent rounded-full blur-2xl" />
-                <div className="absolute -left-10 -bottom-10 w-24 h-24 bg-gradient-to-tr from-primary/10 to-transparent rounded-full blur-2xl" />
-
-                <div className="relative z-10 h-full p-5 flex flex-col justify-between">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/40 flex items-center justify-center shadow-[0_0_15px_rgba(255,215,0,0.2)]">
-                        <span className="text-primary text-[9px] font-black">OF</span>
-                      </div>
-                      <div>
-                        <span className="text-[8px] font-bold tracking-[0.3em] text-gray-500 uppercase block">Member</span>
-                        <span className="text-[7px] text-gray-600 tracking-widest">SINCE 2024</span>
-                      </div>
-                    </div>
-                    <div className="relative">
-                      <div className="w-11 h-8 bg-gradient-to-tr from-[#b8860b] via-[#ffd700] to-[#daa520] rounded-md shadow-[0_2px_8px_rgba(218,165,32,0.3)]">
-                        <div className="absolute inset-0.5 rounded-[4px] bg-gradient-to-br from-[#ffd700] via-[#f0c800] to-[#b8860b]" />
-                        <div className="absolute top-[40%] left-0 w-full h-[1px] bg-black/15" />
-                        <div className="absolute left-[30%] top-0 w-[1px] h-full bg-black/10" />
-                        <div className="absolute right-[30%] top-0 w-[1px] h-full bg-black/10" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3">
-                    <p className="font-mono text-[11px] text-gray-500 tracking-[0.2em]">{user?.profile?.member_id || 'OF-XXX-XX-XXXX'}</p>
-                  </div>
-
-                  <div className="mt-auto">
-                    <div className="flex justify-between items-end pb-3 border-b border-white/5">
-                      <div>
-                        <p className="text-[7px] text-gray-600 uppercase tracking-[0.2em] mb-1">Team</p>
-                        <h2 className="font-serif text-2xl text-white tracking-wide">
-                          {user?.team?.name || 'Your Team'}
-                        </h2>
-                      </div>
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/30">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(255,215,0,0.8)] animate-pulse" />
-                        <span className="text-[8px] font-bold text-primary uppercase tracking-widest">Active</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center gap-2">
-                        <div className="flex -space-x-2">
-                          {((user?.team as { members?: { id: string }[] })?.members || []).slice(0, 4).map((member: { id: string }, i: number) => (
-                            <div key={member.id || i} className="w-7 h-7 rounded-full border-2 border-[#0d0d0d] bg-gradient-to-br from-gray-600 to-gray-800 overflow-hidden shadow-md">
-                              <div className={`w-full h-full ${i === 0 ? "bg-gradient-to-br from-primary/60 to-yellow-700/60" : ""}`} />
-                            </div>
-                          ))}
-                        </div>
-                        {((user?.team as { members?: { id: string }[] })?.members?.length || 0) > 4 && (
-                          <span className="text-[9px] text-gray-500 font-medium">+{((user?.team as { members?: { id: string }[] })?.members?.length || 0) - 4}</span>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[7px] text-gray-600 uppercase tracking-widest">Valid Thru</p>
-                        <p className="text-[10px] text-gray-400 font-mono tracking-wider">12/26</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Team Code */}
               <button
                 onClick={handleCopyCode}
@@ -525,27 +419,94 @@ export default function DashboardPage() {
                   {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />}
                 </div>
               </button>
+
+            {/* Main Countdown */}
+            <section className="mt-6 text-center">
+              <p className="text-[10px] tracking-[0.3em] uppercase text-gray-500">
+                Time Remaining
+              </p>
+
+              <h1 className="mt-3 text-5xl font-bold font-mono text-white">
+                {String(countdown.hours).padStart(2, "0")}:
+                {String(countdown.minutes).padStart(2, "0")}:
+                {String(countdown.seconds).padStart(2, "0")}
+              </h1>
+
+              <div className="mt-4 h-1 w-24 mx-auto bg-primary rounded" />
             </section>
 
-            {/* Countdown */}
-            <section className="bg-[#121212] border border-[#262626] rounded-xl p-5 flex justify-between items-center">
-              <div>
-                <p className="text-[9px] tracking-[0.2em] uppercase text-gray-500 font-bold">Hackathon Ends In</p>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-white font-mono">{String(countdown.days).padStart(2, '0')}</span>
-                  <span className="text-xs text-gray-500 mr-2">D</span>
-                  <span className="text-3xl font-bold text-white font-mono">{String(countdown.hours).padStart(2, '0')}</span>
-                  <span className="text-xs text-gray-500 mr-2">H</span>
-                  <span className="text-3xl font-bold text-white font-mono">{String(countdown.minutes).padStart(2, '0')}</span>
-                  <span className="text-xs text-gray-500 mr-2">M</span>
-                  <span className="text-2xl font-bold text-primary font-mono">{String(countdown.seconds).padStart(2, '0')}</span>
-                  <span className="text-xs text-gray-500">S</span>
-                </div>
+            {/* Next Milestone */}
+            <section className="mt-8 bg-[#121212] border border-[#262626] rounded-xl p-4">
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-[9px] tracking-widest text-gray-500 uppercase">
+                  Next Milestone
+                </p>
+                <span className="text-yellow-400 text-xs font-semibold">LIVE</span>
               </div>
-              <div className="h-14 w-14 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center shadow-[0_0_20px_rgba(255,215,0,0.1)]">
-                <Hourglass className="text-primary animate-pulse" />
+
+              <p className="text-white font-semibold">
+                Code Freeze & Commit
+              </p>
+
+              <div className="mt-2 flex justify-between text-xs text-gray-400">
+                <span>Until Deadline</span>
+                <span className="text-yellow-400">-45m</span>
+              </div>
+
+              <div className="mt-2 h-1 bg-gray-700 rounded">
+                <div className="h-1 bg-primary w-[85%] rounded" />
               </div>
             </section>
+
+            {/* Live Pitch */}
+            <section className="mt-6 border border-primary rounded-xl p-4 bg-black">
+              <p className="text-[9px] tracking-widest text-gray-500 uppercase text-center">
+                Presenting Now
+              </p>
+
+              <h2 className="mt-2 text-center text-2xl font-bold text-primary">
+                TEAM TITAN
+              </h2>
+
+              <p className="text-center text-xs text-gray-400">
+                Category: DeFi Protocol
+              </p>
+
+              <div className="mt-4 bg-[#121212] rounded-lg py-3 text-center">
+                <p className="text-2xl font-mono text-white">04:59</p>
+                <p className="text-[9px] tracking-widest text-primary uppercase">
+                  Time to Pitch
+                </p>
+              </div>
+            </section>
+            {/* Syndicate Valuation */}
+            <section className="mt-8 bg-[#121212] border border-[#262626] rounded-xl p-5">
+              <p className="text-[9px] tracking-widest text-gray-500 uppercase mb-2">
+                Syndicate Valuation
+              </p>
+
+              <div className="flex items-end justify-between">
+                <div>
+                  <p className="text-xs text-gray-400">Total Portfolio Value</p>
+                  <h2 className="text-3xl font-bold text-primary mt-1">
+                    $4,250,000
+                  </h2>
+                </div>
+
+                <div className="text-right">
+                  <p className="text-green-400 text-xs font-semibold">+12.5%</p>
+                  <p className="text-[10px] text-gray-500">Since Start</p>
+                </div>
+              </div>
+
+              {/* Fake graph bar (UI only) */}
+              <div className="mt-4 h-10 w-full bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10 rounded" />
+            </section>
+
+
+
+
+
 
             {/* Action Cards */}
             <section className="mt-6 grid grid-cols-2 gap-4">
@@ -577,53 +538,76 @@ export default function DashboardPage() {
                 <p className="mt-3 text-[9px] text-red-400 uppercase tracking-widest font-bold">{unreadAlerts} New</p>
               </button>
             </section>
-
-            {/* Schedule */}
-            <section className="mt-8">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-serif text-2xl font-bold text-white flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  Schedule
+            {/* Commits & Teams Active */}
+            <section className="mt-8 grid grid-cols-2 gap-4">
+              {/* Commits */}
+              <div className="bg-[#121212] border border-[#262626] rounded-xl p-4">
+                <p className="text-[9px] tracking-widest uppercase text-gray-500">
+                  Commits
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-white">
+                  1,248
                 </h3>
-                <button
-                  onClick={() => setShowSchedule(true)}
-                  className="text-primary text-[9px] uppercase tracking-[0.2em] font-bold cursor-pointer hover:text-primary-hover transition-colors"
-                >
-                  View All
-                </button>
+                <p className="mt-1 text-xs text-green-400 font-semibold">
+                  +24/hr
+                </p>
               </div>
 
-              {scheduleItems.length === 0 ? (
-                <div className="bg-[#121212] border border-[#262626] rounded-xl p-6 text-center text-gray-500">
-                  No upcoming events
-                </div>
-              ) : (
-                scheduleItems.slice(0, 2).map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setShowSchedule(true)}
-                    className={`w-full mb-3 bg-[#121212] border rounded-xl p-4 flex justify-between items-center transition-all cursor-pointer text-left ${item.active ? "border-primary/50 shadow-[0_0_15px_rgba(255,215,0,0.05)]" : "border-[#262626] hover:border-primary/30"
-                      }`}
-                  >
-                    <div className="flex gap-4 items-center">
-                      <div className={`text-center px-3 py-2 rounded-lg ${item.active ? "bg-primary/20" : "bg-[#0A0A0A]"}`}>
-                        <p className={`text-[9px] font-bold tracking-widest ${item.active ? "text-primary" : "text-gray-500"}`}>{item.month}</p>
-                        <p className={`text-lg font-bold ${item.active ? "text-primary" : "text-white"}`}>{item.date}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-white">{item.title}</p>
-                        <p className="text-sm text-gray-500 mt-1">{item.time}</p>
-                      </div>
-                    </div>
-                    {item.active && (
-                      <span className="px-2 py-1 bg-primary/20 text-primary text-[8px] font-bold uppercase tracking-widest rounded-full">Live</span>
-                    )}
-                  </button>
-                ))
-              )}
-            </section>
+              {/* Teams Active */}
+              <div className="bg-[#121212] border border-[#262626] rounded-xl p-4">
+                <p className="text-[9px] tracking-widest uppercase text-gray-500">
+                  Teams Active
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-white">
+                  42
+                </h3>
+                <p className="mt-1 text-xs text-green-400 font-semibold">
+                  100% Online
+                </p>
+              </div>
+            </section>             
           </>
         )}
+        {/* Schedule */}
+        <section className="mt-8">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-serif text-2xl font-bold text-white flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              Schedule
+            </h3>
+            <button
+              onClick={() => setShowSchedule(true)}
+              className="text-primary text-[9px] uppercase tracking-[0.2em] font-bold"
+            >
+              View All
+            </button>
+          </div>
+
+          {scheduleItems.length === 0 ? (
+            <div className="bg-[#121212] border border-[#262626] rounded-xl p-6 text-center text-gray-500">
+              No upcoming events
+            </div>
+          ) : (
+            scheduleItems.slice(0, 2).map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setShowSchedule(true)}
+                className="w-full mb-3 bg-[#121212] border border-[#262626] rounded-xl p-4 flex justify-between items-center text-left"
+              >
+                <div className="flex gap-4 items-center">
+                  <div className="text-center px-3 py-2 rounded-lg bg-[#0A0A0A]">
+                    <p className="text-[9px] font-bold tracking-widest text-gray-500">{item.month}</p>
+                    <p className="text-lg font-bold text-white">{item.date}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white">{item.title}</p>
+                    <p className="text-sm text-gray-500 mt-1">{item.time}</p>
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
+        </section>
 
         <footer className="mt-12 text-center">
           <div className="flex items-center justify-center gap-3 text-[10px] text-gray-600 tracking-widest">
