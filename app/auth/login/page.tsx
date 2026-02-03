@@ -50,7 +50,7 @@ export default function LoginPage() {
       if (role === 'super_admin') {
         router.push('/super-admin/dashboard');
       } else if (role === 'admin') {
-        router.push('/admin/dashboard');
+        router.push('/cluster-admin/dashboard');
       } else if (role === 'gate_volunteer') {
         router.push('/gate/scanner');
       } else if (role === 'event_coordinator') {

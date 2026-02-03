@@ -5,7 +5,7 @@ export const createEmailTransporter = () => {
     return nodemailer.createTransport({
         host: process.env.SMTP_HOST!,
         port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+        secure: process.env.SMTP_PORT === '465',
         auth: {
             user: process.env.SMTP_USER!,
             pass: process.env.SMTP_PASSWORD!,
@@ -106,7 +106,7 @@ export async function sendLoginCredentials(
 </head>
 <body>
     <div class="container">
-        <div class="header">OnlyFounders</div>
+        <div class="header"></div>
         <div class="subtitle">Investment Simulation Event</div>
         
         <p>Dear ${fullName},</p>
@@ -225,9 +225,9 @@ export async function sendBulkCredentials(
 
 // Generate secure random password
 export function generateSecurePassword(length: number = 12): string {
-    const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // Removed I, O
-    const lowercase = 'abcdefghjkmnpqrstuvwxyz'; // Removed l, i, o
-    const numbers = '23456789'; // Removed 0, 1
+    const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const lowercase = 'abcdefghjkmnpqrstuvwxyz';
+    const numbers = '23456789';
     const symbols = '@#$%&*';
     
     const allChars = uppercase + lowercase + numbers + symbols;

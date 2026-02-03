@@ -5,7 +5,21 @@ import { useRouter } from "next/navigation";
 import { Clock, Filter, Search, Square, TrendingUp, User, Loader2, LogOut, Edit3, X } from "lucide-react";
 import AdminBottomNav from "../../components/AdminBottomNav";
 import { useCache } from "@/lib/cache/CacheProvider";
-import type { Submission } from "@/lib/types/database";
+
+// Local type for submissions
+type Submission = {
+  id: string;
+  team_id: string;
+  status: string;
+  score?: number;
+  project_title?: string;
+  team?: {
+    id: string;
+    name: string;
+    code?: string;
+  };
+  created_at: string;
+};
 
 type TeamStatus = "PENDING" | "GRADED";
 
@@ -107,7 +121,7 @@ export default function AdminDashboardPage() {
   const teams: Team[] = submissions.map(s => ({
     name: s.team?.name || 'Unknown Team',
     id: s.team?.code || s.id.slice(0, 10),
-    project: s.project_title,
+    project: s.project_title || 'Unknown Project',
     status: s.status === 'not_viewed' || s.status === 'waiting' ? 'PENDING' : 'GRADED',
     badge: s.status === 'not_viewed' ? 'orange' : undefined,
     score: s.status === 'selected' ? '✓ Selected' : s.status === 'not_selected' ? 'Not Selected' : undefined,
