@@ -59,6 +59,12 @@ const [newUserRole, setNewUserRole] = useState("admin");
 const [clusters, setClusters] = useState<any[]>([]);
 const [selectedClusterForUser, setSelectedClusterForUser] = useState<Record<string, string>>({});
 
+// Cluster teams management state
+const [clustersWithTeams, setClustersWithTeams] = useState<any[]>([]);
+const [unassignedTeams, setUnassignedTeams] = useState<any[]>([]);
+const [loadingClustersTeams, setLoadingClustersTeams] = useState(false);
+const [reassigningTeam, setReassigningTeam] = useState<string | null>(null);
+
   // --- State ---
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState("Super Admin");
@@ -86,6 +92,7 @@ const [selectedClusterForUser, setSelectedClusterForUser] = useState<Record<stri
   const [latency, setLatency] = useState<number | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [isShuffling, setIsShuffling] = useState(false);
+  const [isExecutingShuffle, setIsExecutingShuffle] = useState(false);
   const [shuffleProgress, setShuffleProgress] = useState(0);
   const [shuffleResults, setShuffleResults] = useState<ShuffleResult | null>(null);
 
@@ -131,6 +138,11 @@ const [selectedClusterForUser, setSelectedClusterForUser] = useState<Record<stri
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Fetch clusters with teams on mount
+  useEffect(() => {
+    fetchClustersWithTeams();
+  }, []);
 
   // --- 2. Live Latency ---
   useEffect(() => {
@@ -244,6 +256,39 @@ const [selectedClusterForUser, setSelectedClusterForUser] = useState<Record<stri
         setIsShuffling(false);
     }
   };
+
+  // --- 5. Execute Shuffle (Actually save to database) ---
+  const handleExecuteShuffle = async () => {
+    if (!confirm("This will assign all teams to clusters and create pitch schedules. Continue?")) {
+      return;
+    }
+    
+    setIsExecutingShuffle(true);
+
+    try {
+        const res = await fetch('/api/super-admin/colleges', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'EXECUTE_SHUFFLE' }) 
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            alert(data.message);
+            setShuffleResults(data.data);
+            // Refresh data
+            fetchData();
+            fetchClusters();
+        } else {
+            alert("Execute shuffle failed: " + data.error);
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Failed to execute shuffle");
+    } finally {
+        setIsExecutingShuffle(false);
+    }
+  };
   // ✅ Fetch Users From Profiles Table
 const fetchUsers = async () => {
   setLoadingUsers(true);
@@ -313,6 +358,104 @@ const assignCluster = async (userId: string, clusterId: string) => {
   
   setSelectedClusterForUser(prev => ({ ...prev, [userId]: clusterId }));
   fetchClusters(); // Refresh to update monitor info
+};
+
+// Fetch clusters with their assigned teams
+const fetchClustersWithTeams = async () => {
+  setLoadingClustersTeams(true);
+  try {
+    const res = await fetch("/api/super-admin/colleges", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "FETCH_CLUSTERS_WITH_TEAMS" }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setClustersWithTeams(data.clusters);
+      setUnassignedTeams(data.unassignedTeams);
+    }
+  } catch (err) {
+    console.error("Fetch clusters with teams error:", err);
+  } finally {
+    setLoadingClustersTeams(false);
+  }
+};
+
+// Reassign team to different cluster (with optimistic UI update)
+const reassignTeam = async (teamId: string, newClusterId: string | null) => {
+  setReassigningTeam(teamId);
+  
+  // Find the team being moved
+  let movedTeam: any = null;
+  let sourceClusterIndex = -1;
+  
+  // Find in clusters
+  for (let i = 0; i < clustersWithTeams.length; i++) {
+    const team = clustersWithTeams[i].teams?.find((t: any) => t.id === teamId);
+    if (team) {
+      movedTeam = team;
+      sourceClusterIndex = i;
+      break;
+    }
+  }
+  
+  // Check unassigned teams
+  if (!movedTeam) {
+    movedTeam = unassignedTeams.find((t: any) => t.id === teamId);
+  }
+  
+  if (!movedTeam) {
+    setReassigningTeam(null);
+    return;
+  }
+
+  // Optimistic UI update
+  setClustersWithTeams(prev => {
+    const updated = prev.map(cluster => ({
+      ...cluster,
+      teams: cluster.teams?.filter((t: any) => t.id !== teamId) || []
+    }));
+    
+    if (newClusterId) {
+      const targetIndex = updated.findIndex(c => c.id === newClusterId);
+      if (targetIndex !== -1) {
+        updated[targetIndex] = {
+          ...updated[targetIndex],
+          teams: [...(updated[targetIndex].teams || []), movedTeam]
+        };
+      }
+    }
+    
+    return updated;
+  });
+  
+  if (!newClusterId) {
+    setUnassignedTeams(prev => [...prev, movedTeam]);
+  } else {
+    setUnassignedTeams(prev => prev.filter(t => t.id !== teamId));
+  }
+
+  try {
+    const res = await fetch("/api/super-admin/colleges", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "REASSIGN_TEAM",
+        payload: { teamId, newClusterId },
+      }),
+    });
+    const data = await res.json();
+    if (!data.success) {
+      // Revert on error - refetch
+      fetchClustersWithTeams();
+      alert("Failed to reassign team: " + data.error);
+    }
+  } catch (err) {
+    console.error("Reassign team error:", err);
+    fetchClustersWithTeams(); // Revert on error
+  } finally {
+    setReassigningTeam(null);
+  }
 };
 
 const deleteUser = async (id: string) => {
@@ -645,6 +788,16 @@ const togglePermission = async (id: string, key: string, value: boolean) => {
                 {isShuffling ? "Processing Simulation..." : "Preview Shuffle"}
             </button>
 
+            {/* Execute Shuffle Button - appears after preview */}
+            <button
+                onClick={handleExecuteShuffle}
+                disabled={isExecutingShuffle}
+                className="w-full mt-3 bg-yellow-500/20 border border-yellow-500/50 hover:bg-yellow-500/30 text-yellow-500 py-3 rounded-lg flex items-center justify-center gap-2 transition-all uppercase text-xs tracking-wider font-bold"
+            >
+                <CheckCircle2 className={`w-4 h-4 ${isExecutingShuffle ? 'animate-spin' : ''}`} />
+                {isExecutingShuffle ? "Executing..." : "Execute Shuffle (Save to Database)"}
+            </button>
+
             {/* Preview Grid */}
             {shuffleResults && (
                 <div className="mt-6 grid grid-cols-1 md:grid-cols-5 gap-3 animate-in fade-in slide-in-from-bottom-2">
@@ -664,6 +817,118 @@ const togglePermission = async (id: string, key: string, value: boolean) => {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+        </section>
+
+        {/* Cluster Teams Management Section */}
+        <section className="bg-[#121212] border border-[#262626] rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div>
+                        <h3 className="font-serif font-semibold text-white">Cluster Teams Management</h3>
+                        <p className="text-xs text-gray-500">View and reassign teams across clusters</p>
+                    </div>
+                </div>
+                <button
+                    onClick={fetchClustersWithTeams}
+                    disabled={loadingClustersTeams}
+                    className="text-blue-500 hover:text-blue-400 transition-colors"
+                >
+                    <RefreshCw className={`w-4 h-4 ${loadingClustersTeams ? 'animate-spin' : ''}`} />
+                </button>
+            </div>
+
+            {loadingClustersTeams ? (
+                <div className="flex justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+                </div>
+            ) : clustersWithTeams.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                    <p>No clusters created yet.</p>
+                    <p className="text-xs mt-1">Use &quot;Execute Shuffle&quot; above to create clusters and assign teams.</p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {/* Unassigned Teams */}
+                    {unassignedTeams.length > 0 && (
+                        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-3">
+                                <span className="text-sm font-bold text-red-400 uppercase">Unassigned Teams</span>
+                                <span className="text-xs text-red-400">{unassignedTeams.length} teams</span>
+                            </div>
+                            <div className="space-y-2">
+                                {unassignedTeams.map((team: any) => (
+                                    <div key={team.id} className="flex items-center justify-between bg-[#0A0A0A] rounded-lg p-3">
+                                        <span className="text-sm text-white">{team.name}</span>
+                                        <select
+                                            disabled={reassigningTeam === team.id}
+                                            onChange={(e) => reassignTeam(team.id, e.target.value || null)}
+                                            className="bg-[#1A1A1A] border border-[#333] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500"
+                                            defaultValue=""
+                                        >
+                                            <option value="">Assign to cluster...</option>
+                                            {clustersWithTeams.map((c: any) => (
+                                                <option key={c.id} value={c.id}>{c.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Clusters Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                        {clustersWithTeams.map((cluster: any) => (
+                            <div key={cluster.id} className="bg-[#0A0A0A] border border-[#262626] rounded-xl overflow-hidden">
+                                <div className="bg-[#1A1A1A] p-3 border-b border-[#262626]">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-bold text-blue-400">{cluster.name}</span>
+                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400">
+                                            {cluster.teams?.length || 0} teams
+                                        </span>
+                                    </div>
+                                    {cluster.monitor && (
+                                        <p className="text-[10px] text-gray-500 mt-1 truncate">
+                                            Monitor: {cluster.monitor.full_name}
+                                        </p>
+                                    )}
+                                    <p className="text-[10px] text-gray-600 truncate">{cluster.location}</p>
+                                </div>
+                                <div className="p-2 max-h-48 overflow-y-auto space-y-1">
+                                    {cluster.teams?.length === 0 ? (
+                                        <p className="text-[10px] text-gray-600 text-center py-2">No teams assigned</p>
+                                    ) : (
+                                        cluster.teams?.map((team: any) => (
+                                            <div key={team.id} className="group flex items-center justify-between bg-[#121212] hover:bg-[#1A1A1A] rounded-lg p-2 transition-colors">
+                                                <span className="text-[11px] text-gray-300 truncate flex-1">{team.name}</span>
+                                                <select
+                                                    disabled={reassigningTeam === team.id}
+                                                    onChange={(e) => {
+                                                        const newVal = e.target.value;
+                                                        if (newVal !== cluster.id) {
+                                                            reassignTeam(team.id, newVal || null);
+                                                        }
+                                                    }}
+                                                    value={cluster.id}
+                                                    className="opacity-0 group-hover:opacity-100 bg-[#0A0A0A] border border-[#333] rounded px-1 py-0.5 text-[10px] text-white focus:outline-none focus:border-blue-500 transition-opacity ml-2"
+                                                >
+                                                    <option value="">Unassign</option>
+                                                    {clustersWithTeams.map((c: any) => (
+                                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </section>
@@ -899,22 +1164,31 @@ const togglePermission = async (id: string, key: string, value: boolean) => {
               {/* ✅ Cluster Assignment (for admin/cluster admin role) */}
               {u.role === 'admin' && (
                 <div className="bg-[#1a1a1a] border border-[#333] rounded-lg p-3">
-                  <label className="text-xs text-gray-400 block mb-2">Assign to Cluster:</label>
+                  <label className="text-xs text-gray-400 block mb-2">Assign to Cluster (max 3 admins per cluster):</label>
                   <select
-                    value={clusters.find(c => c.monitor_id === u.id)?.id || ''}
+                    value={u.assigned_cluster_id || clusters.find(c => c.monitor_id === u.id)?.id || ''}
                     onChange={(e) => assignCluster(u.id, e.target.value)}
                     className="w-full bg-[#111] border border-[#444] px-2 py-1 rounded text-xs text-white"
                   >
                     <option value="">-- Select Cluster --</option>
-                    {clusters.map((cluster) => (
-                      <option key={cluster.id} value={cluster.id}>
-                        {cluster.name} {cluster.monitor_id && cluster.monitor_id !== u.id ? `(Assigned: ${cluster.monitor?.full_name})` : ''}
-                      </option>
-                    ))}
+                    {clusters.map((cluster) => {
+                      const adminCount = cluster.adminCount || 0;
+                      const maxAdmins = cluster.maxAdmins || 3;
+                      const isFull = adminCount >= maxAdmins && !cluster.admins?.some((a: any) => a.id === u.id);
+                      return (
+                        <option 
+                          key={cluster.id} 
+                          value={cluster.id}
+                          disabled={isFull}
+                        >
+                          {cluster.name} ({adminCount}/{maxAdmins} admins){isFull ? ' - FULL' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
-                  {clusters.find(c => c.monitor_id === u.id) && (
+                  {(u.assigned_cluster_id || clusters.find(c => c.monitor_id === u.id)) && (
                     <p className="text-green-400 text-[10px] mt-1">
-                      ✓ Currently admin of: {clusters.find(c => c.monitor_id === u.id)?.name}
+                      ✓ Currently admin of: {clusters.find(c => c.id === u.assigned_cluster_id || c.monitor_id === u.id)?.name}
                     </p>
                   )}
                 </div>

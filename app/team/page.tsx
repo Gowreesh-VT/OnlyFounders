@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import StudentBottomNav from "../components/StudentBottomNav";
+import { createClient } from "@/lib/supabase/client";
 
 type TeamMember = {
     id: string;
@@ -13,10 +14,25 @@ type TeamMember = {
     entity_id?: string;
 };
 
+type ActivePitch = {
+    id: string;
+    team_id: string;
+    pitch_title?: string;
+    actual_start: string;
+    pitch_duration_seconds: number;
+    status: string;
+    team?: {
+        id: string;
+        name: string;
+        domain?: string;
+    };
+};
+
 type Team = {
     id: string;
     name: string;
     code: string;
+    cluster_id?: string;
     members?: TeamMember[];
     cluster?: {
         id: string;
@@ -31,9 +47,12 @@ type Team = {
 
 export default function TeamPage() {
     const router = useRouter();
+    const supabase = createClient();
     const [loading, setLoading] = useState(true);
     const [team, setTeam] = useState<Team | null>(null);
     const [isLeader, setIsLeader] = useState(false);
+    const [activePitch, setActivePitch] = useState<ActivePitch | null>(null);
+    const [pitchTimeRemaining, setPitchTimeRemaining] = useState(0);
 
     const fetchTeamData = useCallback(async () => {
         try {
@@ -48,6 +67,15 @@ export default function TeamPage() {
             const data = await response.json();
             setTeam(data.team);
             setIsLeader(data.isLeader);
+            
+            // Fetch active pitch for cluster
+            if (data.team?.cluster_id) {
+                const pitchRes = await fetch(`/api/cluster-admin/pitch?clusterId=${data.team.cluster_id}`);
+                if (pitchRes.ok) {
+                    const pitchData = await pitchRes.json();
+                    setActivePitch(pitchData.activePitch);
+                }
+            }
         } catch (err) {
             console.error('Failed to fetch team:', err);
         } finally {
@@ -58,6 +86,51 @@ export default function TeamPage() {
     useEffect(() => {
         fetchTeamData();
     }, [fetchTeamData]);
+    
+    // Real-time subscription for pitch updates
+    useEffect(() => {
+        if (!team?.cluster_id) return;
+
+        const channel = supabase
+            .channel(`team-pitch-${team.cluster_id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'pitch_schedule',
+                    filter: `cluster_id=eq.${team.cluster_id}`
+                },
+                async () => {
+                    // Refetch active pitch
+                    const pitchRes = await fetch(`/api/cluster-admin/pitch?clusterId=${team.cluster_id}`);
+                    if (pitchRes.ok) {
+                        const pitchData = await pitchRes.json();
+                        setActivePitch(pitchData.activePitch);
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [team?.cluster_id, supabase]);
+    
+    // Pitch timer countdown
+    useEffect(() => {
+        if (!activePitch || !activePitch.actual_start) return;
+
+        const interval = setInterval(() => {
+            const startTime = new Date(activePitch.actual_start).getTime();
+            const now = Date.now();
+            const elapsed = Math.floor((now - startTime) / 1000);
+            const remaining = activePitch.pitch_duration_seconds - elapsed;
+            setPitchTimeRemaining(remaining > 0 ? remaining : 0);
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [activePitch]);
 
     if (loading) {
         return (
@@ -120,33 +193,68 @@ export default function TeamPage() {
                         </div>
                     </div>
 
-                    {/* Current Status Section */}
+                    {/* Current Status Section - Real-time Pitch Info */}
                     <div className="px-6 pb-8">
-                        <div className="border-2 border-primary/30">
+                        <div className={`border-2 ${activePitch ? (pitchTimeRemaining <= 30 ? 'border-red-500' : 'border-primary') : 'border-primary/30'}`}>
                             <div className="flex justify-between items-center px-4 py-2 border-b border-primary/30">
                                 <span className="tech-text text-gray-500 text-xs tracking-wider">CURRENT STATUS</span>
-                                <span className="tech-text text-primary text-xs tracking-wider">LIVE_FEED</span>
+                                {activePitch ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                        <span className="tech-text text-green-500 text-xs tracking-wider">LIVE</span>
+                                    </div>
+                                ) : (
+                                    <span className="tech-text text-gray-500 text-xs tracking-wider">STANDBY</span>
+                                )}
                             </div>
                             
                             <div className="px-4 py-4">
-                                <div className="flex justify-between items-center mb-3">
-                                    <div>
-                                        <span className="tech-text text-gray-500 text-xs block">PITCH_SLOT_ID</span>
-                                        <span className="tech-text text-white text-lg tracking-wider">A-204</span>
+                                {activePitch ? (
+                                    <>
+                                        <div className="text-center mb-4">
+                                            <span className="tech-text text-gray-500 text-xs block mb-1">NOW PITCHING</span>
+                                            <span className={`text-2xl font-serif ${team?.id === activePitch.team_id ? 'text-primary' : 'text-white'}`}>
+                                                {activePitch.team?.name || 'Unknown Team'}
+                                            </span>
+                                            {team?.id === activePitch.team_id && (
+                                                <span className="block tech-text text-primary text-xs mt-1">🎤 YOUR TEAM!</span>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="flex justify-between items-center mb-3">
+                                            <div>
+                                                <span className="tech-text text-gray-500 text-xs block">CATEGORY</span>
+                                                <span className="tech-text text-white text-sm tracking-wider">
+                                                    {activePitch.pitch_title || activePitch.team?.domain || 'N/A'}
+                                                </span>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="tech-text text-gray-500 text-xs block">TIME_REMAINING</span>
+                                                <span className={`tech-text text-lg font-mono ${pitchTimeRemaining <= 30 ? 'text-red-500 animate-pulse' : 'text-primary'}`}>
+                                                    {String(Math.floor(pitchTimeRemaining / 60)).padStart(2, '0')}:{String(pitchTimeRemaining % 60).padStart(2, '0')}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Progress Bar */}
+                                        <div className="relative">
+                                            <div className="h-2 bg-gray-800">
+                                                <div 
+                                                    className={`h-full transition-all ${pitchTimeRemaining <= 30 ? 'bg-red-500' : 'bg-primary'}`} 
+                                                    style={{ width: `${Math.max(0, (pitchTimeRemaining / activePitch.pitch_duration_seconds) * 100)}%` }}
+                                                ></div>
+                                            </div>
+                                            <span className={`tech-text text-xs mt-2 block text-right ${pitchTimeRemaining <= 30 ? 'text-red-500' : 'text-primary'}`}>
+                                                {Math.round((pitchTimeRemaining / activePitch.pitch_duration_seconds) * 100)}% REMAINING
+                                            </span>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="text-center py-4">
+                                        <span className="tech-text text-gray-500 text-sm">NO ACTIVE PITCH</span>
+                                        <p className="text-gray-600 text-xs mt-2">Waiting for cluster admin to start...</p>
                                     </div>
-                                    <div className="text-right">
-                                        <span className="tech-text text-gray-500 text-xs block">TIME_REMAINING</span>
-                                        <span className="tech-text text-primary text-lg">12:45</span>
-                                    </div>
-                                </div>
-                                
-                                {/* Progress Bar */}
-                                <div className="relative">
-                                    <div className="h-2 bg-gray-800">
-                                        <div className="h-full bg-primary" style={{ width: '75%' }}></div>
-                                    </div>
-                                    <span className="tech-text text-primary text-xs mt-2 block text-right">75% COMPLETE</span>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
