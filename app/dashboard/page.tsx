@@ -32,7 +32,37 @@ import {
 import StudentBottomNav from "../components/StudentBottomNav";
 import NotificationCenter from "@/components/NotificationCenter";
 import { useCache } from "@/lib/cache/CacheProvider";
-import type { Notification, ScheduleEvent, Team, Profile } from "@/lib/types/database";
+import { createClient } from "@/lib/supabase/client";
+import type { Team as BaseTeam, Profile } from "@/lib/types/database";
+
+// Extend Team type with code field used in this page
+type Team = BaseTeam & {
+  code?: string;
+};
+
+// Local types for notifications and schedule
+type Notification = {
+  id: string;
+  title: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+  type?: string;
+  description?: string;
+};
+
+type ScheduleEvent = {
+  id: string;
+  title: string;
+  time: string;
+  active?: boolean;
+  description?: string;
+  start_time?: string;
+  end_time?: string;
+  event_date?: string;
+  location?: string;
+  is_active?: boolean;
+};
 
 type Alert = {
   id: string;
@@ -51,12 +81,33 @@ type TaskWithStatus = {
   teamStatus: "pending" | "submitted" | "overdue";
 };
 
+// Active Pitch type for real-time updates
+interface ActivePitch {
+  id: string;
+  team_id: string;
+  pitch_title?: string;
+  actual_start: string;
+  pitch_duration_seconds: number;
+  status: string;
+  team?: {
+    id: string;
+    name: string;
+    domain?: string;
+  };
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const cache = useCache();
+  const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState({ days: 2, hours: 14, minutes: 30, seconds: 45 });
+  
+  // Active pitch state for real-time updates
+  const [activePitch, setActivePitch] = useState<ActivePitch | null>(null);
+  const [pitchTimeRemaining, setPitchTimeRemaining] = useState(0);
+  const [clusterId, setClusterId] = useState<string | null>(null);
 
   // User data
   const [user, setUser] = useState<{ profile: Profile; team: Team | null } | null>(null);
@@ -79,7 +130,7 @@ export default function DashboardPage() {
   const hasTeam = true;
   const unreadAlerts = notifications.filter(n => !n.read).length;
 
-  // Fetch user data
+  // Fetch user data and active pitch
   const fetchData = useCallback(async () => {
     try {
       // Fetch user
@@ -96,7 +147,7 @@ export default function DashboardPage() {
         router.push('/super-admin/dashboard');
         return;
       } else if (role === 'admin') {
-        router.push('/admin/dashboard');
+        router.push('/cluster-admin/dashboard');
         return;
       } else if (role === 'gate_volunteer') {
         router.push('/gate/scanner');
@@ -107,6 +158,19 @@ export default function DashboardPage() {
       }
       
       setUser(userData.user);
+      
+      // Get cluster ID from user's team
+      const userClusterId = userData.user?.team?.cluster_id;
+      if (userClusterId) {
+        setClusterId(userClusterId);
+        
+        // Fetch active pitch for this cluster
+        const pitchRes = await fetch(`/api/cluster-admin/pitch?clusterId=${userClusterId}`);
+        if (pitchRes.ok) {
+          const pitchData = await pitchRes.json();
+          setActivePitch(pitchData.activePitch);
+        }
+      }
 
       // Fetch notifications
       const notifRes = await fetch('/api/notifications');
@@ -138,6 +202,51 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+  
+  // Real-time subscription for pitch updates
+  useEffect(() => {
+    if (!clusterId) return;
+
+    const channel = supabase
+      .channel(`pitch-updates-${clusterId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'pitch_schedule',
+          filter: `cluster_id=eq.${clusterId}`
+        },
+        async () => {
+          // Refetch active pitch
+          const pitchRes = await fetch(`/api/cluster-admin/pitch?clusterId=${clusterId}`);
+          if (pitchRes.ok) {
+            const pitchData = await pitchRes.json();
+            setActivePitch(pitchData.activePitch);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [clusterId, supabase]);
+  
+  // Pitch timer countdown
+  useEffect(() => {
+    if (!activePitch || !activePitch.actual_start) return;
+
+    const interval = setInterval(() => {
+      const startTime = new Date(activePitch.actual_start).getTime();
+      const now = Date.now();
+      const elapsed = Math.floor((now - startTime) / 1000);
+      const remaining = activePitch.pitch_duration_seconds - elapsed;
+      setPitchTimeRemaining(remaining > 0 ? remaining : 0);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [activePitch]);
 
   // Live countdown
   useEffect(() => {
@@ -227,8 +336,8 @@ export default function DashboardPage() {
   const alerts: Alert[] = notifications.map(n => ({
     id: n.id,
     title: n.title,
-    description: n.description || '',
-    type: n.type,
+    description: n.description || n.message || '',
+    type: (n.type as "urgent" | "warning" | "info") || "info",
     time: new Date(n.created_at).toLocaleDateString(),
     read: n.read,
   }));
@@ -238,11 +347,11 @@ export default function DashboardPage() {
     id: s.id,
     title: s.title,
     description: s.description || '',
-    time: `${s.start_time} - ${s.end_time}`,
-    date: new Date(s.event_date).getDate().toString(),
-    month: new Date(s.event_date).toLocaleDateString('en', { month: 'short' }).toUpperCase(),
+    time: s.start_time && s.end_time ? `${s.start_time} - ${s.end_time}` : s.time,
+    date: s.event_date ? new Date(s.event_date).getDate().toString() : '1',
+    month: s.event_date ? new Date(s.event_date).toLocaleDateString('en', { month: 'short' }).toUpperCase() : 'JAN',
     location: s.location || '',
-    active: s.is_active,
+    active: s.is_active ?? s.active ?? false,
   }));
 
   if (loading) {
@@ -475,27 +584,65 @@ export default function DashboardPage() {
               </div>
             </section>
 
-            {/* Live Pitch */}
-            <section className="mt-6 border border-primary rounded-xl p-4 bg-black">
-              <p className="text-[9px] tracking-widest text-gray-500 uppercase text-center">
-                Presenting Now
-              </p>
+            {/* Live Pitch - Real-time updates */}
+            {activePitch ? (
+              <section className={`mt-6 border-2 rounded-xl p-4 bg-black transition-all ${
+                pitchTimeRemaining <= 30 ? 'border-red-500 animate-pulse' : 'border-primary'
+              }`}>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <p className="text-[9px] tracking-widest text-green-500 uppercase">
+                    Live Now
+                  </p>
+                </div>
 
-              <h2 className="mt-2 text-center text-2xl font-bold text-primary">
-                TEAM TITAN
-              </h2>
+                <h2 className="text-center text-2xl font-bold text-primary">
+                  {activePitch.team?.name || 'Unknown Team'}
+                </h2>
 
-              <p className="text-center text-xs text-gray-400">
-                Category: DeFi Protocol
-              </p>
-
-              <div className="mt-4 bg-[#121212] rounded-lg py-3 text-center">
-                <p className="text-2xl font-mono text-white">04:59</p>
-                <p className="text-[9px] tracking-widest text-primary uppercase">
-                  Time to Pitch
+                <p className="text-center text-xs text-gray-400 mt-1">
+                  {activePitch.pitch_title || activePitch.team?.domain || 'Pitching...'}
                 </p>
-              </div>
-            </section>
+
+                <div className={`mt-4 rounded-lg py-4 text-center ${
+                  pitchTimeRemaining <= 30 ? 'bg-red-500/10' : 'bg-[#121212]'
+                }`}>
+                  <p className={`text-4xl font-mono font-bold ${
+                    pitchTimeRemaining <= 30 ? 'text-red-500' : 'text-white'
+                  }`}>
+                    {String(Math.floor(pitchTimeRemaining / 60)).padStart(2, '0')}:
+                    {String(pitchTimeRemaining % 60).padStart(2, '0')}
+                  </p>
+                  <p className={`text-[9px] tracking-widest uppercase mt-1 ${
+                    pitchTimeRemaining <= 30 ? 'text-red-400' : 'text-primary'
+                  }`}>
+                    {pitchTimeRemaining <= 30 ? 'Almost Done!' : 'Time Remaining'}
+                  </p>
+                </div>
+                
+                {/* Own team indicator */}
+                {user?.team?.id === activePitch.team_id && (
+                  <div className="mt-3 text-center">
+                    <span className="text-xs bg-primary/20 text-primary px-3 py-1 rounded-full border border-primary/30">
+                      🎤 Your Team is Pitching!
+                    </span>
+                  </div>
+                )}
+              </section>
+            ) : (
+              <section className="mt-6 border border-[#262626] rounded-xl p-4 bg-[#0A0A0A]">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Clock className="w-4 h-4 text-gray-500" />
+                  <p className="text-[9px] tracking-widest text-gray-500 uppercase">
+                    No Active Pitch
+                  </p>
+                </div>
+
+                <p className="text-center text-sm text-gray-400">
+                  Waiting for next team to present...
+                </p>
+              </section>
+            )}
             {/* Syndicate Valuation */}
             <section className="mt-8 bg-[#121212] border border-[#262626] rounded-xl p-5">
               <p className="text-[9px] tracking-widest text-gray-500 uppercase mb-2">
