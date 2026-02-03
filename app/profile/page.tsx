@@ -120,7 +120,7 @@ export default function ProfilePage() {
             <div className="pl-4">
               <span className="tech-text text-primary text-xs tracking-wider mb-1 block">ACCESS LEVEL</span>
               <div className="mt-2">
-                <span className="border border-primary bg-primary/10 text-primary px-3 py-1.5 text-xs tech-text tracking-wider inline-block">
+                <span className="border border-primary bg-primary/10 text-green px-3 py-1.5 text-xs tech-text tracking-wider inline-block">
                   {profile?.role?.toUpperCase() || 'PARTICIPANT'}
                 </span>
               </div>

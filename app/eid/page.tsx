@@ -46,8 +46,8 @@ export default function EIDPage() {
         width: 256,
         margin: 1,
         color: {
-          dark: '#000000',
-          light: '#FFFFFF',
+          dark: '#EFE12B',
+          light: '#000000',
         },
       });
       setQrDataUrl(url);
@@ -94,7 +94,7 @@ export default function EIDPage() {
                 <img 
                   src={profile.photo_url} 
                   alt={profile.full_name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-sm"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -114,7 +114,7 @@ export default function EIDPage() {
 
           {/* QR Code */}
           <div className="flex justify-center mb-8 px-6">
-            <div className="bg-white p-6 rounded">
+            <div className="bg-white p-3 rounded-sm">
               {qrDataUrl ? (
                 <img src={qrDataUrl} alt="QR Code" className="w-64 h-64" />
               ) : (
