@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, RefreshCw, Loader2 } from 'lucide-react';
 import StudentBottomNav from '../components/StudentBottomNav';
 import QRCode from 'qrcode';
 
@@ -11,6 +11,7 @@ export default function EIDPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -32,6 +33,12 @@ export default function EIDPage() {
 
       const data = await response.json();
       setUser(data.user);
+      
+      // If no photo, redirect to onboarding
+      if (!data.user?.profile?.photo_url) {
+        router.push('/onboarding');
+        return;
+      }
     } catch (error) {
       console.error('Failed to fetch user:', error);
       router.push('/auth/login');
@@ -42,13 +49,15 @@ export default function EIDPage() {
 
   const generateQRCode = async (token: string) => {
     try {
+      // Generate golden QR code on dark background
       const url = await QRCode.toDataURL(token, {
-        width: 256,
-        margin: 1,
+        width: 280,
+        margin: 2,
         color: {
-          dark: '#EFE12B',
-          light: '#000000',
+          dark: '#D4AF37', // More golden color
+          light: '#FFFFFF',
         },
+        errorCorrectionLevel: 'H',
       });
       setQrDataUrl(url);
     } catch (error) {
@@ -56,90 +65,136 @@ export default function EIDPage() {
     }
   };
 
+  const handleRefreshQR = async () => {
+    setRefreshing(true);
+    try {
+      const response = await fetch('/api/eid/qr', { method: 'POST' });
+      if (response.ok) {
+        const data = await response.json();
+        generateQRCode(data.qrToken);
+      }
+    } catch (error) {
+      console.error('QR refresh error:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="text-primary tech-text">LOADING...</div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
 
   const profile = user?.profile;
+  const team = user?.team;
   const currentDate = new Date();
   // Convert to IST (UTC+5:30)
   const istDate = new Date(currentDate.getTime() + (5.5 * 60 * 60 * 1000));
-  const formattedDate = `${istDate.getDate().toString().padStart(2, '0')} ${istDate.toLocaleString('en', { month: 'short' }).toUpperCase()} ${istDate.getFullYear()} // ${istDate.toISOString().split('T')[1].split('.')[0]} IST`;
+  const formattedDate = `${istDate.getDate().toString().padStart(2, '0')} ${istDate.toLocaleString('en', { month: 'short' }).toUpperCase()} ${istDate.getFullYear()} // ${istDate.toISOString().split('T')[1].split('.')[0]} UTC`;
 
   return (
-    <div className="min-h-screen bg-[#3a3a2e] text-white pb-24">
+    <div className="min-h-screen bg-[#0A0A0A] text-white pb-24">
+      {/* Corner Dots */}
+      <div className="fixed top-4 left-4 w-2 h-2 rounded-full bg-primary/50 z-50" />
+      <div className="fixed top-4 right-4 w-2 h-2 rounded-full bg-primary/50 z-50" />
+      
       {/* Header */}
-      <div className="bg-[#2a2a20] border-b border-primary/20 px-4 py-4 sticky top-0 z-40">
+      <div className="bg-[#0A0A0A] border-b border-[#262626] px-4 py-4 sticky top-0 z-40">
         <div className="max-w-lg mx-auto flex items-center justify-between">
-          <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-300">
+          <button onClick={() => router.back()} className="text-gray-400 hover:text-white transition-colors">
             <ChevronLeft size={24} />
           </button>
           <h1 className="tech-text text-white tracking-widest text-sm">ONLYFOUNDERS</h1>
-          <div className="w-6"></div>
+          <button 
+            onClick={handleRefreshQR}
+            disabled={refreshing}
+            className="text-gray-400 hover:text-primary transition-colors disabled:opacity-50"
+          >
+            <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} />
+          </button>
         </div>
       </div>
 
+      {/* Scan Line Animation at Top */}
+      <div className="h-0.5 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+
       {/* E-ID Content */}
       <div className="max-w-lg mx-auto px-6 py-8">
-        {/* Main Card with Golden Border */}
-        <div className="border-4 border-primary p-0 bg-black">
-          {/* Photo Section */}
-          <div className="flex justify-center pt-8 pb-6">
-            <div className="w-44 h-44 bg-gray-700">
-              {profile?.photo_url ? (
-                <img 
-                  src={profile.photo_url} 
-                  alt={profile.full_name}
-                  className="w-full h-full object-cover rounded-sm"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-gray-500 text-4xl">{profile?.full_name?.[0] || '?'}</span>
+        {/* Main Card with Golden Corner Brackets */}
+        <div className="relative bg-[#0A0A0A] p-1">
+          {/* Corner Brackets */}
+          <div className="absolute top-0 left-0 w-6 h-6 border-l-2 border-t-2 border-primary" />
+          <div className="absolute top-0 right-0 w-6 h-6 border-r-2 border-t-2 border-primary" />
+          <div className="absolute bottom-0 left-0 w-6 h-6 border-l-2 border-b-2 border-primary" />
+          <div className="absolute bottom-0 right-0 w-6 h-6 border-r-2 border-b-2 border-primary" />
+
+          <div className="border border-[#262626] bg-black p-6">
+            {/* Photo Section with Status Badge */}
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <div className="w-36 h-36 bg-gray-800 border border-[#262626]">
+                  {profile?.photo_url ? (
+                    <img 
+                      src={profile.photo_url} 
+                      alt={profile.full_name}
+                      className="w-full h-full object-cover grayscale"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-gray-600 text-4xl font-serif">{profile?.full_name?.[0] || '?'}</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Name and Title */}
-          <div className="text-center mb-8 px-6">
-            <h2 className="text-3xl font-serif mb-2 text-white">{profile?.full_name || 'Unknown'}</h2>
-            <p className="text-primary text-sm italic font-serif">
-              Venture Capital / Tier 1
-            </p>
-          </div>
-
-          {/* QR Code */}
-          <div className="flex justify-center mb-8 px-6">
-            <div className="bg-white p-3 rounded-sm">
-              {qrDataUrl ? (
-                <img src={qrDataUrl} alt="QR Code" className="w-64 h-64" />
-              ) : (
-                <div className="w-64 h-64 bg-gray-100 flex items-center justify-center">
-                  <span className="tech-text text-gray-600 text-xs">GENERATING...</span>
+                {/* Active Badge */}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+                  <span className="tech-text text-[10px] bg-black border border-green-500 text-green-500 px-3 py-1 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                    ACTIVE
+                  </span>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Info Section */}
-          <div className="px-6 pb-6">
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <span className="tech-text text-gray-500 text-xs block mb-1">ENTITY_ID</span>
-                <span className="tech-text text-white text-sm">{profile?.entity_id || 'N/A'}</span>
               </div>
-              <div className="text-right">
-                <span className="tech-text text-gray-500 text-xs block mb-1">ACCESS_LEVEL</span>
+            </div>
+
+            {/* Name and Title */}
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-serif mb-2 text-white">{profile?.full_name || 'Unknown'}</h2>
+              <p className="text-primary text-sm italic font-serif">
+                {team?.domain ? `${team.domain.charAt(0).toUpperCase() + team.domain.slice(1)}` : 'Venture Capital'} / Tier 1
+              </p>
+            </div>
+
+            {/* QR Code with Golden Border */}
+            <div className="flex justify-center mb-8">
+              <div className="relative p-1 bg-gradient-to-br from-primary/50 via-primary to-primary/50">
+                <div className="bg-white p-3">
+                  {qrDataUrl ? (
+                    <img src={qrDataUrl} alt="QR Code" className="w-56 h-56" />
+                  ) : (
+                    <div className="w-56 h-56 bg-gray-100 flex items-center justify-center">
+                      <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Info Section */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center border-b border-[#262626] pb-3">
+                <span className="tech-text text-gray-500 text-xs">ENTITY_ID</span>
+                <span className="tech-text text-white text-sm">{profile?.entity_id || 'PENDING'}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-[#262626] pb-3">
+                <span className="tech-text text-gray-500 text-xs">ACCESS_LEVEL</span>
                 <span className="tech-text text-green-500 text-sm">GRANTED</span>
               </div>
-            </div>
-            <div className="border-t border-gray-800 pt-4">
-              <span className="tech-text text-gray-500 text-xs block mb-1">TIMESTAMP</span>
-              <span className="tech-text text-primary text-xs">{formattedDate}</span>
+              <div className="border-b border-dashed border-[#262626] pb-3">
+                <span className="tech-text text-gray-500 text-xs block mb-1">TIMESTAMP</span>
+                <span className="tech-text text-primary text-xs">{formattedDate}</span>
+              </div>
             </div>
           </div>
         </div>

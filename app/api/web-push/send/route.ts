@@ -28,10 +28,12 @@ export async function POST(request: Request) {
         }
 
         // Configure Web Push
+        const vapidPublic = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'placeholder-public-key';
+        const vapidPrivate = process.env.VAPID_PRIVATE_KEY || 'placeholder-private-key';
         webpush.setVapidDetails(
             'mailto:admin@onlyfounders.example.com',
-            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-            process.env.VAPID_PRIVATE_KEY!
+            vapidPublic,
+            vapidPrivate
         );
 
         // Send to all subscriptions for this user
