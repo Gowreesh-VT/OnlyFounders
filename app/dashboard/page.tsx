@@ -56,7 +56,14 @@ export default function DashboardPage() {
   const cache = useCache();
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
-  const [countdown, setCountdown] = useState({ days: 2, hours: 14, minutes: 30, seconds: 45 });
+  const [countdown, setCountdown] = useState({
+  days: 0,
+  hours: 0,
+  minutes: 0,
+  seconds: 0,
+});
+
+  const [homeData, setHomeData] = useState<any>(null);
 
   // User data
   const [user, setUser] = useState<{ profile: Profile; team: Team | null } | null>(null);
@@ -89,7 +96,13 @@ export default function DashboardPage() {
         return;
       }
       const userData = await userRes.json();
-      
+      // Fetch dashboard home data
+      const homeRes = await fetch('/api/dashboard/home');
+      if (homeRes.ok) {
+        const homeJson = await homeRes.json();
+        setHomeData(homeJson);
+      }
+
       // Redirect based on role
       const role = userData.user?.profile?.role;
       if (role === 'super_admin') {
@@ -141,19 +154,31 @@ export default function DashboardPage() {
 
   // Live countdown
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        let { days, hours, minutes, seconds } = prev;
-        seconds--;
-        if (seconds < 0) { seconds = 59; minutes--; }
-        if (minutes < 0) { minutes = 59; hours--; }
-        if (hours < 0) { hours = 23; days--; }
-        if (days < 0) { days = 0; hours = 0; minutes = 0; seconds = 0; }
-        return { days, hours, minutes, seconds };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  if (!homeData?.countdown?.endsAt) return;
+
+  const endTime = new Date(homeData.countdown.endsAt).getTime();
+
+  const timer = setInterval(() => {
+    const now = Date.now();
+    const diff = endTime - now;
+
+    if (diff <= 0) {
+      clearInterval(timer);
+      setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      return;
+    }
+
+    setCountdown({
+      days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((diff / (1000 * 60)) % 60),
+      seconds: Math.floor((diff / 1000) % 60),
+    });
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [homeData?.countdown?.endsAt]);
+
 
   const handleCopyCode = () => {
     if (user?.team?.code) {
@@ -311,6 +336,15 @@ export default function DashboardPage() {
 
   const teamCode = user?.team?.code ? user.team.code.slice(0, 3) + '-' + user.team.code.slice(3) : '';
   const firstName = user?.profile?.full_name?.split(' ')[0] || 'User';
+  const milestoneRemaining =
+  homeData?.milestone?.deadline
+    ? Math.max(
+        0,
+        Math.floor(
+          (new Date(homeData.milestone.deadline).getTime() - Date.now()) / 60000
+        )
+      )
+    : null;
 
   return (
     <main className="min-h-screen bg-[#0A0A0A] px-4 py-6 pb-28 relative overflow-hidden">
@@ -458,20 +492,35 @@ export default function DashboardPage() {
                 <p className="text-[9px] tracking-widest text-gray-500 uppercase">
                   Next Milestone
                 </p>
-                <span className="text-yellow-400 text-xs font-semibold">LIVE</span>
+                <span className="text-yellow-400 text-xs font-semibold">
+                  {homeData?.milestone?.status ?? ""}
+                </span>
+
               </div>
 
               <p className="text-white font-semibold">
-                Code Freeze & Commit
+                {homeData?.milestone?.title ?? "--"}
               </p>
 
               <div className="mt-2 flex justify-between text-xs text-gray-400">
                 <span>Until Deadline</span>
-                <span className="text-yellow-400">-45m</span>
+                <span className="text-yellow-400">
+                  {milestoneRemaining !== null ? `${milestoneRemaining}m` : "--"}
+                </span>
+
               </div>
 
               <div className="mt-2 h-1 bg-gray-700 rounded">
-                <div className="h-1 bg-primary w-[85%] rounded" />
+                <div
+                  className="h-1 bg-primary rounded transition-all"
+                  style={{
+                    width:
+                      milestoneRemaining !== null
+                        ? `${Math.max(5, 100 - milestoneRemaining)}%`
+                        : "0%",
+                  }}
+                />
+
               </div>
             </section>
 
@@ -506,7 +555,8 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-xs text-gray-400">Total Portfolio Value</p>
                   <h2 className="text-3xl font-bold text-primary mt-1">
-                    $4,250,000
+                    ${homeData?.valuation?.total?.toLocaleString() ?? "--"}
+
                   </h2>
                 </div>
 
@@ -562,9 +612,7 @@ export default function DashboardPage() {
                 <p className="text-[9px] tracking-widest uppercase text-gray-500">
                   Commits
                 </p>
-                <h3 className="mt-2 text-2xl font-bold text-white">
-                  1,248
-                </h3>
+                <h3>{homeData?.stats?.commits ?? "--"}</h3>
                 <p className="mt-1 text-xs text-green-400 font-semibold">
                   +24/hr
                 </p>
@@ -575,9 +623,7 @@ export default function DashboardPage() {
                 <p className="text-[9px] tracking-widest uppercase text-gray-500">
                   Teams Active
                 </p>
-                <h3 className="mt-2 text-2xl font-bold text-white">
-                  42
-                </h3>
+                <h3>{homeData?.stats?.teamsActive ?? "--"}</h3>
                 <p className="mt-1 text-xs text-green-400 font-semibold">
                   100% Online
                 </p>
