@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { X, Plus, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { compressImage, validateImageFile } from '@/lib/utils/imageCompression';
 import { createClient } from '@/lib/supabase/client';
 
 interface PhotoUploadModalProps {
@@ -18,7 +17,6 @@ export default function PhotoUploadModal({ isOpen, onClose, userId, userName }: 
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
-    const [compressing, setCompressing] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -36,37 +34,27 @@ export default function PhotoUploadModal({ isOpen, onClose, userId, userName }: 
 
         setError(null);
 
-        // Validate file
-        const validation = validateImageFile(file);
-        if (!validation.valid) {
-            setError(validation.error || 'Invalid file');
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            setError('Please select an image file');
             return;
         }
 
-        try {
-            setCompressing(true);
-            
-            // Compress image
-            const compressedFile = await compressImage(file, {
-                maxSizeMB: 1,
-                maxWidthOrHeight: 800,
-                quality: 0.85,
-            });
-
-            setSelectedFile(compressedFile);
-
-            // Create preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview(reader.result as string);
-            };
-            reader.readAsDataURL(compressedFile);
-        } catch (err) {
-            setError('Failed to process image. Please try again.');
-            console.error('Image compression error:', err);
-        } finally {
-            setCompressing(false);
+        // Validate file size (1.2MB max)
+        const maxSize = 1.2 * 1024 * 1024; // 1.2MB in bytes
+        if (file.size > maxSize) {
+            setError('Image size must be less than 1.2MB');
+            return;
         }
+
+        setSelectedFile(file);
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleUpload = async () => {
@@ -79,12 +67,13 @@ export default function PhotoUploadModal({ isOpen, onClose, userId, userName }: 
             const supabase = createClient();
 
             // Upload to Supabase Storage
-            const fileName = `${userId}/photo.jpg`;
+            const fileExtension = selectedFile.name.split('.').pop() || 'jpg';
+            const fileName = `${userId}/photo.${fileExtension}`;
             const { error: uploadError } = await supabase.storage
                 .from('participant-photos')
                 .upload(fileName, selectedFile, {
                     upsert: true,
-                    contentType: 'image/jpeg',
+                    contentType: selectedFile.type,
                 });
 
             if (uploadError) throw uploadError;
@@ -164,14 +153,14 @@ export default function PhotoUploadModal({ isOpen, onClose, userId, userName }: 
                     ) : (
                         <button
                             onClick={() => fileInputRef.current?.click()}
-                            disabled={compressing || uploading}
+                            disabled={uploading}
                             className="w-full h-64 flex flex-col items-center justify-center gap-4 hover:border-primary-hover transition-colors group cursor-pointer"
                         >
                             <Plus size={48} className="text-primary" strokeWidth={1.5} />
                             <div className="text-center">
                                 <p className="tech-text text-primary mb-2">Upload Photo</p>
                                 <p className="tech-text text-primary">To Initialize</p>
-                                <p className="tech-text text-gray-600 text-xs mt-3">Max Limit: 1 MB</p>
+                                <p className="tech-text text-gray-600 text-xs mt-3">Max Size: 1.2 MB</p>
                             </div>
                         </button>
                     )}
@@ -179,11 +168,6 @@ export default function PhotoUploadModal({ isOpen, onClose, userId, userName }: 
 
                 {/* Status Messages */}
                 <div className="mb-6">
-                    {compressing && (
-                        <p className="tech-text text-gray-500 text-center">
-                            Compressing Image...
-                        </p>
-                    )}
                     {uploading && (
                         <p className="tech-text text-gray-500 text-center">
                             Uploading To Secure Storage...

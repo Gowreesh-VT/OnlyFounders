@@ -24,7 +24,7 @@ export default function LandingPage() {
       </div>
 
       {/* Main Content */}
-      <main className="relative z-20 flex-grow flex flex-col items-center justify-center px-6 py-12 w-full max-w-md mx-auto">
+      <main className="relative z-20 grow flex flex-col items-center justify-center px-6 py-12 w-full max-w-md mx-auto">
         {/* Logo Section */}
         <div className="w-full flex flex-col items-center mb-12 animate-fade-in-up">
           <div className="relative z-10 text-center">
@@ -39,7 +39,7 @@ export default function LandingPage() {
         {/* CTA Section */}
         <div className="w-full space-y-6 flex flex-col items-center">
           <FeedbackLink
-            href="/auth/register"
+            href="/auth/login"
             className="group relative w-full overflow-hidden bg-primary hover:bg-primary-hover text-black font-medium py-4 px-8 text-center transition-all duration-300 transform hover:scale-[1.02] shadow-[0_0_20px_rgba(255,215,0,0.15)] hover:shadow-[0_0_30px_rgba(255,215,0,0.3)] border border-yellow-600/50"
             feedbackType="success"
           >
@@ -73,7 +73,7 @@ export default function LandingPage() {
       </main>
 
       {/* Footer with College Logos */}
-      <footer className="relative z-20 w-full py-8 bg-[#121212] border-t border-[#2A2A2A]">
+      <footer className="relative z-20 w-full py-8 bg-surface-elevated border-t border-[#2A2A2A]">
         <div className="max-w-md mx-auto px-6 overflow-hidden">
           <div className="flex justify-between items-center space-x-6 opacity-80 overflow-x-auto pb-2 scrollbar-hide">
             {colleges.map((college) => (

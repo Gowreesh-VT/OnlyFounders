@@ -16,24 +16,10 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Get user's profile with team info
+        // Get user's profile
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select(`
-                *,
-                team:teams(
-                    *,
-                    cluster:clusters(
-                        id,
-                        name,
-                        pitch_order
-                    ),
-                    college:colleges(
-                        id,
-                        name
-                    )
-                )
-            `)
+            .select('*')
             .eq('id', user.id)
             .single();
 
@@ -45,15 +31,41 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        if (!profile.team) {
+        if (!profile.team_id) {
             return NextResponse.json({ team: null });
+        }
+
+        // Get team info with cluster and college
+        const { data: team, error: teamError } = await supabase
+            .from('teams')
+            .select(`
+                *,
+                cluster:clusters!teams_cluster_id_fkey(
+                    id,
+                    name,
+                    pitch_order
+                ),
+                college:colleges(
+                    id,
+                    name
+                )
+            `)
+            .eq('id', profile.team_id)
+            .single();
+
+        if (teamError) {
+            console.error('Team fetch error:', teamError);
+            return NextResponse.json(
+                { error: 'Failed to fetch team information' },
+                { status: 500 }
+            );
         }
 
         // Get all team members
         const { data: members, error: membersError } = await supabase
             .from('profiles')
-            .select('id, full_name, email, role')
-            .eq('team_id', profile.team.id);
+            .select('id, full_name, email, role, entity_id')
+            .eq('team_id', profile.team_id);
 
         if (membersError) {
             console.error('Members fetch error:', membersError);
@@ -61,7 +73,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({
             team: {
-                ...profile.team,
+                ...team,
                 members: members || []
             },
             isLeader: profile.role === 'team_lead'
