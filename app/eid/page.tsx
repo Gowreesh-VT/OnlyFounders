@@ -43,11 +43,11 @@ export default function EIDPage() {
   const generateQRCode = async (token: string) => {
     try {
       const url = await QRCode.toDataURL(token, {
-        width: 400,
-        margin: 2,
+        width: 256,
+        margin: 1,
         color: {
-          dark: '#000000',
-          light: '#FFFFFF',
+          dark: '#FFD700',
+          light: '#000000',
         },
       });
       setQrDataUrl(url);
@@ -66,7 +66,9 @@ export default function EIDPage() {
 
   const profile = user?.profile;
   const currentDate = new Date();
-  const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.toLocaleString('en', { month: 'short' }).toUpperCase()} ${currentDate.getFullYear()} // ${currentDate.toISOString().split('T')[1].split('.')[0]} UTC`;
+  // Convert to IST (UTC+5:30)
+  const istDate = new Date(currentDate.getTime() + (5.5 * 60 * 60 * 1000));
+  const formattedDate = `${istDate.getDate().toString().padStart(2, '0')} ${istDate.toLocaleString('en', { month: 'short' }).toUpperCase()} ${istDate.getFullYear()} // ${istDate.toISOString().split('T')[1].split('.')[0]} IST`;
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white pb-24">
@@ -119,16 +121,14 @@ export default function EIDPage() {
 
           {/* QR Code */}
           <div className="flex justify-center mb-6">
-            <div className="bg-white p-4 border-8 border-white shadow-lg">
-              <div className="bg-teal-700 p-8">
-                {qrDataUrl ? (
-                  <img src={qrDataUrl} alt="QR Code" className="w-48 h-48" />
-                ) : (
-                  <div className="w-48 h-48 bg-gray-800 flex items-center justify-center">
-                    <span className="tech-text text-gray-600 text-xs">GENERATING...</span>
-                  </div>
-                )}
-              </div>
+            <div className="bg-black p-6">
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt="QR Code" className="w-64 h-64" />
+              ) : (
+                <div className="w-64 h-64 bg-gray-900 flex items-center justify-center">
+                  <span className="tech-text text-gray-600 text-xs">GENERATING...</span>
+                </div>
+              )}
             </div>
           </div>
 

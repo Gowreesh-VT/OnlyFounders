@@ -301,7 +301,7 @@ export default function TeamPage() {
                         <div className="h-4 w-32 mx-auto bg-[#262626] rounded animate-pulse" />
                     </section>
                     {/* Code Card Skeleton */}
-                    <div className="bg-[#121212] border border-[#262626] rounded-xl p-4 mb-6 animate-pulse">
+                    <div className="bg-surface-elevated border border-[#262626] rounded-xl p-4 mb-6 animate-pulse">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-[#262626]" />
@@ -314,7 +314,7 @@ export default function TeamPage() {
                         </div>
                     </div>
                     {/* Stats Skeleton */}
-                    <div className="bg-[#121212] border border-[#262626] rounded-xl p-5 mb-6 animate-pulse">
+                    <div className="bg-surface-elevated border border-[#262626] rounded-xl p-5 mb-6 animate-pulse">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="text-center">
                                 <div className="h-8 w-12 mx-auto bg-[#262626] rounded mb-1" />
@@ -327,7 +327,7 @@ export default function TeamPage() {
                         </div>
                     </div>
                     {/* Members Skeleton */}
-                    <div className="bg-[#121212] border border-[#262626] rounded-xl overflow-hidden mb-6 animate-pulse">
+                    <div className="bg-surface-elevated border border-[#262626] rounded-xl overflow-hidden mb-6 animate-pulse">
                         <div className="px-5 py-3 border-b border-[#262626]">
                             <div className="h-4 w-24 bg-[#262626] rounded" />
                         </div>
@@ -356,8 +356,8 @@ export default function TeamPage() {
                     <div className="absolute top-0 right-0 w-full h-2/3 bg-cover bg-center opacity-10 mix-blend-color-dodge"
                         style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')" }}
                     />
-                    <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent z-10" />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#0A0A0A]/80 via-transparent to-[#0A0A0A] z-10" />
+                    <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to from-[#0A0A0A] via-[#0A0A0A] to-transparent z-10" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to from-[#0A0A0A]/80 via-transparent to-[#0A0A0A] z-10" />
                     <div className="absolute top-1/4 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
                 </div>
 
@@ -386,7 +386,7 @@ export default function TeamPage() {
                     {/* Team Code Card */}
                     <button
                         onClick={handleCopy}
-                        className="w-full bg-[#121212] border border-[#262626] rounded-xl p-4 flex items-center justify-between hover:border-primary/50 transition-all group mb-6"
+                        className="w-full bg-surface-elevated border border-[#262626] rounded-xl p-4 flex items-center justify-between hover:border-primary/50 transition-all group mb-6"
                     >
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -403,7 +403,7 @@ export default function TeamPage() {
                     </button>
 
                     {/* Team Info */}
-                    <div className="bg-[#121212] border border-[#262626] rounded-xl p-5 mb-6">
+                    <div className="bg-surface-elevated border border-[#262626] rounded-xl p-5 mb-6">
                         <div className="grid grid-cols-2 gap-4 text-center">
                             <div>
                                 <p className="text-2xl font-bold text-white">{currentTeam.members?.length || 1}</p>
@@ -423,7 +423,7 @@ export default function TeamPage() {
                     </div>
 
                     {/* Team Members */}
-                    <div className="bg-[#121212] border border-[#262626] rounded-xl overflow-hidden mb-6">
+                    <div className="bg-surface-elevated border border-[#262626] rounded-xl overflow-hidden mb-6">
                         <div className="px-5 py-3 border-b border-[#262626]">
                             <h3 className="text-sm font-semibold text-white">Team Members</h3>
                         </div>
@@ -431,7 +431,7 @@ export default function TeamPage() {
                             {currentTeam.members?.map((member) => (
                                 <div key={member.id} className="px-5 py-4 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/30 flex items-center justify-center text-primary font-serif">
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to from-primary/30 to-primary/10 border border-primary/30 flex items-center justify-center text-primary font-serif">
                                             {member.user?.full_name?.charAt(0) || '?'}
                                         </div>
                                         <div>
@@ -462,7 +462,7 @@ export default function TeamPage() {
                         {isLeader && otherMembers.length > 0 && (
                             <button
                                 onClick={() => setShowTransferModal(true)}
-                                className="w-full bg-[#121212] border border-[#262626] rounded-xl p-4 flex items-center justify-between hover:border-primary/50 transition-all group"
+                                className="w-full bg-surface-elevated border border-[#262626] rounded-xl p-4 flex items-center justify-between hover:border-primary/50 transition-all group"
                             >
                                 <div className="flex items-center gap-3">
                                     <Shield className="w-5 h-5 text-primary" />
@@ -474,7 +474,7 @@ export default function TeamPage() {
 
                         <button
                             onClick={() => setShowLeaveModal(true)}
-                            className="w-full bg-[#121212] border border-red-500/30 rounded-xl p-4 flex items-center justify-between hover:border-red-500/50 transition-all group"
+                            className="w-full bg-surface-elevated border border-red-500/30 rounded-xl p-4 flex items-center justify-between hover:border-red-500/50 transition-all group"
                         >
                             <div className="flex items-center gap-3">
                                 <LogOut className="w-5 h-5 text-red-500" />
@@ -490,7 +490,7 @@ export default function TeamPage() {
                 {/* Transfer Leadership Modal */}
                 {showTransferModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
-                        <div className="bg-[#121212] border border-[#262626] rounded-2xl w-full max-w-md overflow-hidden">
+                        <div className="bg-surface-elevated border border-[#262626] rounded-2xl w-full max-w-md overflow-hidden">
                             <div className="flex items-center justify-between p-4 border-b border-[#262626]">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
@@ -515,7 +515,7 @@ export default function TeamPage() {
                                                 : "border-[#262626] hover:border-primary/50"
                                                 }`}
                                         >
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center text-primary font-serif">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to from-primary/30 to-primary/10 flex items-center justify-center text-primary font-serif">
                                                 {member.user?.full_name?.charAt(0) || '?'}
                                             </div>
                                             <div className="text-left">
@@ -544,7 +544,7 @@ export default function TeamPage() {
                 {/* Leave Team Modal */}
                 {showLeaveModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
-                        <div className="bg-[#121212] border border-[#262626] rounded-2xl w-full max-w-md overflow-hidden">
+                        <div className="bg-surface-elevated border border-[#262626] rounded-2xl w-full max-w-md overflow-hidden">
                             <div className="flex items-center justify-between p-4 border-b border-[#262626]">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center">
@@ -603,8 +603,8 @@ export default function TeamPage() {
                     className="absolute top-0 right-0 w-full h-2/3 bg-cover bg-center opacity-10 mix-blend-color-dodge"
                     style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')" }}
                 />
-                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent z-10" />
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#0A0A0A]/80 via-transparent to-[#0A0A0A] z-10" />
+                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to from-[#0A0A0A] via-[#0A0A0A] to-transparent z-10" />
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to from-[#0A0A0A]/80 via-transparent to-[#0A0A0A] z-10" />
                 <div className="absolute top-1/4 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
             </div>
 
@@ -635,7 +635,7 @@ export default function TeamPage() {
 
             {/* Tabs */}
             <div className="w-full max-w-md relative z-20 mt-8">
-                <div className="flex bg-[#121212] border border-[#262626] rounded-xl p-1 mb-6">
+                <div className="flex bg-surface-elevated border border-[#262626] rounded-xl p-1 mb-6">
                     <button
                         onClick={() => { setActiveTab("create"); setIsCreated(false); setError(""); }}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === "create"
@@ -661,7 +661,7 @@ export default function TeamPage() {
                 {/* Create Team Tab */}
                 {activeTab === "create" && !isCreated && (
                     <section className="glass-panel border border-[#2A2A2A] rounded-xl animate-fade-in-up">
-                        <div className="h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent" />
+                        <div className="h-0.5 bg-gradient-to from-transparent via-primary to-transparent" />
                         <div className="p-6">
                             {/* Team Name */}
                             <div className="mb-5">
@@ -693,7 +693,7 @@ export default function TeamPage() {
                                     <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showInstitutions ? "rotate-180" : ""}`} />
                                 </button>
                                 {showInstitutions && (
-                                    <div className="absolute top-full left-0 right-0 mt-1 bg-[#1A1A1A] border border-[#262626] rounded-lg shadow-xl max-h-48 overflow-y-auto z-[60]">
+                                    <div className="absolute top-full left-0 right-0 mt-1 bg-[#1A1A1A] border border-[#262626] rounded-lg shadow-xl max-h-48 overflow-y-auto z-60">
                                         {colleges.map((college) => (
                                             <button key={college.id} type="button" onClick={() => { handleCreateChange("collegeId", college.id); setShowInstitutions(false); }}
                                                 className="w-full text-left px-4 py-3 text-sm text-gray-300 hover:bg-[#262626] hover:text-primary transition-colors">
@@ -714,7 +714,7 @@ export default function TeamPage() {
                                         <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showSize ? "rotate-180" : ""}`} />
                                     </button>
                                     {showSize && (
-                                        <div className="absolute bottom-full mb-1 left-0 right-0 bg-[#1A1A1A] border border-[#262626] rounded-lg shadow-xl z-[60] max-h-60 overflow-y-auto">
+                                        <div className="absolute bottom-full mb-1 left-0 right-0 bg-[#1A1A1A] border border-[#262626] rounded-lg shadow-xl z-60 max-h-60 overflow-y-auto">
                                             {sizes.map((size) => (
                                                 <button key={size} type="button" onClick={() => { handleCreateChange("size", size); setShowSize(false); }}
                                                     className="w-full text-left px-4 py-3 text-sm text-gray-300 hover:bg-[#262626] hover:text-primary transition-colors">
@@ -732,7 +732,7 @@ export default function TeamPage() {
                                         <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showTrack ? "rotate-180" : ""}`} />
                                     </button>
                                     {showTrack && (
-                                        <div className="absolute bottom-full mb-1 left-0 right-0 bg-[#1A1A1A] border border-[#262626] rounded-lg shadow-xl z-[60] max-h-60 overflow-y-auto">
+                                        <div className="absolute bottom-full mb-1 left-0 right-0 bg-[#1A1A1A] border border-[#262626] rounded-lg shadow-xl z-60 max-h-60 overflow-y-auto">
                                             {tracks.map((track) => (
                                                 <button key={track} type="button" onClick={() => { handleCreateChange("track", track); setShowTrack(false); }}
                                                     className="w-full text-left px-4 py-3 text-sm text-gray-300 hover:bg-[#262626] hover:text-primary transition-colors">
@@ -766,7 +766,7 @@ export default function TeamPage() {
                 {/* Create Success */}
                 {activeTab === "create" && isCreated && (
                     <section className="glass-panel border border-[#2A2A2A] rounded-xl overflow-hidden animate-fade-in-up">
-                        <div className="h-[2px] bg-gradient-to-r from-transparent via-green-500 to-transparent" />
+                        <div className="h-0.5 bg-gradient-to from-transparent via-green-500 to-transparent" />
                         <div className="p-8 text-center">
                             <div className="mx-auto w-16 h-16 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
                                 <Check className="w-8 h-8 text-green-500" />
@@ -785,12 +785,12 @@ export default function TeamPage() {
                             </button>
                         </div>
                     </section>
-                )}
+                )}  
 
                 {/* Join Team Tab */}
                 {activeTab === "join" && (
                     <section className="glass-panel border border-[#2A2A2A] rounded-xl overflow-hidden animate-fade-in-up">
-                        <div className="h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent" />
+                        <div className="h-0.5 bg-gradient-to from-transparent via-primary to-transparent" />
                         <div className="px-6 py-8">
                             <p className="text-center text-gray-400 text-sm mb-6">
                                 Enter the 6-character access code from your squad leader.

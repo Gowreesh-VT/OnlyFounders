@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Fingerprint, Zap, Check, X, Keyboard } from 'lucide-react';
+import { Fingerprint, Zap, Check, X, Keyboard, LogOut } from 'lucide-react';
 
 interface ScanRecord {
   id: string;
@@ -75,7 +75,10 @@ export default function GateScannerPage() {
       const response = await fetch('/api/gate/verify-qr', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qrData: qrData.trim() }),
+        body: JSON.stringify({ 
+          qrData: qrData.trim(),
+          gateLocation: 'GATE1'
+        }),
       });
 
       const data = await response.json();
@@ -132,6 +135,15 @@ export default function GateScannerPage() {
     setShowManualEntry(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -141,33 +153,41 @@ export default function GateScannerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white pb-safe">
       {/* Header */}
-      <div className="border-b border-gray-900 px-6 py-4">
+      <div className="border-b border-gray-900 px-4 sm:px-6 py-3 sm:py-4 sticky top-0 bg-black z-50">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-primary flex items-center justify-center">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary flex items-center justify-center shrink-0">
               <div className="text-black text-xs font-bold">OF</div>
             </div>
-            <div>
-              <h1 className="text-white text-xl font-bold">ONLYFOUNDERS</h1>
-              <p className="tech-text text-gray-500 text-sm">GATE ACCESS CONTROL</p>
+            <div className="min-w-0">
+              <h1 className="text-white text-sm sm:text-xl font-bold truncate">ONLYFOUNDERS</h1>
+              <p className="tech-text text-gray-500 text-xs sm:text-sm hidden sm:block">GATE ACCESS CONTROL</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="tech-text text-white text-lg">| GATE1</span>
-            <Zap className="text-primary" size={24} />
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="tech-text text-white text-xs sm:text-lg hidden sm:inline">| GATE1</span>
+            <Zap className="text-primary" size={20} />
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded transition-colors"
+              title="Logout"
+            >
+              <LogOut size={16} className="text-gray-400" />
+              <span className="text-gray-400 text-xs sm:text-sm hidden sm:inline">Logout</span>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="px-6 py-8">
+      <div className="px-4 sm:px-6 py-4 sm:py-8 max-w-2xl mx-auto">
         {/* Scanning State */}
         {scanning && !verified && !error && (
-          <div className="max-w-2xl mx-auto">
+          <div>
             {/* Scanner Frame */}
-            <div className="relative aspect-4/3 mb-6">
+            <div className="relative w-full aspect-square sm:aspect-4/3 mb-4 sm:mb-6">
               {/* Corner Brackets */}
               <div className="absolute top-0 left-0 w-32 h-32 border-t-4 border-l-4 border-primary"></div>
               <div className="absolute top-0 right-0 w-32 h-32 border-t-4 border-r-4 border-primary"></div>
@@ -194,20 +214,20 @@ export default function GateScannerPage() {
             {/* Manual Entry Button */}
             <button
               onClick={() => setShowManualEntry(!showManualEntry)}
-              className="w-full bg-gray-800/50 hover:bg-gray-700/50 text-white py-4 rounded-lg flex items-center justify-center gap-2 mb-6 transition-colors"
+              className="w-full bg-gray-800/50 hover:bg-gray-700/50 active:bg-gray-600/50 text-white py-3 sm:py-4 rounded-lg flex items-center justify-center gap-2 mb-4 sm:mb-6 transition-colors text-sm sm:text-base"
             >
-              <Keyboard size={20} />
+              <Keyboard size={18} className="sm:w-5 sm:h-5" />
               <span>Enter Code Manually</span>
             </button>
 
             {/* Manual Input Modal */}
             {showManualEntry && (
-              <div className="bg-[#1A1A1A] border border-gray-800 p-6 mb-6">
+              <div className="bg-[#1A1A1A] border border-gray-800 p-4 sm:p-6 mb-4 sm:mb-6 rounded-lg">
                 <p className="tech-text text-gray-500 text-xs mb-3">MANUAL QR CODE ENTRY</p>
                 <input
                   type="text"
                   placeholder="Paste or type QR token here..."
-                  className="w-full bg-black border border-gray-700 text-white p-4 tech-text text-sm focus:outline-none focus:border-primary"
+                  className="w-full bg-black border border-gray-700 text-white p-3 sm:p-4 tech-text text-sm focus:outline-none focus:border-primary rounded"
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -222,19 +242,19 @@ export default function GateScannerPage() {
 
             {/* Recent Scans */}
             {recentScans.length > 0 && (
-              <div className="border-t border-gray-800 pt-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="border-t border-gray-800 pt-4 sm:pt-6 mt-4 sm:mt-0">
+                <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <h3 className="text-white text-lg font-semibold">Recent Scans</h3>
+                  <h3 className="text-white text-base sm:text-lg font-semibold">Recent Scans</h3>
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {recentScans.map((scan) => (
                     <div
                       key={scan.id}
-                      className={`flex items-center gap-4 p-4 rounded-lg ${
+                      className={`flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg ${
                         scan.success ? 'bg-green-500/5 border border-green-500/20' : 'bg-red-500/5 border border-red-500/20'
                       }`}
                     >
@@ -244,29 +264,29 @@ export default function GateScannerPage() {
                           <img
                             src={scan.participant.photo_url}
                             alt={scan.participant.full_name}
-                            className="w-12 h-12 rounded-lg object-cover"
+                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover"
                           />
                         ) : (
-                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${
                             scan.success ? 'bg-gray-700' : 'bg-red-900/30'
                           }`}>
                             {scan.success ? (
-                              <span className="text-xl text-gray-400">
+                              <span className="text-lg sm:text-xl text-gray-400">
                                 {scan.participant?.full_name?.[0]?.toUpperCase() || '?'}
                               </span>
                             ) : (
-                              <X className="text-red-500" size={24} />
+                              <X className="text-red-500" size={20} />
                             )}
                           </div>
                         )}
                         {/* Success/Error Badge */}
-                        <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center ${
+                        <div className={`absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center ${
                           scan.success ? 'bg-green-500' : 'bg-red-500'
                         }`}>
                           {scan.success ? (
-                            <Check className="text-black" size={12} />
+                            <Check className="text-black" size={10} />
                           ) : (
-                            <X className="text-white" size={12} />
+                            <X className="text-white" size={10} />
                           )}
                         </div>
                       </div>
@@ -275,24 +295,24 @@ export default function GateScannerPage() {
                       <div className="flex-1 min-w-0">
                         {scan.success ? (
                           <>
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-semibold text-white">{scan.participant.full_name}</p>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 mb-1">
+                              <p className="font-semibold text-white text-sm sm:text-base truncate">{scan.participant.full_name}</p>
                               <span className="tech-text text-primary text-xs">ACCESS GRANTED</span>
                             </div>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-xs sm:text-sm text-gray-400 truncate">
                               {scan.participant.role || 'Participant'} • {scan.participant.cluster ? `Tier ${scan.participant.cluster_tier}` : 'No Tier'}
                             </p>
                           </>
                         ) : (
                           <>
-                            <p className="font-semibold text-white">Unknown Ticket</p>
-                            <p className="text-sm text-red-400">{scan.error}</p>
+                            <p className="font-semibold text-white text-sm sm:text-base">Unknown Ticket</p>
+                            <p className="text-xs sm:text-sm text-red-400 truncate">{scan.error}</p>
                           </>
                         )}
                       </div>
 
                       {/* Timestamp */}
-                      <div className="text-gray-500 text-sm">
+                      <div className="text-gray-500 text-xs sm:text-sm shrink-0 hidden sm:block">
                         {scan.timestamp}
                       </div>
                     </div>
@@ -305,14 +325,14 @@ export default function GateScannerPage() {
 
         {/* Verified State */}
         {verified && participant && (
-          <div className="max-w-2xl mx-auto">
+          <div>
             {/* Verified Header */}
-            <div className="mb-8">
-              <div className="flex items-end justify-between mb-4">
-                <h2 className="text-7xl font-bold italic text-primary">VERIFIED</h2>
-                <div className="text-right">
+            <div className="mb-4 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 sm:gap-0 mb-3 sm:mb-4">
+                <h2 className="text-4xl sm:text-7xl font-bold italic text-primary">VERIFIED</h2>
+                <div className="text-left sm:text-right">
                   <p className="tech-text text-gray-500 text-xs mb-1">TIMESTAMP</p>
-                  <p className="tech-text text-white text-sm">{currentTime}</p>
+                  <p className="tech-text text-white text-xs sm:text-sm">{currentTime}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -326,19 +346,19 @@ export default function GateScannerPage() {
             </div>
 
             {/* Participant Info */}
-            <div className="bg-[#0A0A0A] border border-gray-900 p-8 mb-6">
-              <div className="flex gap-6 mb-8">
+            <div className="bg-[#0A0A0A] border border-gray-900 p-4 sm:p-8 mb-4 sm:mb-6 rounded-lg">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
                 {/* Photo */}
-                <div className="shrink-0">
+                <div className="shrink-0 mx-auto sm:mx-0">
                   {participant.photo_url ? (
                     <img
                       src={participant.photo_url}
                       alt={participant.full_name}
-                      className="w-40 h-40 object-cover border-2 border-gray-700"
+                      className="w-32 h-32 sm:w-40 sm:h-40 object-cover border-2 border-gray-700 rounded"
                     />
                   ) : (
-                    <div className="w-40 h-40 bg-gray-800 border-2 border-gray-700 flex items-center justify-center">
-                      <span className="text-5xl text-gray-600">
+                    <div className="w-32 h-32 sm:w-40 sm:h-40 bg-gray-800 border-2 border-gray-700 rounded flex items-center justify-center">
+                      <span className="text-4xl sm:text-5xl text-gray-600">
                         {participant.full_name?.[0]?.toUpperCase() || '?'}
                       </span>
                     </div>
@@ -346,26 +366,26 @@ export default function GateScannerPage() {
                 </div>
 
                 {/* Name */}
-                <div className="flex-1">
+                <div className="flex-1 text-center sm:text-left">
                   <p className="tech-text text-gray-500 text-xs mb-2">FULL LEGAL NAME</p>
-                  <h3 className="text-4xl font-bold text-white mb-2">
+                  <h3 className="text-2xl sm:text-4xl font-bold text-white mb-2 wrap-break-word">
                     {participant.full_name?.toUpperCase() || 'UNKNOWN'}
                   </h3>
                 </div>
               </div>
 
               {/* Team and Cluster */}
-              <div className="grid grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
                 <div>
                   <p className="tech-text text-gray-500 text-xs mb-2">TEAM NAME</p>
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-6 bg-primary"></div>
-                    <p className="text-white text-lg">{participant.team || 'No Team'}</p>
+                    <p className="text-white text-base sm:text-lg truncate">{participant.team || 'No Team'}</p>
                   </div>
                 </div>
                 <div>
                   <p className="tech-text text-gray-500 text-xs mb-2">CLUSTER</p>
-                  <p className="text-gray-400 text-lg">
+                  <p className="text-gray-400 text-base sm:text-lg truncate">
                     {participant.cluster_tier && participant.cluster 
                       ? `Tier ${participant.cluster_tier} • ${participant.cluster}`
                       : 'Not Assigned'}
@@ -373,14 +393,54 @@ export default function GateScannerPage() {
                 </div>
               </div>
 
+              {/* College and Contact */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                <div>
+                  <p className="tech-text text-gray-500 text-xs mb-2">COLLEGE</p>
+                  <p className="text-white text-base sm:text-lg truncate">{participant.college || 'Not Specified'}</p>
+                </div>
+                <div>
+                  <p className="tech-text text-gray-500 text-xs mb-2">PHONE</p>
+                  <p className="text-white text-base sm:text-lg">{participant.phone_number || 'N/A'}</p>
+                </div>
+              </div>
+
+              {/* Scan History */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                <div>
+                  <p className="tech-text text-gray-500 text-xs mb-2">LAST SCANNED</p>
+                  <p className="text-white text-base sm:text-lg">
+                    {participant.last_scanned 
+                      ? new Date(participant.last_scanned).toLocaleString('en-IN', {
+                          timeZone: 'Asia/Kolkata',
+                          day: '2-digit',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : 'First Entry'}
+                  </p>
+                  {participant.last_scanned_by && (
+                    <p className="text-gray-500 text-xs sm:text-sm mt-1">By: {participant.last_scanned_by}</p>
+                  )}
+                </div>
+                <div>
+                  <p className="tech-text text-gray-500 text-xs mb-2">TOTAL SCANS</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-primary text-xl sm:text-2xl font-bold">{participant.total_scans || 1}</p>
+                    <span className="text-gray-500 text-xs sm:text-sm">entries</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Entity ID */}
-              <div className="border-t border-gray-800 pt-6">
+              <div className="border-t border-gray-800 pt-4 sm:pt-6">
                 <p className="tech-text text-gray-500 text-xs mb-2">ENTITY ID</p>
-                <div className="flex items-center justify-between">
-                  <p className="tech-text text-white text-2xl tracking-wider">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="tech-text text-white text-lg sm:text-2xl tracking-wider truncate">
                     {participant.entity_id || 'N/A'}
                   </p>
-                  <Fingerprint className="text-gray-600" size={32} />
+                  <Fingerprint className="text-gray-600 shrink-0" size={24} />
                 </div>
               </div>
             </div>
@@ -388,7 +448,7 @@ export default function GateScannerPage() {
             {/* Scan Next Button */}
             <button
               onClick={resetScanner}
-              className="w-full bg-black border-2 border-primary text-primary py-4 tech-text text-sm hover:bg-primary hover:text-black transition-colors"
+              className="w-full bg-black border-2 border-primary text-primary py-3 sm:py-4 tech-text text-sm active:bg-primary active:text-black hover:bg-primary hover:text-black transition-colors touch-manipulation"
             >
               [ SCAN NEXT ]
             </button>

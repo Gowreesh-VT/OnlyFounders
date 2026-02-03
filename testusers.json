@@ -2,6 +2,7 @@
     "participants" : 
     [
         {
+
         "fullName": "Rahul",
         "email": "finflow.lead@test.com",
         "collegeName": "MIT Manipal",
@@ -11,8 +12,9 @@
         "domain": "fintech"
         },
         {
-        "fullName": "Priya Patel",
-        "email": "finflow.member1@test.com",
+        "fullName": "Gouse Moideen",
+        "email": "gousemoideen2@gmail.com",
+
         "collegeName": "MIT Manipal",
         "teamName": "FinFlow",
         "role": "participant",
