@@ -1,4 +1,4 @@
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient, createAnonClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { generateSecurePassword, sendBulkCredentials } from '@/lib/email/sender';
 import crypto from 'crypto';
@@ -11,7 +11,10 @@ function generateEntityId(): string {
 
 function generateQRToken(entityId: string): string {
     const timestamp = Date.now();
-    const secret = process.env.QR_SECRET || 'onlyfounders-qr-secret-key-2026';
+    const secret = process.env.QR_SECRET;
+    if (!secret) {
+        throw new Error('QR_SECRET environment variable is not configured');
+    }
     const data = `${entityId}:${timestamp}`;
     const signature = crypto.createHmac('sha256', secret).update(data).digest('hex');
     return `${data}:${signature}`;
@@ -24,11 +27,38 @@ interface CSVParticipant {
     teamName: string;
     role: 'participant' | 'team_lead' | 'admin' | 'super_admin' | 'gate_volunteer' | 'event_coordinator';
     phoneNumber?: string;
-    domain?: string; // Team domain
+    domain?: string;
 }
 
 export async function POST(request: NextRequest) {
     try {
+        // SECURITY: Verify user is authenticated and authorized
+        const supabase = await createAnonClient();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+        if (userError || !user) {
+            return NextResponse.json(
+                { error: 'Not authenticated' },
+                { status: 401 }
+            );
+        }
+
+        const supabaseAdmin = createAdminClient();
+
+        // Verify user is admin or super_admin
+        const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
+            return NextResponse.json(
+                { error: 'Unauthorized - Admin access required' },
+                { status: 403 }
+            );
+        }
+
         const { participants } = await request.json() as { participants: CSVParticipant[] };
 
         if (!participants || !Array.isArray(participants)) {
@@ -37,8 +67,6 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-
-        const supabaseAdmin = createAdminClient();
 
         const results = {
             success: [] as any[],
@@ -61,11 +89,11 @@ export async function POST(request: NextRequest) {
                         .select('id')
                         .ilike('name', participant.collegeName)
                         .maybeSingle();
-                    
+
                     collegeId = college?.id || null;
                 }
 
-                
+
                 let teamId = null;
                 if (participant.teamName) {
                     // A. Try to find existing team
@@ -78,22 +106,22 @@ export async function POST(request: NextRequest) {
                     if (existingTeam) {
                         teamId = existingTeam.id;
                     } else {
-                        
+
                         console.log(`Team '${participant.teamName}' not found. Creating new team...`);
-                        
+
                         const { data: newTeam, error: createTeamError } = await supabaseAdmin
                             .from('teams')
                             .insert({
                                 name: participant.teamName,
-                                college_id: collegeId, 
+                                college_id: collegeId,
                                 domain: participant.domain || 'general'
                             })
                             .select('id')
                             .single();
-                        
+
                         if (createTeamError) {
                             console.error(`Failed to create team ${participant.teamName}:`, createTeamError);
-                            
+
                         } else {
                             teamId = newTeam.id;
                         }
@@ -127,7 +155,7 @@ export async function POST(request: NextRequest) {
                         entity_id: entityId,
                         qr_token: qrToken,
                         college_id: collegeId,
-                        team_id: teamId, 
+                        team_id: teamId,
                     });
 
                 if (profileError) throw profileError;
@@ -154,14 +182,14 @@ export async function POST(request: NextRequest) {
         }
 
         // Step 6: Send emails in bulk
-let emailResults: { success: string[]; failed: { email: string; error: string }[] } = { 
-    success: [], 
-    failed: [] 
-};
+        let emailResults: { success: string[]; failed: { email: string; error: string }[] } = {
+            success: [],
+            failed: []
+        };
 
-if (emailList.length > 0) {
-     emailResults = await sendBulkCredentials(emailList);
-}
+        if (emailList.length > 0) {
+            emailResults = await sendBulkCredentials(emailList);
+        }
 
         return NextResponse.json({
             message: 'Bulk import completed',

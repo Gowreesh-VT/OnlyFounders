@@ -1,8 +1,20 @@
 import { createAnonClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit, getClientIP, rateLimitResponse } from '@/lib/security/rate-limit';
 
 export async function POST(request: NextRequest) {
     try {
+        // SECURITY: Rate limit login attempts (5 per minute per IP)
+        const clientIP = getClientIP(request);
+        const rateLimit = checkRateLimit(`login:${clientIP}`, {
+            windowMs: 60000,
+            maxAttempts: 5
+        });
+
+        if (!rateLimit.success) {
+            return rateLimitResponse(rateLimit.resetIn);
+        }
+
         const { email, password } = await request.json();
 
         if (!email || !password) {
@@ -55,7 +67,7 @@ export async function POST(request: NextRequest) {
                 profile,
                 team: teamMember?.team || null,
             },
-            session: data.session,
+            // SECURITY: Session is set via cookies, not exposed in response
         });
     } catch (error) {
         console.error('Login error:', error);
