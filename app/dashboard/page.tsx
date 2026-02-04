@@ -103,7 +103,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState({ days: 2, hours: 14, minutes: 30, seconds: 45 });
-  
+
   // Active pitch state for real-time updates
   const [activePitch, setActivePitch] = useState<ActivePitch | null>(null);
   const [pitchTimeRemaining, setPitchTimeRemaining] = useState(0);
@@ -114,6 +114,7 @@ export default function DashboardPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
   const [tasks, setTasks] = useState<TaskWithStatus[]>([]);
+  const [homeData, setHomeData] = useState<any>(null);
 
   // Expanded states
   const [showAlerts, setShowAlerts] = useState(false);
@@ -162,14 +163,14 @@ export default function DashboardPage() {
         router.push('/coordinator/dashboard');
         return;
       }
-      
+
       setUser(userData.user);
-      
+
       // Get cluster ID from user's team
       const userClusterId = userData.user?.team?.cluster_id;
       if (userClusterId) {
         setClusterId(userClusterId);
-        
+
         // Fetch active pitch for this cluster
         const pitchRes = await fetch(`/api/cluster-admin/pitch?clusterId=${userClusterId}`);
         if (pitchRes.ok) {
@@ -208,7 +209,7 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-  
+
   // Real-time subscription for pitch updates
   useEffect(() => {
     if (!clusterId) return;
@@ -238,7 +239,7 @@ export default function DashboardPage() {
       supabase.removeChannel(channel);
     };
   }, [clusterId, supabase]);
-  
+
   // Pitch timer countdown
   useEffect(() => {
     if (!activePitch || !activePitch.actual_start) return;
@@ -256,30 +257,30 @@ export default function DashboardPage() {
 
   // Live countdown
   useEffect(() => {
-  if (!homeData?.countdown?.endsAt) return;
+    if (!homeData?.countdown?.endsAt) return;
 
-  const endTime = new Date(homeData.countdown.endsAt).getTime();
+    const endTime = new Date(homeData.countdown.endsAt).getTime();
 
-  const timer = setInterval(() => {
-    const now = Date.now();
-    const diff = endTime - now;
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const diff = endTime - now;
 
-    if (diff <= 0) {
-      clearInterval(timer);
-      setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      return;
-    }
+      if (diff <= 0) {
+        clearInterval(timer);
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
 
-    setCountdown({
-      days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-      hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-      minutes: Math.floor((diff / (1000 * 60)) % 60),
-      seconds: Math.floor((diff / 1000) % 60),
-    });
-  }, 1000);
+      setCountdown({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      });
+    }, 1000);
 
-  return () => clearInterval(timer);
-}, [homeData?.countdown?.endsAt]);
+    return () => clearInterval(timer);
+  }, [homeData?.countdown?.endsAt]);
 
 
   const handleCopyCode = () => {
@@ -439,14 +440,14 @@ export default function DashboardPage() {
   const teamCode = user?.team?.code ? user.team.code.slice(0, 3) + '-' + user.team.code.slice(3) : '';
   const firstName = user?.profile?.full_name?.split(' ')[0] || 'User';
   const milestoneRemaining =
-  homeData?.milestone?.deadline
-    ? Math.max(
+    homeData?.milestone?.deadline
+      ? Math.max(
         0,
         Math.floor(
           (new Date(homeData.milestone.deadline).getTime() - Date.now()) / 60000
         )
       )
-    : null;
+      : null;
 
   return (
     <main className="min-h-screen bg-[#0A0A0A] px-4 py-6 pb-28 relative overflow-hidden">
@@ -554,24 +555,24 @@ export default function DashboardPage() {
         {/* Has Team State */}
         {hasTeam && (
           <>
-              {/* Team Code */}
-              <button
-                onClick={handleCopyCode}
-                className="w-full mt-4 bg-[#121212] border border-[#262626] rounded-xl p-4 flex items-center justify-between hover:border-primary/50 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[9px] text-gray-500 uppercase tracking-widest">Team Code</p>
-                    <p className="font-mono text-lg text-white tracking-widest">{teamCode}</p>
-                  </div>
+            {/* Team Code */}
+            <button
+              onClick={handleCopyCode}
+              className="w-full mt-4 bg-[#121212] border border-[#262626] rounded-xl p-4 flex items-center justify-between hover:border-primary/50 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-primary" />
                 </div>
-                <div className={`p-2 rounded-lg transition-all ${copied ? "bg-green-500/20" : "bg-[#0A0A0A]"}`}>
-                  {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />}
+                <div className="text-left">
+                  <p className="text-[9px] text-gray-500 uppercase tracking-widest">Team Code</p>
+                  <p className="font-mono text-lg text-white tracking-widest">{teamCode}</p>
                 </div>
-              </button>
+              </div>
+              <div className={`p-2 rounded-lg transition-all ${copied ? "bg-green-500/20" : "bg-[#0A0A0A]"}`}>
+                {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />}
+              </div>
+            </button>
 
             {/* Main Countdown */}
             <section className="mt-6 text-center">
@@ -628,9 +629,8 @@ export default function DashboardPage() {
 
             {/* Live Pitch - Real-time updates */}
             {activePitch ? (
-              <section className={`mt-6 border-2 rounded-xl p-4 bg-black transition-all ${
-                pitchTimeRemaining <= 30 ? 'border-red-500 animate-pulse' : 'border-primary'
-              }`}>
+              <section className={`mt-6 border-2 rounded-xl p-4 bg-black transition-all ${pitchTimeRemaining <= 30 ? 'border-red-500 animate-pulse' : 'border-primary'
+                }`}>
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <p className="text-[9px] tracking-widest text-green-500 uppercase">
@@ -646,22 +646,19 @@ export default function DashboardPage() {
                   {activePitch.pitch_title || activePitch.team?.domain || 'Pitching...'}
                 </p>
 
-                <div className={`mt-4 rounded-lg py-4 text-center ${
-                  pitchTimeRemaining <= 30 ? 'bg-red-500/10' : 'bg-[#121212]'
-                }`}>
-                  <p className={`text-4xl font-mono font-bold ${
-                    pitchTimeRemaining <= 30 ? 'text-red-500' : 'text-white'
+                <div className={`mt-4 rounded-lg py-4 text-center ${pitchTimeRemaining <= 30 ? 'bg-red-500/10' : 'bg-[#121212]'
                   }`}>
+                  <p className={`text-4xl font-mono font-bold ${pitchTimeRemaining <= 30 ? 'text-red-500' : 'text-white'
+                    }`}>
                     {String(Math.floor(pitchTimeRemaining / 60)).padStart(2, '0')}:
                     {String(pitchTimeRemaining % 60).padStart(2, '0')}
                   </p>
-                  <p className={`text-[9px] tracking-widest uppercase mt-1 ${
-                    pitchTimeRemaining <= 30 ? 'text-red-400' : 'text-primary'
-                  }`}>
+                  <p className={`text-[9px] tracking-widest uppercase mt-1 ${pitchTimeRemaining <= 30 ? 'text-red-400' : 'text-primary'
+                    }`}>
                     {pitchTimeRemaining <= 30 ? 'Almost Done!' : 'Time Remaining'}
                   </p>
                 </div>
-                
+
                 {/* Own team indicator */}
                 {user?.team?.id === activePitch.team_id && (
                   <div className="mt-3 text-center">
@@ -768,7 +765,7 @@ export default function DashboardPage() {
                   100% Online
                 </p>
               </div>
-            </section>             
+            </section>
           </>
         )}
         {/* Schedule */}
