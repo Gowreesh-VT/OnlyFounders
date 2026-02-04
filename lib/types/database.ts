@@ -33,25 +33,26 @@ export interface Profile {
     role: UserRole;
     team_id?: string;
     college_id?: string;
-    
+    member_id?: string;
+
     // ID Card & QR
     entity_id?: string; // OF-2026-XXXX
     qr_token?: string;
     qr_generated_at?: string;
     photo_url?: string; // Compressed photo for ID card (max 1MB)
     photo_uploaded_at?: string;
-    
+
     // Activity tracking
     last_login_at?: string;
     login_count: number;
     is_active: boolean;
-    
+
     // Event preferences
     dietary_preferences?: string;
-    
+
     created_at: string;
     updated_at: string;
-    
+
     // Relations (when expanded)
     team?: Team;
     college?: College;
@@ -66,25 +67,25 @@ export interface Cluster {
     name: string;
     monitor_id?: string;
     location?: string;
-    
+
     // Pitch management
     pitch_order?: number[];
     current_pitching_team_id?: string;
     current_stage: EventStage;
-    
+
     // Settings
     max_teams: number;
     pitch_duration_seconds: number;
     bidding_deadline?: string;
     bidding_open: boolean;
-    
+
     // Results
     is_complete: boolean;
     winner_team_id?: string;
-    
+
     created_at: string;
     updated_at: string;
-    
+
     // Relations
     monitor?: Profile;
     current_pitching_team?: Team;
@@ -100,20 +101,21 @@ export interface Team {
     name: string;
     college_id?: string;
     cluster_id?: string;
-    
+    code?: string;
+
     // Domain/Category
     domain?: string; // 'fintech', 'edtech', 'healthtech', etc.
     tags?: string[]; // ['b2b', 'ai', 'blockchain']
-    
+
     // Financial tracking
     balance: number; // ₹10,00,000
     total_invested: number;
     total_received: number;
-    
+
     // Status flags
     is_finalized: boolean;
     is_qualified: boolean;
-    
+
     // Additional metadata
     social_links?: {
         twitter?: string;
@@ -122,10 +124,10 @@ export interface Team {
         website?: string;
         [key: string]: string | undefined;
     };
-    
+
     created_at: string;
     updated_at: string;
-    
+
     // Relations
     college?: College;
     cluster?: Cluster;
@@ -140,31 +142,31 @@ export interface PitchSchedule {
     id: string;
     cluster_id: string;
     team_id: string;
-    
+
     // Pitch details
     pitch_title?: string;
     pitch_abstract?: string;
     pitch_deck_url?: string;
     demo_url?: string;
-    
+
     // Timing
     scheduled_start: string;
     scheduled_end?: string;
     actual_start?: string;
     actual_end?: string;
     pitch_duration_seconds: number;
-    
+
     // Status
     status: PitchStatus;
     pitch_position?: number;
-    
+
     // Completion
     is_completed: boolean;
     completed_at?: string;
-    
+
     created_at: string;
     updated_at: string;
-    
+
     // Relations
     cluster?: Cluster;
     team?: Team;
@@ -183,7 +185,7 @@ export interface Note {
     content: string;
     created_at: string;
     updated_at: string;
-    
+
     // Relations
     author_team?: Team;
     author?: Profile;
@@ -200,15 +202,15 @@ export interface Investment {
     investor_team_id: string;
     target_team_id: string;
     amount: number;
-    
+
     // Investment metadata
     reasoning?: string;
     confidence_level?: number; // 1-5
     is_locked: boolean;
-    
+
     created_at: string;
     updated_at: string;
-    
+
     // Relations
     investor_team?: Team;
     target_team?: Team;
@@ -226,13 +228,13 @@ export interface InvestmentHistory {
     amount: number;
     action: InvestmentAction;
     performed_by?: string;
-    
+
     // Snapshot
     reasoning?: string;
     confidence_level?: number;
-    
+
     created_at: string;
-    
+
     // Relations
     investor_team?: Team;
     target_team?: Team;
@@ -252,7 +254,7 @@ export interface EntryLog {
     location?: string;
     scan_type: 'entry' | 'exit';
     scanned_at: string;
-    
+
     // Relations
     profile?: Profile;
     scanner?: Profile;
@@ -267,18 +269,18 @@ export interface ScanSession {
     profile_id: string;
     entry_scan_id?: string;
     exit_scan_id?: string;
-    
+
     // Session timing
     session_start?: string;
     session_end?: string;
     duration_minutes?: number;
-    
+
     // Status
     is_active: boolean;
-    
+
     created_at: string;
     updated_at: string;
-    
+
     // Relations
     profile?: Profile;
     entry_scan?: EntryLog;
@@ -297,7 +299,7 @@ export interface AuditLog {
     metadata?: Record<string, any>;
     ip_address?: string;
     created_at: string;
-    
+
     // Relations
     actor?: Profile;
 }
@@ -309,12 +311,12 @@ export interface AuditLog {
 export interface EventState {
     id: string;
     current_stage: EventStage;
-    
+
     // Kill switch
     is_frozen: boolean;
     frozen_at?: string;
     frozen_by?: string;
-    
+
     // Event timeline
     registration_deadline?: string;
     entry_start_time?: string;
@@ -323,10 +325,10 @@ export interface EventState {
     pitching_end_time?: string;
     bidding_deadline?: string;
     results_announcement_time?: string;
-    
+
     // Flexible configuration
     settings?: Record<string, any>;
-    
+
     updated_at: string;
 }
 
@@ -338,15 +340,15 @@ export interface LeaderboardCache {
     id: string;
     cluster_id: string;
     team_id: string;
-    
+
     // Rankings
     rank: number;
     total_received: number;
     unique_investors: number;
     score: number;
-    
+
     last_calculated_at: string;
-    
+
     // Relations
     cluster?: Cluster;
     team?: Team;
@@ -360,15 +362,15 @@ export interface ClusterResults {
     id: string;
     cluster_id: string;
     winner_team_id?: string;
-    
+
     // Statistics
     total_investment_pool?: number;
     participating_teams?: number;
     calculation_formula?: string;
-    
+
     calculated_at: string;
     finalized: boolean;
-    
+
     // Relations
     cluster?: Cluster;
     winner_team?: Team;
@@ -388,7 +390,7 @@ export interface Announcement {
     expires_at?: string;
     is_active: boolean;
     created_at: string;
-    
+
     // Relations
     creator?: Profile;
 }
@@ -425,6 +427,39 @@ export interface ActivePitch {
     pitch_duration_seconds: number;
     elapsed_seconds: number;
     status: PitchStatus;
+}
+
+export interface Submission {
+    id: string;
+    project_title: string;
+    status: string;
+    drive_link?: string | null;
+    team?: {
+        name: string;
+        leader?: { full_name: string; email: string };
+        code?: string;
+    };
+    submitted_at: string;
+}
+
+export interface Notification {
+    id: string;
+    title: string;
+    description: string | null;
+    type: 'urgent' | 'warning' | 'info';
+    read: boolean;
+    created_at: string;
+}
+
+export interface ScheduleEvent {
+    id: string;
+    title: string;
+    description: string | null;
+    start_time: string;
+    end_time: string;
+    event_date: string;
+    location: string | null;
+    is_active: boolean;
 }
 
 // ============================================
