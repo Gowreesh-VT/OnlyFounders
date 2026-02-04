@@ -5,7 +5,7 @@ export const createEmailTransporter = () => {
     return nodemailer.createTransport({
         host: process.env.SMTP_HOST!,
         port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+        secure: process.env.SMTP_PORT === '465',
         auth: {
             user: process.env.SMTP_USER!,
             pass: process.env.SMTP_PASSWORD!,
@@ -106,7 +106,7 @@ export async function sendLoginCredentials(
 </head>
 <body>
     <div class="container">
-        <div class="header">OnlyFounders</div>
+        <div class="header"></div>
         <div class="subtitle">Investment Simulation Event</div>
         
         <p>Dear ${fullName},</p>
@@ -223,27 +223,41 @@ export async function sendBulkCredentials(
     return results;
 }
 
-// Generate secure random password
+// Generate cryptographically secure random password
 export function generateSecurePassword(length: number = 12): string {
-    const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // Removed I, O
-    const lowercase = 'abcdefghjkmnpqrstuvwxyz'; // Removed l, i, o
-    const numbers = '23456789'; // Removed 0, 1
+    const crypto = require('crypto');
+    const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const lowercase = 'abcdefghjkmnpqrstuvwxyz';
+    const numbers = '23456789';
     const symbols = '@#$%&*';
     
     const allChars = uppercase + lowercase + numbers + symbols;
     
+    // Helper function to get cryptographically secure random index
+    const secureRandomIndex = (max: number): number => {
+        const randomBytes = crypto.randomBytes(4);
+        const randomValue = randomBytes.readUInt32BE(0);
+        return randomValue % max;
+    };
+    
     let password = '';
     // Ensure at least one of each type
-    password += uppercase[Math.floor(Math.random() * uppercase.length)];
-    password += lowercase[Math.floor(Math.random() * lowercase.length)];
-    password += numbers[Math.floor(Math.random() * numbers.length)];
-    password += symbols[Math.floor(Math.random() * symbols.length)];
+    password += uppercase[secureRandomIndex(uppercase.length)];
+    password += lowercase[secureRandomIndex(lowercase.length)];
+    password += numbers[secureRandomIndex(numbers.length)];
+    password += symbols[secureRandomIndex(symbols.length)];
     
     // Fill the rest
     for (let i = password.length; i < length; i++) {
-        password += allChars[Math.floor(Math.random() * allChars.length)];
+        password += allChars[secureRandomIndex(allChars.length)];
     }
     
-    // Shuffle the password
-    return password.split('').sort(() => Math.random() - 0.5).join('');
+    // Shuffle the password using Fisher-Yates with secure random
+    const passwordArray = password.split('');
+    for (let i = passwordArray.length - 1; i > 0; i--) {
+        const j = secureRandomIndex(i + 1);
+        [passwordArray[i], passwordArray[j]] = [passwordArray[j], passwordArray[i]];
+    }
+    
+    return passwordArray.join('');
 }

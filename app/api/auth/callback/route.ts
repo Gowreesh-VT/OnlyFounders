@@ -4,8 +4,12 @@ import { createServerClient } from '@supabase/ssr';
 export async function GET(request: NextRequest) {
     const { searchParams, origin } = new URL(request.url);
     const code = searchParams.get('code');
-    // if "next" is in param, use it as the redirect URL
-    const next = searchParams.get('next') ?? '/dashboard';
+
+    // SECURITY: Validate next parameter to prevent open redirect attacks
+    let next = searchParams.get('next') ?? '/dashboard';
+    if (!next.startsWith('/') || next.startsWith('//') || next.includes('://')) {
+        next = '/dashboard';
+    }
 
     if (code) {
         const cookieStore = request.cookies;

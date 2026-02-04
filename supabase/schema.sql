@@ -52,6 +52,7 @@ CREATE TABLE profiles (
     role user_role DEFAULT 'participant',
     team_id UUID,
     college_id UUID REFERENCES colleges(id) ON DELETE SET NULL,
+    assigned_cluster_id UUID, -- For admin/cluster_monitor role (max 3 admins per cluster)
     
     -- ID Card & QR
     entity_id VARCHAR(20) UNIQUE, -- Auto-generated E-ID (e.g., OF-2026-A7F3)
@@ -133,6 +134,7 @@ CREATE TABLE teams (
 
 -- Add foreign keys after tables exist
 ALTER TABLE profiles ADD CONSTRAINT fk_profiles_team FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
+ALTER TABLE profiles ADD CONSTRAINT fk_profiles_assigned_cluster FOREIGN KEY (assigned_cluster_id) REFERENCES clusters(id) ON DELETE SET NULL;
 ALTER TABLE clusters ADD CONSTRAINT fk_clusters_current_pitching_team FOREIGN KEY (current_pitching_team_id) REFERENCES teams(id) ON DELETE SET NULL;
 ALTER TABLE clusters ADD CONSTRAINT fk_clusters_winner_team FOREIGN KEY (winner_team_id) REFERENCES teams(id) ON DELETE SET NULL;
 
@@ -448,14 +450,28 @@ CREATE POLICY "Profiles viewable by authenticated" ON profiles FOR SELECT
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE 
     USING (auth.uid() = id);
 
--- Teams: Viewable by same cluster
-CREATE POLICY "Teams viewable by cluster members" ON teams FOR SELECT 
+-- Teams: Viewable by same cluster members, cluster monitors, and super admins
+CREATE POLICY "Teams viewable by cluster members and admins" ON teams FOR SELECT 
     USING (
+        -- Cluster members can view teams in their cluster
         cluster_id IN (
             SELECT t.cluster_id FROM teams t
             JOIN profiles p ON p.team_id = t.id
             WHERE p.id = auth.uid()
         )
+        OR
+        -- Cluster monitors can view teams in their assigned cluster
+        cluster_id IN (
+            SELECT assigned_cluster_id FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'cluster_monitor')
+        )
+        OR
+        -- Cluster monitors (legacy: monitor_id on cluster)
+        cluster_id IN (
+            SELECT id FROM clusters WHERE monitor_id = auth.uid()
+        )
+        OR
+        -- Super admins can view all teams
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'super_admin')
     );
 
 -- Pitch Schedule: Viewable by all, managed by admins

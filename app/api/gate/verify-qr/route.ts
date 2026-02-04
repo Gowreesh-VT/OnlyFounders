@@ -2,10 +2,42 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 
-const QR_SECRET = process.env.QR_SECRET || 'onlyfounders-qr-secret-key-2026';
+// SECURITY: No fallback - QR_SECRET must be set in environment
+const QR_SECRET = process.env.QR_SECRET;
 
 export async function POST(request: NextRequest) {
   try {
+
+    if (!QR_SECRET) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Not authenticated' },
+        { status: 401 }
+      );
+    }
+
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!userProfile || !['gate_volunteer', 'admin', 'super_admin'].includes(userProfile.role)) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Gate volunteer access required' },
+        { status: 403 }
+      );
+    }
+
     const { qrData, gateLocation } = await request.json();
 
     if (!qrData || typeof qrData !== 'string') {
@@ -52,13 +84,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch participant from database
-    const supabase = await createClient();
-    
-    // Get current user (gate volunteer)
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    const gateVolunteerId = user?.id || null;
-    
+    // Fetch participant from database - supabase already created above
+    const gateVolunteerId = user.id;
+
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select(`
@@ -105,7 +133,7 @@ export async function POST(request: NextRequest) {
         .select('name')
         .eq('id', profile.college_id)
         .single();
-      
+
       if (college) {
         collegeName = college.name;
       }
@@ -158,9 +186,8 @@ export async function POST(request: NextRequest) {
       console.error('Error logging entry:', entryLogError);
     }
 
-    // Create or update scan session
     if (entryLog && !lastSession?.is_active) {
-      // Create new session if no active session exists
+
       const { error: sessionError } = await supabase
         .from('scan_sessions')
         .insert({
@@ -175,7 +202,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Return verified participant data
     return NextResponse.json({
       verified: true,
       participant: {
@@ -192,8 +218,8 @@ export async function POST(request: NextRequest) {
         cluster_tier: clusterTier,
         verified_at: new Date().toISOString(),
         last_scanned: lastSession?.session_start || null,
-        last_scanned_by: null, // Can join with entry_logs if needed
-        total_scans: (scanCount || 0) + 1, // +1 for current scan
+        last_scanned_by: null,
+        total_scans: (scanCount || 0) + 1,
         is_active_session: lastSession?.is_active || false,
       },
     });

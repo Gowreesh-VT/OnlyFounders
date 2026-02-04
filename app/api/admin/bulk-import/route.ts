@@ -1,4 +1,4 @@
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient, createAnonClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { generateSecurePassword, sendBulkCredentials } from '@/lib/email/sender';
 import crypto from 'crypto';
@@ -11,7 +11,10 @@ function generateEntityId(): string {
 
 function generateQRToken(entityId: string): string {
     const timestamp = Date.now();
-    const secret = process.env.QR_SECRET || 'onlyfounders-qr-secret-key-2026';
+    const secret = process.env.QR_SECRET;
+    if (!secret) {
+        throw new Error('QR_SECRET environment variable is not configured');
+    }
     const data = `${entityId}:${timestamp}`;
     const signature = crypto.createHmac('sha256', secret).update(data).digest('hex');
     return `${data}:${signature}`;
@@ -24,11 +27,38 @@ interface CSVParticipant {
     teamName: string;
     role: 'participant' | 'team_lead' | 'admin' | 'super_admin' | 'gate_volunteer' | 'event_coordinator';
     phoneNumber?: string;
-    domain?: string; // Team domain: fintech, edtech, healthtech, etc.
+    domain?: string;
 }
 
 export async function POST(request: NextRequest) {
     try {
+        // SECURITY: Verify user is authenticated and authorized
+        const supabase = await createAnonClient();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+        if (userError || !user) {
+            return NextResponse.json(
+                { error: 'Not authenticated' },
+                { status: 401 }
+            );
+        }
+
+        const supabaseAdmin = createAdminClient();
+
+        // Verify user is admin or super_admin
+        const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
+            return NextResponse.json(
+                { error: 'Unauthorized - Admin access required' },
+                { status: 403 }
+            );
+        }
+
         const { participants } = await request.json() as { participants: CSVParticipant[] };
 
         if (!participants || !Array.isArray(participants)) {
@@ -38,9 +68,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const supabaseAdmin = createAdminClient();
-
-        // Simple user creation - no college/team tables needed
         const results = {
             success: [] as any[],
             failed: [] as any[],
@@ -54,42 +81,69 @@ export async function POST(request: NextRequest) {
 
         for (const participant of participants) {
             try {
-                const password = generateSecurePassword(12);
-                const entityId = generateEntityId();
-                const qrToken = generateQRToken(entityId);
-
-                // Create auth user
-                const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-                    email: participant.email,
-                    password,
-                    email_confirm: true,
-                });
-
-                if (authError) throw authError;
-
-                // Find college_id if collegeName provided
+                // 1. Resolve College ID
                 let collegeId = null;
                 if (participant.collegeName) {
                     const { data: college } = await supabaseAdmin
                         .from('colleges')
                         .select('id')
-                        .eq('name', participant.collegeName)
-                        .single();
+                        .ilike('name', participant.collegeName)
+                        .maybeSingle();
+
                     collegeId = college?.id || null;
                 }
 
-                // Find team_id if teamName provided
+
                 let teamId = null;
                 if (participant.teamName) {
-                    const { data: team } = await supabaseAdmin
+                    // A. Try to find existing team
+                    const { data: existingTeam } = await supabaseAdmin
                         .from('teams')
                         .select('id')
-                        .eq('name', participant.teamName)
-                        .single();
-                    teamId = team?.id || null;
+                        .ilike('name', participant.teamName)
+                        .maybeSingle();
+
+                    if (existingTeam) {
+                        teamId = existingTeam.id;
+                    } else {
+
+                        console.log(`Team '${participant.teamName}' not found. Creating new team...`);
+
+                        const { data: newTeam, error: createTeamError } = await supabaseAdmin
+                            .from('teams')
+                            .insert({
+                                name: participant.teamName,
+                                college_id: collegeId,
+                                domain: participant.domain || 'general'
+                            })
+                            .select('id')
+                            .single();
+
+                        if (createTeamError) {
+                            console.error(`Failed to create team ${participant.teamName}:`, createTeamError);
+
+                        } else {
+                            teamId = newTeam.id;
+                        }
+                    }
                 }
 
-                // Create profile with all fields
+                // 3. Generate Credentials
+                const password = generateSecurePassword(12);
+                const entityId = generateEntityId();
+                const qrToken = generateQRToken(entityId);
+
+                // 4. Create Auth User
+                const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+                    email: participant.email,
+                    password,
+                    email_confirm: true,
+                    user_metadata: { full_name: participant.fullName }
+                });
+
+                if (authError) throw authError;
+
+                // 5. Create Profile (Linked to the resolved/created teamId)
                 const { error: profileError } = await supabaseAdmin
                     .from('profiles')
                     .insert({
@@ -109,8 +163,7 @@ export async function POST(request: NextRequest) {
                 results.success.push({
                     email: participant.email,
                     team: participant.teamName,
-                    password: password,
-                    entity_id: entityId,
+                    action: teamId ? 'Linked' : 'No Team',
                 });
 
                 emailList.push({
@@ -120,6 +173,7 @@ export async function POST(request: NextRequest) {
                 });
 
             } catch (error: any) {
+                console.error(`Error processing ${participant.email}:`, error.message);
                 results.failed.push({
                     email: participant.email,
                     error: error.message,
@@ -127,15 +181,22 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Step 4: Send emails in bulk
-        const emailResults = await sendBulkCredentials(emailList);
+        // Step 6: Send emails in bulk
+        let emailResults: { success: string[]; failed: { email: string; error: string }[] } = {
+            success: [],
+            failed: []
+        };
+
+        if (emailList.length > 0) {
+            emailResults = await sendBulkCredentials(emailList);
+        }
 
         return NextResponse.json({
             message: 'Bulk import completed',
             imported: results.success.length,
             failed: results.failed.length,
-            emailsSent: emailResults.success.length,
-            emailsFailed: emailResults.failed.length,
+            emailsSent: emailResults.success.length || 0,
+            emailsFailed: emailResults.failed.length || 0,
             details: {
                 importResults: results,
                 emailResults,
