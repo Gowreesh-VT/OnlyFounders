@@ -46,3 +46,10 @@ yarn-error.log*
 next-env.d.ts
 
 .dist
+
+# credentials - NEVER commit these files
+*_CREDENTIALS.md
+TEST_CREDENTIALS.md
+ORGANIZING_COMMITTEE_CREDENTIALS.md
+*.credentials
+*_credentials.json

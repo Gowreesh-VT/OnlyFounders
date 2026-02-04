@@ -13,9 +13,20 @@ export async function POST(request: Request) {
 
         const supabase = await createClient();
 
-        // Check if requester is admin/super_admin (optional, but good practice)
+        // SECURITY: Verify user is admin/super_admin - REQUIRED
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+        // Verify admin role
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
+            return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+        }
 
         // Fetch user's subscriptions
         const { data: subscriptions } = await supabase
@@ -28,10 +39,12 @@ export async function POST(request: Request) {
         }
 
         // Configure Web Push
+        const vapidPublic = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'placeholder-public-key';
+        const vapidPrivate = process.env.VAPID_PRIVATE_KEY || 'placeholder-private-key';
         webpush.setVapidDetails(
             'mailto:admin@onlyfounders.example.com',
-            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-            process.env.VAPID_PRIVATE_KEY!
+            vapidPublic,
+            vapidPrivate
         );
 
         // Send to all subscriptions for this user

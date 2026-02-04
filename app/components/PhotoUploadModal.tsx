@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { X, Plus, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 
 interface PhotoUploadModalProps {
     isOpen: boolean;
@@ -64,35 +63,20 @@ export default function PhotoUploadModal({ isOpen, onClose, userId, userName }: 
         setError(null);
 
         try {
-            const supabase = createClient();
+            // Use server-side API for secure upload with validation
+            const formData = new FormData();
+            formData.append('file', selectedFile);
 
-            // Upload to Supabase Storage
-            const fileExtension = selectedFile.name.split('.').pop() || 'jpg';
-            const fileName = `${userId}/photo.${fileExtension}`;
-            const { error: uploadError } = await supabase.storage
-                .from('participant-photos')
-                .upload(fileName, selectedFile, {
-                    upsert: true,
-                    contentType: selectedFile.type,
-                });
+            const response = await fetch('/api/upload/photo', {
+                method: 'POST',
+                body: formData,
+            });
 
-            if (uploadError) throw uploadError;
+            const result = await response.json();
 
-            // Get public URL
-            const { data: urlData } = supabase.storage
-                .from('participant-photos')
-                .getPublicUrl(fileName);
-
-            // Update profile
-            const { error: updateError } = await supabase
-                .from('profiles')
-                .update({
-                    photo_url: urlData.publicUrl,
-                    photo_uploaded_at: new Date().toISOString(),
-                })
-                .eq('id', userId);
-
-            if (updateError) throw updateError;
+            if (!response.ok) {
+                throw new Error(result.error || 'Upload failed');
+            }
 
             setSuccess(true);
             setTimeout(() => {
