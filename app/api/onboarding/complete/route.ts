@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import connectDB from '@/lib/mongodb/connection';
+import { User, AuditLog } from '@/lib/mongodb/models';
+import { getCurrentUser } from '@/lib/mongodb/auth';
 import crypto from 'crypto';
 
 const QR_SECRET = process.env.QR_SECRET || 'onlyfounders-qr-secret-key-2026';
@@ -34,12 +36,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const supabase = await createClient();
+        await connectDB();
 
         // Get current authenticated user
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const currentUser = await getCurrentUser();
 
-        if (authError || !user) {
+        if (!currentUser) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -47,14 +49,10 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if user already has entity_id (already onboarded)
-        const { data: existingProfile } = await supabase
-            .from('profiles')
-            .select('entity_id, qr_token')
-            .eq('id', user.id)
-            .single();
+        const existingUser = await User.findById(currentUser.id).select('entityId qrToken');
 
-        let entityId = existingProfile?.entity_id;
-        let qrToken = existingProfile?.qr_token;
+        let entityId = existingUser?.entityId;
+        let qrToken = existingUser?.qrToken;
 
         // Generate new entity_id if not exists
         if (!entityId) {
@@ -66,11 +64,7 @@ export async function POST(request: NextRequest) {
                 entityId = generateEntityId();
                 
                 // Check if entity_id already exists
-                const { data: existing } = await supabase
-                    .from('profiles')
-                    .select('id')
-                    .eq('entity_id', entityId)
-                    .maybeSingle();
+                const existing = await User.findOne({ entityId }).select('_id');
 
                 if (!existing) break;
                 attempts++;
@@ -84,37 +78,26 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Always generate fresh QR token
-        qrToken = generateQRToken(entityId);
+        // Always generate fresh QR token (entityId is guaranteed to exist at this point)
+        qrToken = generateQRToken(entityId as string);
 
-        // Update profile with photo, entity_id, and qr_token
-        const { error: updateError } = await supabase
-            .from('profiles')
-            .update({
-                photo_url: photoUrl,
-                photo_uploaded_at: new Date().toISOString(),
-                entity_id: entityId,
-                qr_token: qrToken,
-                qr_generated_at: new Date().toISOString(),
-            })
-            .eq('id', user.id);
-
-        if (updateError) {
-            console.error('Profile update error:', updateError);
-            return NextResponse.json(
-                { error: 'Failed to update profile' },
-                { status: 500 }
-            );
-        }
+        // Update user with photo, entity_id, and qr_token
+        await User.findByIdAndUpdate(currentUser.id, {
+            photoUrl: photoUrl,
+            photoUploadedAt: new Date(),
+            entityId: entityId,
+            qrToken: qrToken,
+            qrGeneratedAt: new Date(),
+        });
 
         // Log the onboarding completion
-        await supabase.from('audit_logs').insert({
-            event_type: 'onboarding_completed',
-            actor_id: user.id,
-            target_id: user.id,
+        await AuditLog.create({
+            eventType: 'onboarding_completed',
+            actorId: currentUser.id,
+            targetId: currentUser.id,
             metadata: {
-                entity_id: entityId,
-                photo_uploaded: true,
+                entityId: entityId,
+                photoUploaded: true,
             },
         });
 

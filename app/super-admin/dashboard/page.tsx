@@ -106,7 +106,7 @@ const [reassigningTeam, setReassigningTeam] = useState<string | null>(null);
         return;
       }
       const userData = await userRes.json();
-      const name = userData.user?.profile?.full_name || "Super Admin";
+      const name = userData.user?.fullName || "Super Admin";
       setUserName(name);
 
       // Dashboard Data
@@ -347,6 +347,13 @@ const fetchClusters = async () => {
 
 // Assign user to cluster
 const assignCluster = async (userId: string, clusterId: string) => {
+  // Optimistic update: immediately update users state
+  setUsers(prevUsers => prevUsers.map(user => 
+    user.id === userId 
+      ? { ...user, assigned_cluster_id: clusterId || null }
+      : user
+  ));
+  
   await fetch("/api/super-admin/colleges", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -356,8 +363,9 @@ const assignCluster = async (userId: string, clusterId: string) => {
     }),
   });
   
-  setSelectedClusterForUser(prev => ({ ...prev, [userId]: clusterId }));
-  fetchClusters(); // Refresh to update monitor info
+  // Refresh both users and clusters to ensure counts are accurate
+  fetchUsers();
+  fetchClusters();
 };
 
 // Fetch clusters with their assigned teams
@@ -371,8 +379,8 @@ const fetchClustersWithTeams = async () => {
     });
     const data = await res.json();
     if (data.success) {
-      setClustersWithTeams(data.clusters);
-      setUnassignedTeams(data.unassignedTeams);
+      setClustersWithTeams(data.clusters || []);
+      setUnassignedTeams(data.unassignedTeams || []);
     }
   } catch (err) {
     console.error("Fetch clusters with teams error:", err);

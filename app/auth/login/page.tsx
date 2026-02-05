@@ -35,18 +35,18 @@ export default function LoginPage() {
       }
 
       // Pass profile data to PhotoUploadProvider - shows modal IMMEDIATELY if no photo
-      const profile = data.user?.profile;
-      if (profile) {
+      const user = data.user;
+      if (user) {
         setProfileFromLogin({
-          id: data.user.id,
-          full_name: profile.full_name || '',
-          photo_url: profile.photo_url,
-          role: profile.role,
+          id: user.id,
+          full_name: user.fullName || '',
+          photo_url: user.photoUrl,
+          role: user.role,
         });
       }
 
       // Redirect based on role
-      const role = profile?.role;
+      const role = user?.role;
       if (role === 'super_admin') {
         router.push('/super-admin/dashboard');
       } else if (role === 'admin') {
@@ -56,10 +56,10 @@ export default function LoginPage() {
       } else if (role === 'event_coordinator') {
         router.push('/coordinator/dashboard');
       } else if (role === 'cluster_monitor') {
-        router.push('/monitor/dashboard');
+        router.push('/cluster-admin/dashboard');
       } else {
         // Participant: check if onboarding is complete
-        if (!profile?.photo_url || !profile?.entity_id) {
+        if (!user?.photoUrl || !user?.entityId) {
           router.push('/onboarding');
         } else {
           router.push('/dashboard');
@@ -168,22 +168,6 @@ export default function LoginPage() {
             </FeedbackButton>
           </div>
 
-          {/* Forgot Password */}
-          <div className="mt-6 text-center">
-            <Link href="/auth/forgot-password" className="text-gray-500 text-xs tracking-wider hover:text-gray-400 transition-colors">
-              FORGOT YOUR CREDENTIALS?
-            </Link>
-          </div>
-        </div>
-
-        {/* Register Link */}
-        <div className="mt-8 text-center">
-          <p className="text-gray-600 text-sm">
-            Not a member yet?{' '}
-            <Link href="/auth/register" className="text-primary hover:text-primary-hover font-semibold transition-colors">
-              APPLY NOW
-            </Link>
-          </p>
         </div>
 
         {/* Footer */}

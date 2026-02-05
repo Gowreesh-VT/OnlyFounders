@@ -52,7 +52,7 @@ export default function ProfilePage() {
     );
   }
 
-  const profile = user?.profile;
+  const profile = user;
 
   return (
     <div className="min-h-screen bg-[#3a3a2e] text-white pb-24">
@@ -73,15 +73,15 @@ export default function ProfilePage() {
         <div className="flex justify-center mb-8">
           <div className="relative">
             <div className="w-48 h-48 border-2 border-primary border-dashed p-2">
-              {profile?.photo_url ? (
+              {profile?.photoUrl ? (
                 <img 
-                  src={profile.photo_url} 
-                  alt={profile.full_name}
+                  src={profile.photoUrl} 
+                  alt={profile.fullName}
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full bg-[#4a4a3e] flex items-center justify-center">
-                  <span className="text-gray-500 text-4xl">{profile?.full_name?.[0] || '?'}</span>
+                  <span className="text-gray-500 text-4xl">{profile?.fullName?.[0] || '?'}</span>
                 </div>
               )}
             </div>
@@ -96,7 +96,7 @@ export default function ProfilePage() {
               <div className="w-2 h-2 bg-primary rounded-full"></div>
               <span className="tech-text text-primary text-xs tracking-wider">FULL NAME</span>
             </div>
-            <p className="text-white text-2xl font-serif">{profile?.full_name || 'Unknown'}</p>
+            <p className="text-white text-2xl font-serif">{profile?.fullName || 'Unknown'}</p>
           </div>
 
           {/* Email */}
@@ -115,7 +115,7 @@ export default function ProfilePage() {
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
                 <span className="tech-text text-primary text-xs tracking-wider">ENTITY ID</span>
               </div>
-              <p className="text-white tech-text text-sm">{profile?.entity_id || '8X-992-ALPHA'}</p>
+              <p className="text-white tech-text text-sm">{profile?.entityId || '8X-992-ALPHA'}</p>
             </div>
             <div className="pl-4">
               <span className="tech-text text-primary text-xs tracking-wider mb-1 block">ACCESS LEVEL</span>

@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import connectDB from '@/lib/mongodb/connection';
+import { Cluster, Team, User, AuditLog } from '@/lib/mongodb/models';
+import { getCurrentUser } from '@/lib/mongodb/auth';
 
 // GET: Fetch all clusters with teams
 export async function GET(request: NextRequest) {
     try {
-        const supabase = await createClient();
+        await connectDB();
 
         // Get current authenticated user
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const currentUser = await getCurrentUser();
 
-        if (authError || !user) {
+        if (!currentUser) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -17,88 +19,65 @@ export async function GET(request: NextRequest) {
         }
 
         // Check if user is super_admin
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
+        const user = await User.findById(currentUser.id).select('role');
 
-        if (profile?.role !== 'super_admin') {
+        if (user?.role !== 'super_admin') {
             return NextResponse.json(
                 { error: 'Forbidden - Super Admin access required' },
                 { status: 403 }
             );
         }
 
-        // Fetch all clusters with their teams
-        const { data: clusters, error: clustersError } = await supabase
-            .from('clusters')
-            .select(`
-                id,
-                name,
-                location,
-                monitor_id,
-                max_teams,
-                current_stage,
-                bidding_open,
-                is_complete,
-                winner_team_id,
-                created_at
-            `)
-            .order('name');
+        // Fetch all clusters
+        const clusters = await Cluster.find({}).sort({ name: 1 });
 
-        if (clustersError) {
-            console.error('Clusters fetch error:', clustersError);
-            return NextResponse.json(
-                { error: 'Failed to fetch clusters' },
-                { status: 500 }
-            );
-        }
-
-        // Fetch all teams with cluster assignments
-        const { data: teams, error: teamsError } = await supabase
-            .from('teams')
-            .select(`
-                id,
-                name,
-                cluster_id,
-                domain,
-                balance,
-                total_invested,
-                total_received,
-                is_finalized,
-                is_qualified
-            `)
-            .order('name');
-
-        if (teamsError) {
-            console.error('Teams fetch error:', teamsError);
-            return NextResponse.json(
-                { error: 'Failed to fetch teams' },
-                { status: 500 }
-            );
-        }
+        // Fetch all teams
+        const teams = await Team.find({}).sort({ name: 1 });
 
         // Get unassigned teams
-        const unassignedTeams = teams?.filter(t => !t.cluster_id) || [];
+        const unassignedTeams = teams.filter(t => !t.clusterId);
 
         // Map teams to clusters
-        const clustersWithTeams = clusters?.map(cluster => ({
-            ...cluster,
-            teams: teams?.filter(t => t.cluster_id === cluster.id) || [],
-        })) || [];
+        const clustersWithTeams = clusters.map(cluster => ({
+            id: cluster._id,
+            name: cluster.name,
+            location: cluster.location,
+            monitorId: cluster.monitorId,
+            maxTeams: cluster.maxTeams,
+            currentStage: cluster.currentStage,
+            biddingOpen: cluster.biddingOpen,
+            isComplete: cluster.isComplete,
+            winnerTeamId: cluster.winnerTeamId,
+            createdAt: cluster.createdAt,
+            teams: teams.filter(t => t.clusterId?.toString() === cluster._id.toString()).map(t => ({
+                id: t._id,
+                name: t.name,
+                clusterId: t.clusterId,
+                domain: t.domain,
+                balance: t.balance,
+                totalInvested: t.totalInvested,
+                totalReceived: t.totalReceived,
+                isFinalized: t.isFinalized,
+                isQualified: t.isQualified,
+            })),
+        }));
 
         // Get statistics
         const stats = {
-            totalClusters: clusters?.length || 0,
-            totalTeams: teams?.length || 0,
-            assignedTeams: teams?.filter(t => t.cluster_id).length || 0,
+            totalClusters: clusters.length,
+            totalTeams: teams.length,
+            assignedTeams: teams.filter(t => t.clusterId).length,
             unassignedTeams: unassignedTeams.length,
         };
 
         return NextResponse.json({
             clusters: clustersWithTeams,
-            unassignedTeams,
+            unassignedTeams: unassignedTeams.map(t => ({
+                id: t._id,
+                name: t.name,
+                domain: t.domain,
+                balance: t.balance,
+            })),
             stats,
         });
     } catch (error) {
@@ -122,12 +101,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const supabase = await createClient();
+        await connectDB();
 
         // Get current authenticated user
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const currentUser = await getCurrentUser();
 
-        if (authError || !user) {
+        if (!currentUser) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -135,13 +114,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if user is super_admin
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
+        const user = await User.findById(currentUser.id).select('role');
 
-        if (profile?.role !== 'super_admin') {
+        if (user?.role !== 'super_admin') {
             return NextResponse.json(
                 { error: 'Forbidden - Super Admin access required' },
                 { status: 403 }
@@ -149,36 +124,30 @@ export async function POST(request: NextRequest) {
         }
 
         // Create cluster
-        const { data: cluster, error: createError } = await supabase
-            .from('clusters')
-            .insert({
-                name,
-                location: location || null,
-                max_teams: maxTeams || 10,
-                current_stage: 'onboarding',
-            })
-            .select()
-            .single();
-
-        if (createError) {
-            console.error('Cluster create error:', createError);
-            return NextResponse.json(
-                { error: 'Failed to create cluster' },
-                { status: 500 }
-            );
-        }
+        const cluster = await Cluster.create({
+            name,
+            location: location || undefined,
+            maxTeams: maxTeams || 10,
+            currentStage: 'onboarding',
+        });
 
         // Log the action
-        await supabase.from('audit_logs').insert({
-            event_type: 'cluster_created',
-            actor_id: user.id,
-            target_id: cluster.id,
-            metadata: { cluster_name: name },
+        await AuditLog.create({
+            eventType: 'cluster_created',
+            actorId: currentUser.id,
+            targetId: cluster._id.toString(),
+            metadata: { clusterName: name },
         });
 
         return NextResponse.json({
             success: true,
-            cluster,
+            cluster: {
+                id: cluster._id,
+                name: cluster.name,
+                location: cluster.location,
+                maxTeams: cluster.maxTeams,
+                currentStage: cluster.currentStage,
+            },
         });
     } catch (error) {
         console.error('Cluster create error:', error);

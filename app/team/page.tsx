@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import StudentBottomNav from "../components/StudentBottomNav";
-import { createClient } from "@/lib/supabase/client";
 
 type TeamMember = {
     id: string;
@@ -47,7 +46,6 @@ type Team = {
 
 export default function TeamPage() {
     const router = useRouter();
-    const supabase = createClient();
     const [loading, setLoading] = useState(true);
     const [team, setTeam] = useState<Team | null>(null);
     const [isLeader, setIsLeader] = useState(false);
@@ -87,35 +85,29 @@ export default function TeamPage() {
         fetchTeamData();
     }, [fetchTeamData]);
     
-    // Real-time subscription for pitch updates
+    // Poll for pitch updates (replaces Supabase realtime)
     useEffect(() => {
         if (!team?.cluster_id) return;
 
-        const channel = supabase
-            .channel(`team-pitch-${team.cluster_id}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'pitch_schedule',
-                    filter: `cluster_id=eq.${team.cluster_id}`
-                },
-                async () => {
-                    // Refetch active pitch
-                    const pitchRes = await fetch(`/api/cluster-admin/pitch?clusterId=${team.cluster_id}`);
-                    if (pitchRes.ok) {
-                        const pitchData = await pitchRes.json();
-                        setActivePitch(pitchData.activePitch);
-                    }
+        const pollPitchStatus = async () => {
+            try {
+                const pitchRes = await fetch(`/api/cluster-admin/pitch?clusterId=${team.cluster_id}`);
+                if (pitchRes.ok) {
+                    const pitchData = await pitchRes.json();
+                    setActivePitch(pitchData.activePitch);
                 }
-            )
-            .subscribe();
+            } catch (error) {
+                console.error('Error polling pitch status:', error);
+            }
+        };
+
+        // Poll every 5 seconds for pitch updates
+        const interval = setInterval(pollPitchStatus, 5000);
 
         return () => {
-            supabase.removeChannel(channel);
+            clearInterval(interval);
         };
-    }, [team?.cluster_id, supabase]);
+    }, [team?.cluster_id]);
     
     // Pitch timer countdown
     useEffect(() => {

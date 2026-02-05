@@ -76,13 +76,13 @@ export default function AdminDashboardPage() {
         return;
       }
       const userData = await userRes.json();
-      if (userData.user?.profile?.role !== 'admin' && userData.user?.profile?.role !== 'super_admin') {
+      if (userData.user?.role !== 'admin' && userData.user?.role !== 'super_admin') {
         router.push('/dashboard');
         return;
       }
 
-      const name = userData.user?.profile?.full_name || 'Admin';
-      const college = userData.user?.profile?.college?.name || 'Your College';
+      const name = userData.user?.fullName || 'Admin';
+      const college = userData.user?.college?.name || 'Your College';
       setUserName(name);
       setCollegeName(college);
       cache.set('admin-user', { name, college }, 10 * 60 * 1000);

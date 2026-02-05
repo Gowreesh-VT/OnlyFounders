@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import connectDB from '@/lib/mongodb/connection';
+import { Cluster, Team, User, AuditLog } from '@/lib/mongodb/models';
+import { getCurrentUser } from '@/lib/mongodb/auth';
 
 // Fisher-Yates shuffle algorithm
 function shuffleArray<T>(array: T[]): T[] {
@@ -16,12 +18,12 @@ export async function POST(request: NextRequest) {
     try {
         const { clearPrevious = true, teamsPerCluster = 10 } = await request.json();
 
-        const supabase = await createClient();
+        await connectDB();
 
         // Get current authenticated user
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const currentUser = await getCurrentUser();
 
-        if (authError || !user) {
+        if (!currentUser) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -29,13 +31,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if user is super_admin
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
+        const user = await User.findById(currentUser.id).select('role');
 
-        if (profile?.role !== 'super_admin') {
+        if (user?.role !== 'super_admin') {
             return NextResponse.json(
                 { error: 'Forbidden - Super Admin access required' },
                 { status: 403 }
@@ -43,19 +41,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Fetch all teams
-        const { data: teams, error: teamsError } = await supabase
-            .from('teams')
-            .select('id, name')
-            .order('name');
+        const teams = await Team.find({}).select('_id name').sort({ name: 1 });
 
-        if (teamsError || !teams) {
-            return NextResponse.json(
-                { error: 'Failed to fetch teams' },
-                { status: 500 }
-            );
-        }
-
-        if (teams.length === 0) {
+        if (!teams || teams.length === 0) {
             return NextResponse.json(
                 { error: 'No teams found to shuffle' },
                 { status: 400 }
@@ -63,12 +51,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Fetch all clusters
-        const { data: clusters, error: clustersError } = await supabase
-            .from('clusters')
-            .select('id, name, max_teams')
-            .order('name');
+        const clusters = await Cluster.find({}).select('_id name maxTeams').sort({ name: 1 });
 
-        if (clustersError || !clusters || clusters.length === 0) {
+        if (!clusters || clusters.length === 0) {
             return NextResponse.json(
                 { error: 'No clusters found. Please create clusters first.' },
                 { status: 400 }
@@ -77,18 +62,7 @@ export async function POST(request: NextRequest) {
 
         // Clear previous assignments if requested
         if (clearPrevious) {
-            const { error: clearError } = await supabase
-                .from('teams')
-                .update({ cluster_id: null })
-                .neq('id', '00000000-0000-0000-0000-000000000000'); // Update all
-
-            if (clearError) {
-                console.error('Clear assignments error:', clearError);
-                return NextResponse.json(
-                    { error: 'Failed to clear previous assignments' },
-                    { status: 500 }
-                );
-            }
+            await Team.updateMany({}, { clusterId: null });
         }
 
         // Shuffle teams
@@ -101,7 +75,7 @@ export async function POST(request: NextRequest) {
 
         // Initialize cluster counts
         clusters.forEach(c => {
-            clusterCounts[c.id] = 0;
+            clusterCounts[c._id.toString()] = 0;
         });
 
         for (const team of shuffledTeams) {
@@ -111,27 +85,20 @@ export async function POST(request: NextRequest) {
 
             while (!foundCluster && attempts < clusters.length) {
                 const cluster = clusters[clusterIndex];
-                const maxTeams = cluster.max_teams || teamsPerCluster;
+                const maxTeams = cluster.maxTeams || teamsPerCluster;
 
-                if (clusterCounts[cluster.id] < maxTeams) {
+                if (clusterCounts[cluster._id.toString()] < maxTeams) {
                     // Assign team to cluster
-                    const { error: assignError } = await supabase
-                        .from('teams')
-                        .update({ cluster_id: cluster.id })
-                        .eq('id', team.id);
+                    await Team.findByIdAndUpdate(team._id, { clusterId: cluster._id });
 
-                    if (assignError) {
-                        console.error('Assignment error:', assignError);
-                    } else {
-                        assignments.push({
-                            teamId: team.id,
-                            teamName: team.name,
-                            clusterId: cluster.id,
-                            clusterName: cluster.name,
-                        });
-                        clusterCounts[cluster.id]++;
-                        foundCluster = true;
-                    }
+                    assignments.push({
+                        teamId: team._id.toString(),
+                        teamName: team.name,
+                        clusterId: cluster._id.toString(),
+                        clusterName: cluster.name,
+                    });
+                    clusterCounts[cluster._id.toString()]++;
+                    foundCluster = true;
                 }
 
                 clusterIndex = (clusterIndex + 1) % clusters.length;
@@ -144,23 +111,23 @@ export async function POST(request: NextRequest) {
         }
 
         // Log the shuffle action
-        await supabase.from('audit_logs').insert({
-            event_type: 'team_shuffle_completed',
-            actor_id: user.id,
+        await AuditLog.create({
+            eventType: 'team_shuffle_completed',
+            actorId: currentUser.id,
             metadata: {
-                total_teams: teams.length,
-                assigned_teams: assignments.length,
-                clusters_used: clusters.length,
-                teams_per_cluster: teamsPerCluster,
+                totalTeams: teams.length,
+                assignedTeams: assignments.length,
+                clustersUsed: clusters.length,
+                teamsPerCluster: teamsPerCluster,
             },
         });
 
         // Get final cluster stats
         const clusterStats = clusters.map(c => ({
-            id: c.id,
+            id: c._id.toString(),
             name: c.name,
-            teamCount: clusterCounts[c.id],
-            maxTeams: c.max_teams || teamsPerCluster,
+            teamCount: clusterCounts[c._id.toString()],
+            maxTeams: c.maxTeams || teamsPerCluster,
         }));
 
         return NextResponse.json({

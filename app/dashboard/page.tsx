@@ -30,9 +30,7 @@ import {
   Menu,
 } from "lucide-react";
 import StudentBottomNav from "../components/StudentBottomNav";
-import NotificationCenter from "@/components/NotificationCenter";
 import { useCache } from "@/lib/cache/CacheProvider";
-import { createClient } from "@/lib/supabase/client";
 import type { Team as BaseTeam, Profile } from "@/lib/types/database";
 
 // Extend Team type with code field used in this page
@@ -40,17 +38,7 @@ type Team = BaseTeam & {
   code?: string;
 };
 
-// Local types for notifications and schedule
-type Notification = {
-  id: string;
-  title: string;
-  message: string;
-  read: boolean;
-  created_at: string;
-  type?: string;
-  description?: string;
-};
-
+// Local types for schedule
 type ScheduleEvent = {
   id: string;
   title: string;
@@ -62,15 +50,6 @@ type ScheduleEvent = {
   event_date?: string;
   location?: string;
   is_active?: boolean;
-};
-
-type Alert = {
-  id: string;
-  title: string;
-  description: string;
-  type: "urgent" | "warning" | "info";
-  time: string;
-  read: boolean;
 };
 
 type TaskWithStatus = {
@@ -99,7 +78,6 @@ interface ActivePitch {
 export default function DashboardPage() {
   const router = useRouter();
   const cache = useCache();
-  const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState({ days: 2, hours: 14, minutes: 30, seconds: 45 });
@@ -111,12 +89,11 @@ export default function DashboardPage() {
 
   // User data
   const [user, setUser] = useState<{ profile: Profile; team: Team | null } | null>(null);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
   const [tasks, setTasks] = useState<TaskWithStatus[]>([]);
+  const [homeData, setHomeData] = useState<any>(null);
 
   // Expanded states
-  const [showAlerts, setShowAlerts] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
   const [showTasks, setShowTasks] = useState(false);
 
@@ -128,7 +105,6 @@ export default function DashboardPage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const hasTeam = true;
-  const unreadAlerts = notifications.filter(n => !n.read).length;
 
   // Fetch user data and active pitch
   const fetchData = useCallback(async () => {
@@ -148,7 +124,7 @@ export default function DashboardPage() {
       }
 
       // Redirect based on role
-      const role = userData.user?.profile?.role;
+      const role = userData.user?.role;
       if (role === 'super_admin') {
         router.push('/super-admin/dashboard');
         return;
@@ -178,13 +154,6 @@ export default function DashboardPage() {
         }
       }
 
-      // Fetch notifications
-      const notifRes = await fetch('/api/notifications');
-      if (notifRes.ok) {
-        const notifData = await notifRes.json();
-        setNotifications(notifData.notifications || []);
-      }
-
       // Fetch schedule
       const scheduleRes = await fetch('/api/schedule');
       if (scheduleRes.ok) {
@@ -209,35 +178,29 @@ export default function DashboardPage() {
     fetchData();
   }, [fetchData]);
   
-  // Real-time subscription for pitch updates
+  // Poll for pitch updates (replaces Supabase realtime)
   useEffect(() => {
     if (!clusterId) return;
 
-    const channel = supabase
-      .channel(`pitch-updates-${clusterId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'pitch_schedule',
-          filter: `cluster_id=eq.${clusterId}`
-        },
-        async () => {
-          // Refetch active pitch
-          const pitchRes = await fetch(`/api/cluster-admin/pitch?clusterId=${clusterId}`);
-          if (pitchRes.ok) {
-            const pitchData = await pitchRes.json();
-            setActivePitch(pitchData.activePitch);
-          }
+    const pollPitchStatus = async () => {
+      try {
+        const pitchRes = await fetch(`/api/cluster-admin/pitch?clusterId=${clusterId}`);
+        if (pitchRes.ok) {
+          const pitchData = await pitchRes.json();
+          setActivePitch(pitchData.activePitch);
         }
-      )
-      .subscribe();
+      } catch (error) {
+        console.error('Error polling pitch status:', error);
+      }
+    };
+
+    // Poll every 5 seconds for pitch updates
+    const interval = setInterval(pollPitchStatus, 5000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(interval);
     };
-  }, [clusterId, supabase]);
+  }, [clusterId]);
   
   // Pitch timer countdown
   useEffect(() => {
@@ -291,24 +254,8 @@ export default function DashboardPage() {
     }
   };
 
-  const markAlertRead = async (id: string) => {
-    try {
-      await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    } catch (error) {
-      console.error('Failed to mark notification read:', error);
-    }
-  };
-
-  const markAllAlertsRead = async () => {
-    const unreadNotifs = notifications.filter(n => !n.read);
-    for (const notif of unreadNotifs) {
-      await markAlertRead(notif.id);
-    }
-  };
-
   const handleEditName = () => {
-    setEditNameValue(user?.profile?.full_name || "");
+    setEditNameValue(user?.fullName || "");
     setShowEditName(true);
     setShowProfileMenu(false);
   };
@@ -349,16 +296,6 @@ export default function DashboardPage() {
       setIsLoggingOut(false);
     }
   };
-
-  // Convert notifications to alerts format
-  const alerts: Alert[] = notifications.map(n => ({
-    id: n.id,
-    title: n.title,
-    description: n.description || n.message || '',
-    type: (n.type as "urgent" | "warning" | "info") || "info",
-    time: new Date(n.created_at).toLocaleDateString(),
-    read: n.read,
-  }));
 
   // Format schedule items
   const scheduleItems = schedule.map(s => ({
@@ -437,7 +374,7 @@ export default function DashboardPage() {
   }
 
   const teamCode = user?.team?.code ? user.team.code.slice(0, 3) + '-' + user.team.code.slice(3) : '';
-  const firstName = user?.profile?.full_name?.split(' ')[0] || 'User';
+  const firstName = user?.fullName?.split(' ')[0] || 'User';
   const milestoneRemaining =
   homeData?.milestone?.deadline
     ? Math.max(
@@ -476,7 +413,7 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <NotificationCenter />
+            <Bell className="text-gray-400" />
           </div>
         )}
 
@@ -493,12 +430,12 @@ export default function DashboardPage() {
               </h1>
             ) : (
               <h1 className="mt-2 text-3xl font-serif font-bold leading-tight text-white">
-                {user?.profile?.full_name || 'Welcome'}
+                {user?.fullName || 'Welcome'}
               </h1>
             )}
             <p className="mt-2 flex items-center gap-2 text-gray-400 text-sm">
               {hasTeam && <GraduationCap size={16} className="text-primary" />}
-              {user?.profile?.college?.name || 'Your College'}
+              {user?.college?.name || 'Your College'}
             </p>
           </div>
           <div className="relative">
@@ -513,8 +450,8 @@ export default function DashboardPage() {
             {showProfileMenu && (
               <div className="absolute right-0 top-16 w-56 bg-[#121212] border border-[#262626] rounded-xl shadow-2xl overflow-hidden z-50">
                 <div className="px-4 py-3 border-b border-[#262626]">
-                  <p className="text-white font-medium truncate">{user?.profile?.full_name}</p>
-                  <p className="text-xs text-gray-500 truncate">{user?.profile?.email}</p>
+                  <p className="text-white font-medium truncate">{user?.fullName}</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                 </div>
 
                 <div className="py-2">
@@ -729,21 +666,6 @@ export default function DashboardPage() {
                   <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                 </div>
               </button>
-
-              <button
-                onClick={() => setShowAlerts(true)}
-                className="bg-[#121212] border border-[#262626] rounded-xl p-4 relative hover:border-red-500/50 transition-all text-left"
-              >
-                <Megaphone className="text-red-500" />
-                {unreadAlerts > 0 && (
-                  <span className="absolute top-3 right-3 h-5 w-5 bg-red-500 rounded-full text-[9px] text-white flex items-center justify-center font-bold animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]">
-                    {unreadAlerts}
-                  </span>
-                )}
-                <h4 className="mt-4 font-semibold text-white">Alerts</h4>
-                <p className="text-sm text-red-400 mt-1 font-medium">{unreadAlerts > 0 ? 'Action Required' : 'All caught up'}</p>
-                <p className="mt-3 text-[9px] text-red-400 uppercase tracking-widest font-bold">{unreadAlerts} New</p>
-              </button>
             </section>
             {/* Commits & Teams Active */}
             <section className="mt-8 grid grid-cols-2 gap-4">
@@ -820,73 +742,6 @@ export default function DashboardPage() {
           </div>
         </footer>
       </div>
-
-      {/* Alerts Modal */}
-      {showAlerts && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
-          <div className="bg-[#121212] border border-[#262626] rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-[#262626]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center">
-                  <Megaphone className="w-5 h-5 text-red-500" />
-                </div>
-                <div>
-                  <h2 className="font-serif text-lg font-bold text-white">Alerts</h2>
-                  <p className="text-xs text-gray-500">{unreadAlerts} unread</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {unreadAlerts > 0 && (
-                  <button onClick={markAllAlertsRead} className="text-xs text-primary hover:text-primary-hover transition-colors">
-                    Mark all read
-                  </button>
-                )}
-                <button onClick={() => setShowAlerts(false)} className="p-2 text-gray-500 hover:text-white transition-colors">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="overflow-y-auto max-h-[60vh] p-4 space-y-3">
-              {alerts.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">No notifications yet</div>
-              ) : (
-                alerts.map((alert) => (
-                  <button
-                    key={alert.id}
-                    onClick={() => markAlertRead(alert.id)}
-                    className={`w-full text-left p-4 rounded-xl border transition-all ${!alert.read
-                      ? alert.type === "urgent"
-                        ? "bg-red-500/10 border-red-500/30"
-                        : alert.type === "warning"
-                          ? "bg-yellow-500/10 border-yellow-500/30"
-                          : "bg-primary/10 border-primary/30"
-                      : "bg-[#0A0A0A] border-[#262626]"
-                      }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${alert.type === "urgent" ? "bg-red-500/20" : alert.type === "warning" ? "bg-yellow-500/20" : "bg-primary/20"
-                        }`}>
-                        {alert.type === "urgent" ? <AlertTriangle className="w-4 h-4 text-red-500" /> :
-                          alert.type === "warning" ? <Clock className="w-4 h-4 text-yellow-500" /> :
-                            <Bell className="w-4 h-4 text-primary" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className={`font-semibold ${!alert.read ? "text-white" : "text-gray-400"}`}>{alert.title}</p>
-                          {!alert.read && <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0" />}
-                        </div>
-                        <p className="text-sm text-gray-500 mt-1">{alert.description}</p>
-                        <p className="text-[10px] text-gray-600 mt-2">{alert.time}</p>
-                      </div>
-                    </div>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Schedule Modal */}
       {showSchedule && (

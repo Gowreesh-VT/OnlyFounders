@@ -51,10 +51,10 @@ export default function SuperAdminCollegesPage() {
       const authRes = await fetch('/api/auth/me');
       if (!authRes.ok) { router.push('/auth/login'); return; }
       const authData = await authRes.json();
-      if (authData.user?.profile?.role !== 'super_admin') { router.push('/dashboard'); return; }
+      if (authData.user?.role !== 'super_admin') { router.push('/dashboard'); return; }
 
       // Cache user info
-      cache.set('super-admin-user', { name: authData.user?.profile?.full_name || 'Super Admin' }, 10 * 60 * 1000);
+      cache.set('super-admin-user', { name: authData.user?.fullName || 'Super Admin' }, 10 * 60 * 1000);
 
       // Fetch colleges
       const res = await fetch('/api/super-admin/colleges');

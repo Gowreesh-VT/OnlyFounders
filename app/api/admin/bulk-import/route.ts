@@ -1,7 +1,10 @@
-import { createAdminClient, createAnonClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb/connection';
+import { User, Team, College, IUser } from '@/lib/mongodb/models';
+import { getSession, hashPassword } from '@/lib/mongodb/auth';
 import { generateSecurePassword, sendBulkCredentials } from '@/lib/email/sender';
 import crypto from 'crypto';
+import mongoose from 'mongoose';
 
 function generateEntityId(): string {
     const year = new Date().getFullYear();
@@ -25,188 +28,218 @@ interface CSVParticipant {
     email: string;
     collegeName: string;
     teamName: string;
-    role: 'participant' | 'team_lead' | 'admin' | 'super_admin' | 'gate_volunteer' | 'event_coordinator';
+    role: 'participant' | 'team_lead' | 'cluster_monitor' | 'gate_volunteer' | 'super_admin' | 'admin' | 'event_coordinator';
     phoneNumber?: string;
     domain?: string;
 }
 
 export async function POST(request: NextRequest) {
     try {
-        // SECURITY: Verify user is authenticated and authorized
-        const supabase = await createAnonClient();
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        await connectDB();
 
-        if (userError || !user) {
-            return NextResponse.json(
-                { error: 'Not authenticated' },
-                { status: 401 }
-            );
+        // Verify user is authenticated and authorized
+        const session = await getSession();
+        if (!session) {
+            return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
         }
 
-        const supabaseAdmin = createAdminClient();
-
-        // Verify user is admin or super_admin
-        const { data: profile } = await supabaseAdmin
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
-
-        if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
-            return NextResponse.json(
-                { error: 'Unauthorized - Admin access required' },
-                { status: 403 }
-            );
+        const user = await User.findById(session.userId);
+        if (!user || !['super_admin', 'cluster_monitor'].includes(user.role)) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
 
-        const { participants } = await request.json() as { participants: CSVParticipant[] };
-
-        if (!participants || !Array.isArray(participants)) {
-            return NextResponse.json(
-                { error: 'Invalid participants data' },
-                { status: 400 }
-            );
-        }
-
-        const results = {
-            success: [] as any[],
-            failed: [] as any[],
+        const body = await request.json();
+        const { participants, sendEmails = false } = body as {
+            participants: CSVParticipant[],
+            sendEmails?: boolean
         };
 
-        const emailList: Array<{
-            email: string;
-            fullName: string;
-            password: string;
-        }> = [];
+        if (!participants || !Array.isArray(participants) || participants.length === 0) {
+            return NextResponse.json({ error: 'No participants provided' }, { status: 400 });
+        }
+
+        const results: {
+            success: any[];
+            errors: any[];
+        } = { success: [], errors: [] };
+
+        // Cache for colleges and teams to avoid repeated queries
+        const collegeCache = new Map<string, mongoose.Types.ObjectId>();
+        const teamCache = new Map<string, mongoose.Types.ObjectId>();
+
+        // Roles that don't need college/team
+        const nonParticipantRoles = ['super_admin', 'gate_volunteer', 'cluster_monitor', 'admin', 'event_coordinator'];
 
         for (const participant of participants) {
             try {
-                // 1. Resolve College ID
-                let collegeId = null;
-                if (participant.collegeName) {
-                    const { data: college } = await supabaseAdmin
-                        .from('colleges')
-                        .select('id')
-                        .ilike('name', participant.collegeName)
-                        .maybeSingle();
+                const isNonParticipant = nonParticipantRoles.includes(participant.role);
 
-                    collegeId = college?.id || null;
+                // Validate required fields - college/team only required for participants
+                if (!participant.fullName || !participant.email) {
+                    results.errors.push({
+                        email: participant.email || 'unknown',
+                        error: 'Missing required fields (fullName or email)'
+                    });
+                    continue;
                 }
 
-
-                let teamId = null;
-                if (participant.teamName) {
-                    // A. Try to find existing team
-                    const { data: existingTeam } = await supabaseAdmin
-                        .from('teams')
-                        .select('id')
-                        .ilike('name', participant.teamName)
-                        .maybeSingle();
-
-                    if (existingTeam) {
-                        teamId = existingTeam.id;
-                    } else {
-
-                        console.log(`Team '${participant.teamName}' not found. Creating new team...`);
-
-                        const { data: newTeam, error: createTeamError } = await supabaseAdmin
-                            .from('teams')
-                            .insert({
-                                name: participant.teamName,
-                                college_id: collegeId,
-                                domain: participant.domain || 'general'
-                            })
-                            .select('id')
-                            .single();
-
-                        if (createTeamError) {
-                            console.error(`Failed to create team ${participant.teamName}:`, createTeamError);
-
-                        } else {
-                            teamId = newTeam.id;
-                        }
+                // Participants and team_leads need college/team
+                if (!isNonParticipant) {
+                    if (!participant.collegeName || !participant.teamName) {
+                        results.errors.push({
+                            email: participant.email,
+                            error: 'Participants and team leads require collegeName and teamName'
+                        });
+                        continue;
                     }
                 }
 
-                // 3. Generate Credentials
+                // Check if user already exists
+                const existingUser = await User.findOne({ email: participant.email.toLowerCase() });
+                if (existingUser) {
+                    results.errors.push({
+                        email: participant.email,
+                        error: 'User already exists'
+                    });
+                    continue;
+                }
+
+                // Get or create college (only if collegeName provided)
+                let collegeId: mongoose.Types.ObjectId | undefined = undefined;
+                if (participant.collegeName) {
+                    collegeId = collegeCache.get(participant.collegeName);
+                    if (!collegeId) {
+                        let college = await College.findOne({ name: participant.collegeName });
+                        if (!college) {
+                            college = await College.create({ name: participant.collegeName });
+                        }
+                        collegeId = college._id as mongoose.Types.ObjectId;
+                        collegeCache.set(participant.collegeName, collegeId);
+                    }
+                }
+
+                // Get or create team (only if teamName provided)
+                let teamId: mongoose.Types.ObjectId | undefined = undefined;
+                if (participant.teamName && collegeId) {
+                    const teamKey = `${participant.collegeName}:${participant.teamName}`;
+                    teamId = teamCache.get(teamKey);
+                    if (!teamId) {
+                        let team = await Team.findOne({
+                            name: participant.teamName,
+                            collegeId
+                        });
+                        if (!team) {
+                            team = await Team.create({
+                                name: participant.teamName,
+                                collegeId,
+                                domain: participant.domain || undefined,
+                                balance: 1000000,
+                                totalInvested: 0,
+                                totalReceived: 0
+                            });
+                        }
+                        teamId = team._id as mongoose.Types.ObjectId;
+                        teamCache.set(teamKey, teamId);
+                    }
+                }
+
+                // Generate credentials
                 const password = generateSecurePassword(12);
+                const hashedPassword = await hashPassword(password);
                 const entityId = generateEntityId();
                 const qrToken = generateQRToken(entityId);
 
-                // 4. Create Auth User
-                const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-                    email: participant.email,
-                    password,
-                    email_confirm: true,
-                    user_metadata: { full_name: participant.fullName }
-                });
+                // Create user - only include teamId/collegeId if they exist
+                const userData: any = {
+                    email: participant.email.toLowerCase(),
+                    password: hashedPassword,
+                    fullName: participant.fullName,
+                    phoneNumber: participant.phoneNumber || undefined,
+                    role: participant.role || 'participant',
+                    entityId,
+                    qrToken,
+                    qrGeneratedAt: new Date(),
+                    isActive: true,
+                    loginCount: 0
+                };
 
-                if (authError) throw authError;
+                if (teamId) userData.teamId = teamId;
+                if (collegeId) userData.collegeId = collegeId;
 
-                // 5. Create Profile (Linked to the resolved/created teamId)
-                const { error: profileError } = await supabaseAdmin
-                    .from('profiles')
-                    .insert({
-                        id: authData.user.id,
-                        email: participant.email,
-                        full_name: participant.fullName,
-                        phone_number: participant.phoneNumber?.toString() || null,
-                        role: participant.role,
-                        entity_id: entityId,
-                        qr_token: qrToken,
-                        college_id: collegeId,
-                        team_id: teamId,
-                    });
-
-                if (profileError) throw profileError;
+                const newUser = await User.create(userData);
 
                 results.success.push({
                     email: participant.email,
-                    team: participant.teamName,
-                    action: teamId ? 'Linked' : 'No Team',
+                    fullName: participant.fullName,
+                    entityId,
+                    password: password,
+                    role: participant.role || 'participant',
+                    teamName: participant.teamName || '-',
+                    collegeName: participant.collegeName || '-',
+                    userId: newUser._id
                 });
 
-                emailList.push({
-                    email: participant.email,
-                    fullName: participant.fullName,
-                    password,
-                });
+                // Send credentials email if requested
+                if (sendEmails) {
+                    try {
+                        await sendBulkCredentials([{
+                            email: participant.email,
+                            fullName: participant.fullName,
+                            password,
+                            entityId
+                        }]);
+                    } catch (emailError) {
+                        console.error(`Failed to send email to ${participant.email}:`, emailError);
+                    }
+                }
 
             } catch (error: any) {
-                console.error(`Error processing ${participant.email}:`, error.message);
-                results.failed.push({
+                console.error(`Error processing ${participant.email}:`, error);
+                results.errors.push({
                     email: participant.email,
-                    error: error.message,
+                    error: error.message || 'Unknown error'
                 });
             }
         }
 
-        // Step 6: Send emails in bulk
-        let emailResults: { success: string[]; failed: { email: string; error: string }[] } = {
-            success: [],
-            failed: []
-        };
+        // Count emails sent (only if sendEmails was true and participant was successful)
+        const emailsSent = sendEmails ? results.success.length : 0;
 
-        if (emailList.length > 0) {
-            emailResults = await sendBulkCredentials(emailList);
+        // Log credentials to console for easy copy-paste
+        console.log('\n========== BULK IMPORT CREDENTIALS ==========');
+        console.log('Copy the data below:\n');
+        console.log('Email,Password,EntityId,FullName,Team,College');
+        results.success.forEach((user: any) => {
+            console.log(`${user.email},${user.password},${user.entityId},${user.fullName},${user.teamName},${user.collegeName}`);
+        });
+        console.log('\n==============================================\n');
+
+        // Log errors if any
+        if (results.errors.length > 0) {
+            console.log('\n========== BULK IMPORT ERRORS ==========');
+            results.errors.forEach((err: any) => {
+                console.log(`❌ ${err.email}: ${err.error}`);
+            });
+            console.log('\n=========================================\n');
         }
 
         return NextResponse.json({
-            message: 'Bulk import completed',
+            success: true,
+            message: `Processed ${participants.length} participants`,
             imported: results.success.length,
-            failed: results.failed.length,
-            emailsSent: emailResults.success.length || 0,
-            emailsFailed: emailResults.failed.length || 0,
-            details: {
-                importResults: results,
-                emailResults,
-            },
+            failed: results.errors.length,
+            emailsSent: emailsSent,
+            results: {
+                successCount: results.success.length,
+                errorCount: results.errors.length,
+                details: results
+            }
         });
 
     } catch (error: any) {
         console.error('Bulk import error:', error);
         return NextResponse.json(
-            { error: 'Bulk import failed: ' + error.message },
+            { error: error.message || 'Internal server error' },
             { status: 500 }
         );
     }

@@ -18,8 +18,8 @@ export default function EIDPage() {
   }, []);
 
   useEffect(() => {
-    if (user?.profile?.qr_token) {
-      generateQRCode(user.profile.qr_token);
+    if (user?.qrToken) {
+      generateQRCode(user.qrToken);
     }
   }, [user]);
 
@@ -35,7 +35,7 @@ export default function EIDPage() {
       setUser(data.user);
       
       // If no photo, redirect to onboarding
-      if (!data.user?.profile?.photo_url) {
+      if (!data.user?.photoUrl) {
         router.push('/onboarding');
         return;
       }
@@ -88,7 +88,7 @@ export default function EIDPage() {
     );
   }
 
-  const profile = user?.profile;
+  const profile = user;
   const team = user?.team;
   const currentDate = new Date();
   // Convert to IST (UTC+5:30)
@@ -136,15 +136,15 @@ export default function EIDPage() {
             <div className="flex justify-center mb-6">
               <div className="relative">
                 <div className="w-36 h-36 bg-gray-800 border border-[#262626]">
-                  {profile?.photo_url ? (
+                  {profile?.photoUrl ? (
                     <img 
-                      src={profile.photo_url} 
-                      alt={profile.full_name}
-                      className="w-full h-full object-cover grayscale"
+                      src={profile.photoUrl} 
+                      alt={profile.fullName}
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-gray-600 text-4xl font-serif">{profile?.full_name?.[0] || '?'}</span>
+                      <span className="text-gray-600 text-4xl font-serif">{profile?.fullName?.[0] || '?'}</span>
                     </div>
                   )}
                 </div>
@@ -160,7 +160,7 @@ export default function EIDPage() {
 
             {/* Name and Title */}
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-serif mb-2 text-white">{profile?.full_name || 'Unknown'}</h2>
+              <h2 className="text-3xl font-serif mb-2 text-white">{profile?.fullName || 'Unknown'}</h2>
               <p className="text-primary text-sm italic font-serif">
                 {team?.domain ? `${team.domain.charAt(0).toUpperCase() + team.domain.slice(1)}` : 'Venture Capital'} / Tier 1
               </p>
@@ -185,7 +185,7 @@ export default function EIDPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center border-b border-[#262626] pb-3">
                 <span className="tech-text text-gray-500 text-xs">ENTITY_ID</span>
-                <span className="tech-text text-white text-sm">{profile?.entity_id || 'PENDING'}</span>
+                <span className="tech-text text-white text-sm">{profile?.entityId || 'PENDING'}</span>
               </div>
               <div className="flex justify-between items-center border-b border-[#262626] pb-3">
                 <span className="tech-text text-gray-500 text-xs">ACCESS_LEVEL</span>

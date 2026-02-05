@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import connectDB from '@/lib/mongodb/connection';
+import { AuditLog, User } from '@/lib/mongodb/models';
+import { getCurrentUser } from '@/lib/mongodb/auth';
 
 // GET: Fetch audit logs
 export async function GET(request: NextRequest) {
     try {
-        const supabase = await createClient();
+        await connectDB();
 
         // Get current authenticated user
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const currentUser = await getCurrentUser();
 
-        if (authError || !user) {
+        if (!currentUser) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -17,13 +19,9 @@ export async function GET(request: NextRequest) {
         }
 
         // Check if user is super_admin
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
+        const user = await User.findById(currentUser.id).select('role');
 
-        if (profile?.role !== 'super_admin') {
+        if (user?.role !== 'super_admin') {
             return NextResponse.json(
                 { error: 'Forbidden - Super Admin access required' },
                 { status: 403 }
@@ -37,34 +35,22 @@ export async function GET(request: NextRequest) {
         const eventType = url.searchParams.get('event_type');
 
         // Build query
-        let query = supabase
-            .from('audit_logs')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .range(offset, offset + limit - 1);
-
+        const filter: any = {};
         if (eventType) {
-            query = query.eq('event_type', eventType);
+            filter.eventType = eventType;
         }
 
-        const { data: logs, error: logsError } = await query;
-
-        if (logsError) {
-            console.error('Logs fetch error:', logsError);
-            return NextResponse.json(
-                { error: 'Failed to fetch logs' },
-                { status: 500 }
-            );
-        }
+        const logs = await AuditLog.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(offset)
+            .limit(limit);
 
         // Get total count
-        const { count } = await supabase
-            .from('audit_logs')
-            .select('*', { count: 'exact', head: true });
+        const total = await AuditLog.countDocuments(filter);
 
         return NextResponse.json({
             logs: logs || [],
-            total: count || 0,
+            total,
             limit,
             offset,
         });

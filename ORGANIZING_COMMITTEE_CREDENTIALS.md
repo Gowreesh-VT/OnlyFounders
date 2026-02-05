@@ -31,3 +31,11 @@
   - Password: `yLN%UrdHT8Qw`
 
 ---
+
+Email,Password,EntityId,FullName,Team,College
+superadmin@onlyfounders.com,59&u&79eQv6Z,OF-2026-B385,System Administrator,-,-
+admin.mit@onlyfounders.com,PET54$J5Lkyp,OF-2026-0633,MIT Manipal Admin,-,MIT Manipal
+admin.nit@onlyfounders.com,zC&WHnVWY3pL,OF-2026-B377,NIT Surathkal Admin,-,NIT Surathkal
+admin.rvce@onlyfounders.com,hvBPt9#*#gHL,OF-2026-B5F2,RVCE Admin,-,RVCE
+gate.volunteer1@onlyfounders.com,2J$uUU8uWpjq,OF-2026-93A9,Gate Volunteer Alpha,-,-
+gate.volunteer2@onlyfounders.com,kjHp&s@yPPs6,OF-2026-1708,Gate Volunteer Beta,-,-

@@ -63,7 +63,7 @@ export default function GateScannerPage() {
       }
 
       const data = await response.json();
-      if (data.user?.profile?.role !== 'gate_volunteer') {
+      if (data.user?.role !== 'gate_volunteer' && data.user?.role !== 'super_admin') {
         router.push('/dashboard');
         return;
       }
@@ -148,15 +148,16 @@ export default function GateScannerPage() {
       const response = await fetch('/api/gate/verify-qr', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          qrData: qrData.trim(),
-          gateLocation: 'GATE1'
+        body: JSON.stringify({
+          qrToken: qrData.trim(),
+          scanType: 'entry',
+          location: 'GATE1'
         }),
       });
 
       const data = await response.json();
 
-      if (response.ok && data.verified) {
+      if (response.ok && data.valid) {
         setParticipant(data.participant);
         setVerified(true);
         setScanning(false);
@@ -355,10 +356,10 @@ export default function GateScannerPage() {
                     >
                       {/* Photo/Icon */}
                       <div className="relative shrink-0">
-                        {scan.success && scan.participant?.photo_url ? (
+                        {scan.success && scan.participant?.photoUrl ? (
                           <img
-                            src={scan.participant.photo_url}
-                            alt={scan.participant.full_name}
+                            src={scan.participant.photoUrl}
+                            alt={scan.participant.fullName}
                             className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover"
                           />
                         ) : (
@@ -367,7 +368,7 @@ export default function GateScannerPage() {
                           }`}>
                             {scan.success ? (
                               <span className="text-lg sm:text-xl text-gray-400">
-                                {scan.participant?.full_name?.[0]?.toUpperCase() || '?'}
+                                {scan.participant?.fullName?.[0]?.toUpperCase() || '?'}
                               </span>
                             ) : (
                               <X className="text-red-500" size={20} />
@@ -391,11 +392,11 @@ export default function GateScannerPage() {
                         {scan.success ? (
                           <>
                             <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 mb-1">
-                              <p className="font-semibold text-white text-sm sm:text-base truncate">{scan.participant.full_name}</p>
+                              <p className="font-semibold text-white text-sm sm:text-base truncate">{scan.participant.fullName}</p>
                               <span className="tech-text text-primary text-xs">ACCESS GRANTED</span>
                             </div>
                             <p className="text-xs sm:text-sm text-gray-400 truncate">
-                              {scan.participant.role || 'Participant'} • {scan.participant.cluster ? `Tier ${scan.participant.cluster_tier}` : 'No Tier'}
+                              {scan.participant.role || 'Participant'}
                             </p>
                           </>
                         ) : (
@@ -445,16 +446,16 @@ export default function GateScannerPage() {
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
                 {/* Photo */}
                 <div className="shrink-0 mx-auto sm:mx-0">
-                  {participant.photo_url ? (
+                  {participant.photoUrl ? (
                     <img
-                      src={participant.photo_url}
-                      alt={participant.full_name}
+                      src={participant.photoUrl}
+                      alt={participant.fullName}
                       className="w-32 h-32 sm:w-40 sm:h-40 object-cover border-2 border-gray-700 rounded"
                     />
                   ) : (
                     <div className="w-32 h-32 sm:w-40 sm:h-40 bg-gray-800 border-2 border-gray-700 rounded flex items-center justify-center">
                       <span className="text-4xl sm:text-5xl text-gray-600">
-                        {participant.full_name?.[0]?.toUpperCase() || '?'}
+                        {participant.fullName?.[0]?.toUpperCase() || '?'}
                       </span>
                     </div>
                   )}
@@ -464,7 +465,7 @@ export default function GateScannerPage() {
                 <div className="flex-1 text-center sm:text-left">
                   <p className="tech-text text-gray-500 text-xs mb-2">FULL LEGAL NAME</p>
                   <h3 className="text-2xl sm:text-4xl font-bold text-white mb-2 wrap-break-word">
-                    {participant.full_name?.toUpperCase() || 'UNKNOWN'}
+                    {participant.fullName?.toUpperCase() || 'UNKNOWN'}
                   </h3>
                 </div>
               </div>
@@ -475,15 +476,13 @@ export default function GateScannerPage() {
                   <p className="tech-text text-gray-500 text-xs mb-2">TEAM NAME</p>
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-6 bg-primary"></div>
-                    <p className="text-white text-base sm:text-lg truncate">{participant.team || 'No Team'}</p>
+                    <p className="text-white text-base sm:text-lg truncate">{participant.team?.name || 'No Team'}</p>
                   </div>
                 </div>
                 <div>
                   <p className="tech-text text-gray-500 text-xs mb-2">CLUSTER</p>
                   <p className="text-gray-400 text-base sm:text-lg truncate">
-                    {participant.cluster_tier && participant.cluster 
-                      ? `Tier ${participant.cluster_tier} • ${participant.cluster}`
-                      : 'Not Assigned'}
+                    Not Assigned
                   </p>
                 </div>
               </div>
@@ -492,11 +491,11 @@ export default function GateScannerPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
                 <div>
                   <p className="tech-text text-gray-500 text-xs mb-2">COLLEGE</p>
-                  <p className="text-white text-base sm:text-lg truncate">{participant.college || 'Not Specified'}</p>
+                  <p className="text-white text-base sm:text-lg truncate">{participant.college?.name || 'Not Specified'}</p>
                 </div>
                 <div>
                   <p className="tech-text text-gray-500 text-xs mb-2">PHONE</p>
-                  <p className="text-white text-base sm:text-lg">{participant.phone_number || 'N/A'}</p>
+                  <p className="text-white text-base sm:text-lg">{participant.phoneNumber || 'N/A'}</p>
                 </div>
               </div>
 
@@ -505,19 +504,8 @@ export default function GateScannerPage() {
                 <div>
                   <p className="tech-text text-gray-500 text-xs mb-2">LAST SCANNED</p>
                   <p className="text-white text-base sm:text-lg">
-                    {participant.last_scanned 
-                      ? new Date(participant.last_scanned).toLocaleString('en-IN', {
-                          timeZone: 'Asia/Kolkata',
-                          day: '2-digit',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })
-                      : 'First Entry'}
+                    {'First Entry'}
                   </p>
-                  {participant.last_scanned_by && (
-                    <p className="text-gray-500 text-xs sm:text-sm mt-1">By: {participant.last_scanned_by}</p>
-                  )}
                 </div>
                 <div>
                   <p className="tech-text text-gray-500 text-xs mb-2">TOTAL SCANS</p>

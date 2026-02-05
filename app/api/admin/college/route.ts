@@ -1,37 +1,40 @@
-import { createAnonClient, createAdminClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb/connection';
+import { User, College } from '@/lib/mongodb/models';
+import { getCurrentUser } from '@/lib/mongodb/auth';
 
 export async function GET() {
     try {
-        const supabase = await createAnonClient();
-        const supabaseAdmin = createAdminClient();
+        await connectDB();
 
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
+        const currentUser = await getCurrentUser();
+        if (!currentUser) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
         }
 
-        const { data: profile } = await supabaseAdmin
-            .from('profiles')
-            .select('role, college_id')
-            .eq('id', user.id)
-            .single();
+        const user = await User.findById(currentUser.id).select('role collegeId');
 
-        if (profile?.role !== 'admin' || !profile.college_id) {
+        if (user?.role !== 'admin' || !user.collegeId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
 
-        const { data: college, error: collegeError } = await supabaseAdmin
-            .from('colleges')
-            .select('*')
-            .eq('id', profile.college_id)
-            .single();
+        const college = await College.findById(user.collegeId);
 
-        if (collegeError || !college) {
+        if (!college) {
             return NextResponse.json({ error: 'College not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ college });
+        return NextResponse.json({ 
+            college: {
+                id: college._id,
+                name: college.name,
+                shortCode: college.shortCode,
+                location: college.location,
+                adminEmail: college.adminEmail,
+                maxParticipants: college.maxParticipants,
+                internalDetails: college.internalDetails,
+            }
+        });
     } catch (error) {
         console.error('Get college details error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -43,34 +46,24 @@ export async function PATCH(request: NextRequest) {
         const body = await request.json();
         const { internalDetails } = body;
 
-        const supabase = await createAnonClient();
-        const supabaseAdmin = createAdminClient();
+        await connectDB();
 
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
+        const currentUser = await getCurrentUser();
+        if (!currentUser) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
         }
 
-        const { data: profile } = await supabaseAdmin
-            .from('profiles')
-            .select('role, college_id')
-            .eq('id', user.id)
-            .single();
+        const user = await User.findById(currentUser.id).select('role collegeId');
 
-        if (profile?.role !== 'admin' || !profile.college_id) {
+        if (user?.role !== 'admin' || !user.collegeId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
 
         if (internalDetails) {
-            const { error: updateError } = await supabaseAdmin
-                .from('colleges')
-                .update({ internal_details: internalDetails, updated_at: new Date().toISOString() })
-                .eq('id', profile.college_id);
-
-            if (updateError) {
-                console.error('Update college error:', updateError);
-                return NextResponse.json({ error: 'Failed to update details' }, { status: 500 });
-            }
+            await College.findByIdAndUpdate(user.collegeId, {
+                internalDetails,
+                updatedAt: new Date(),
+            });
         }
 
         return NextResponse.json({ success: true });

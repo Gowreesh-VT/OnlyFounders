@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, X, Check, Loader2, AlertCircle, Shield } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 
 type OnboardingStep = 'photo' | 'complete';
 
@@ -35,8 +34,24 @@ export default function OnboardingPage() {
             const data = await response.json();
             setUser(data.user);
 
+            // Non-participant roles don't need onboarding - redirect to appropriate dashboard
+            const role = data.user?.role;
+            if (role === 'super_admin') {
+                router.push('/super-admin/dashboard');
+                return;
+            } else if (role === 'admin') {
+                router.push('/admin/dashboard');
+                return;
+            } else if (role === 'gate_volunteer') {
+                router.push('/gate/scanner');
+                return;
+            } else if (role === 'cluster_monitor') {
+                router.push('/cluster-admin/dashboard');
+                return;
+            }
+
             // If user already has photo, redirect to dashboard
-            if (data.user?.profile?.photo_url) {
+            if (data.user?.photoUrl) {
                 router.push('/dashboard');
                 return;
             }
@@ -84,30 +99,27 @@ export default function OnboardingPage() {
         setError(null);
 
         try {
-            const supabase = createClient();
+            // Upload photo via API
+            const formData = new FormData();
+            formData.append('photo', selectedFile);
 
-            // Upload to Supabase Storage
-            const fileExtension = selectedFile.name.split('.').pop() || 'jpg';
-            const fileName = `${user.id}/photo.${fileExtension}`;
-            const { error: uploadError } = await supabase.storage
-                .from('participant-photos')
-                .upload(fileName, selectedFile, {
-                    upsert: true,
-                    contentType: selectedFile.type,
-                });
+            const uploadResponse = await fetch('/api/upload/photo', {
+                method: 'POST',
+                body: formData,
+            });
 
-            if (uploadError) throw uploadError;
+            if (!uploadResponse.ok) {
+                const uploadData = await uploadResponse.json();
+                throw new Error(uploadData.error || 'Failed to upload photo');
+            }
 
-            // Get public URL
-            const { data: urlData } = supabase.storage
-                .from('participant-photos')
-                .getPublicUrl(fileName);
+            const { photoUrl } = await uploadResponse.json();
 
             // Complete onboarding - generate E-ID and QR token
             const response = await fetch('/api/onboarding/complete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ photoUrl: urlData.publicUrl }),
+                body: JSON.stringify({ photoUrl }),
             });
 
             if (!response.ok) {

@@ -17,12 +17,17 @@ import {
 import SuperAdminBottomNav from '../../components/SuperAdminBottomNav';
 
 type AuditLog = {
-    id: string;
-    event_type: string;
-    actor_id: string | null;
-    target_id: string | null;
+    _id: string;
+    id?: string;
+    event_type?: string;
+    eventType?: string;
+    actor_id?: string | null;
+    actorId?: string | null;
+    target_id?: string | null;
+    targetId?: string | null;
     metadata: any;
-    created_at: string;
+    created_at?: string;
+    createdAt?: string;
     actor_name?: string;
 };
 
@@ -78,11 +83,15 @@ export default function AuditLogsPage() {
         fetchLogs();
     }, [fetchLogs]);
 
+    // Helper to get event type (handle both snake_case and camelCase)
+    const getEventType = (log: AuditLog) => log.event_type || log.eventType || 'unknown';
+    const getCreatedAt = (log: AuditLog) => log.created_at || log.createdAt || new Date().toISOString();
+
     const filteredLogs = filter === 'all' 
         ? logs 
-        : logs.filter(log => log.event_type === filter);
+        : logs.filter(log => getEventType(log) === filter);
 
-    const uniqueEventTypes = [...new Set(logs.map(log => log.event_type))];
+    const uniqueEventTypes = [...new Set(logs.map(log => getEventType(log)).filter(Boolean))] as string[];
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -169,13 +178,14 @@ export default function AuditLogsPage() {
                     </div>
                 ) : (
                     <div className="space-y-2">
-                        {filteredLogs.map((log) => {
-                            const Icon = getIcon(log.event_type);
-                            const colorClass = getColor(log.event_type);
+                        {filteredLogs.map((log, index) => {
+                            const eventType = getEventType(log);
+                            const Icon = getIcon(eventType);
+                            const colorClass = getColor(eventType);
                             
                             return (
                                 <div
-                                    key={log.id}
+                                    key={log._id || log.id || `log-${index}`}
                                     className="bg-[#121212] border border-[#262626] p-4 hover:border-[#363636] transition-colors"
                                 >
                                     <div className="flex items-start gap-4">
@@ -185,10 +195,10 @@ export default function AuditLogsPage() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between gap-4">
                                                 <span className="tech-text text-white text-xs">
-                                                    {log.event_type.replace(/_/g, ' ').toUpperCase()}
+                                                    {eventType.replace(/_/g, ' ').toUpperCase()}
                                                 </span>
                                                 <span className="tech-text text-gray-600 text-[10px] shrink-0">
-                                                    {formatDate(log.created_at)}
+                                                    {formatDate(getCreatedAt(log))}
                                                 </span>
                                             </div>
                                             {log.metadata && Object.keys(log.metadata).length > 0 && (

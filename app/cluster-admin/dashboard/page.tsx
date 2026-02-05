@@ -17,7 +17,6 @@ import {
   User,
   Loader2
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 
 type PitchStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 
@@ -59,7 +58,6 @@ interface Cluster {
 
 export default function ClusterAdminDashboard() {
   const router = useRouter();
-  const supabase = createClient();
   
   const [loading, setLoading] = useState(true);
   const [cluster, setCluster] = useState<Cluster | null>(null);
@@ -79,14 +77,11 @@ export default function ClusterAdminDashboard() {
   // Fetch cluster and related data
   // Fast cluster data fetch (used when switching clusters)
   const fetchClusterData = useCallback(async (clusterId: string) => {
-    const clusterRes = await fetch('/api/cluster-admin/pitch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        action: 'GET_CLUSTER_DATA',
-        payload: { clusterId }
-      }),
+    const params = new URLSearchParams({
+      action: 'GET_CLUSTER_DATA',
+      clusterId
     });
+    const clusterRes = await fetch(`/api/cluster-admin/pitch?${params.toString()}`);
     
     const clusterData = await clusterRes.json();
 
@@ -117,15 +112,16 @@ export default function ClusterAdminDashboard() {
       }
       
       const userData = await userRes.json();
-      const profile = userData.user?.profile;
+      const user = userData.user;
       
-      if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+      if (user?.role !== 'admin' && user?.role !== 'cluster_monitor' && user?.role !== 'super_admin') {
+        console.error('User role not authorized for cluster admin:', user?.role);
         router.push('/dashboard');
         return;
       }
 
-      setUserName(profile?.full_name || 'Cluster Admin');
-      const isSuper = profile?.role === 'super_admin';
+      setUserName(user?.fullName || 'Cluster Admin');
+      const isSuper = user?.role === 'super_admin';
       setIsSuperAdmin(isSuper);
 
       let targetClusterId: string | null = null;
@@ -152,27 +148,47 @@ export default function ClusterAdminDashboard() {
           targetClusterId = selectedClusterId || allClusters[0]?.id;
         }
       } else {
-        // Regular admin - check assigned_cluster_id on profile first
-        if (profile.assigned_cluster_id) {
-          targetClusterId = profile.assigned_cluster_id;
-        } else {
-          // Fallback: try to get cluster via API
+        // Regular admin - check assignedClusterId on user first
+        // assignedClusterId could be: string ID, ObjectId, or populated Cluster object
+        const assignedCluster = user.assignedClusterId;
+        console.log('DEBUG - user.assignedClusterId:', assignedCluster);
+        console.log('DEBUG - typeof assignedCluster:', typeof assignedCluster);
+        
+        if (assignedCluster) {
+          if (typeof assignedCluster === 'string') {
+            targetClusterId = assignedCluster;
+            console.log('DEBUG - extracted as string:', targetClusterId);
+          } else if (typeof assignedCluster === 'object') {
+            // Handle populated object or ObjectId
+            targetClusterId = assignedCluster._id?.toString() || 
+                             assignedCluster.id?.toString() || 
+                             assignedCluster.toString();
+            console.log('DEBUG - extracted from object:', targetClusterId);
+          }
+        }
+        
+        if (!targetClusterId) {
+          console.log('DEBUG - No targetClusterId from assignedCluster, trying fallback API');
+          // Fallback: try to get cluster via API (legacy monitor_id approach)
           const clustersRes = await fetch('/api/super-admin/colleges', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'FETCH_CLUSTERS' }),
           });
           const clustersData = await clustersRes.json();
+          console.log('DEBUG - clustersData:', clustersData);
           
           if (clustersData.success) {
-            const myCluster = clustersData.clusters?.find((c: any) => c.monitor_id === profile.id);
+            console.log('DEBUG - Looking for monitor_id:', user.id);
+            const myCluster = clustersData.clusters?.find((c: any) => c.monitor_id === user.id);
+            console.log('DEBUG - Found cluster by monitor_id:', myCluster);
             if (myCluster) {
               targetClusterId = myCluster.id;
             }
           }
           
           if (!targetClusterId) {
-            console.error('No cluster assigned');
+            console.error('No cluster assigned - assignedClusterId was:', user.assignedClusterId);
             setLoading(false);
             return;
           }
@@ -219,53 +235,39 @@ export default function ClusterAdminDashboard() {
     return () => clearInterval(interval);
   }, [activePitch, isPaused]);
 
-  // Real-time subscription for pitch updates
+  // Poll for pitch updates (replaces Supabase realtime)
   useEffect(() => {
     if (!cluster) return;
 
-    const channel = supabase
-      .channel(`cluster-${cluster.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'pitch_schedule',
-          filter: `cluster_id=eq.${cluster.id}`
-        },
-        () => {
-          fetchData();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'teams',
-          filter: `cluster_id=eq.${cluster.id}`
-        },
-        () => {
-          fetchData();
-        }
-      )
-      .subscribe();
+    // Poll every 5 seconds for updates
+    const interval = setInterval(() => {
+      fetchClusterData(cluster.id);
+    }, 5000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(interval);
     };
-  }, [cluster, supabase, fetchData]);
+  }, [cluster, fetchClusterData]);
 
-  const startPitch = async (pitchId: string) => {
+  const startPitch = async (pitch: PitchSchedule) => {
     if (!cluster) return;
-    
+    const teamId =
+      (typeof pitch.team_id === 'string' ? pitch.team_id : (pitch.team_id as any)?._id) ||
+      pitch.team?.id ||
+      (pitch.team as any)?._id;
+
+    if (!teamId) {
+      console.error('Start pitch error: missing teamId for schedule', pitch);
+      return;
+    }
+
     try {
       const res = await fetch('/api/cluster-admin/pitch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'START_PITCH',
-          payload: { pitchId, clusterId: cluster.id }
+          payload: { scheduleId: pitch.id, teamId, clusterId: cluster.id }
         })
       });
       
@@ -316,7 +318,7 @@ export default function ClusterAdminDashboard() {
     setIsPaused(!isPaused);
   };
 
-  const endPitch = async (pitchId: string) => {
+  const endPitch = async (scheduleId: string) => {
     if (!cluster) return;
     
     try {
@@ -325,7 +327,7 @@ export default function ClusterAdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'END_PITCH',
-          payload: { pitchId, clusterId: cluster.id }
+          payload: { scheduleId, clusterId: cluster.id }
         })
       });
       
@@ -373,8 +375,8 @@ export default function ClusterAdminDashboard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'TOGGLE_BIDDING',
-          payload: { clusterId: cluster.id, open: !cluster.bidding_open }
+          action: cluster.bidding_open ? 'CLOSE_BIDDING' : 'OPEN_BIDDING',
+          payload: { clusterId: cluster.id }
         })
       });
       
@@ -629,7 +631,7 @@ export default function ClusterAdminDashboard() {
                     
                     {pitch.status === 'scheduled' && !activePitch && (
                       <button
-                        onClick={() => startPitch(pitch.id)}
+                        onClick={() => startPitch(pitch)}
                         className="bg-primary/10 border border-primary text-primary px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-primary/20 transition-colors"
                       >
                         <Play className="w-4 h-4" />

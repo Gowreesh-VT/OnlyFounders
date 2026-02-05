@@ -1,5 +1,8 @@
-import { createAnonClient, createAdminClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/mongodb/auth';
+import connectDB from '@/lib/mongodb/connection';
+import { User, College } from '@/lib/mongodb/models';
+import bcrypt from 'bcryptjs';
 
 // GET - Fetch admins for a college
 export async function GET(
@@ -8,39 +11,38 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
-        const supabase = await createAnonClient();
-        const supabaseAdmin = createAdminClient();
-
+        
         // Verify user is super admin
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
+        const currentUser = await getCurrentUser();
+        if (!currentUser) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
         }
 
-        const { data: profile } = await supabaseAdmin
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
-
-        if (profile?.role !== 'super_admin') {
+        if (currentUser.role !== 'super_admin') {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
 
+        await connectDB();
+
         // Fetch admins for this college
-        const { data: admins, error: adminsError } = await supabaseAdmin
-            .from('profiles')
-            .select('id, full_name, email, member_id, created_at')
-            .eq('college_id', id)
-            .eq('role', 'admin')
-            .order('created_at', { ascending: false });
+        const admins = await User.find({
+            collegeId: id,
+            role: 'admin'
+        })
+        .select('_id fullName email memberId createdAt')
+        .sort({ createdAt: -1 })
+        .lean();
 
-        if (adminsError) {
-            console.error('Fetch admins error:', adminsError);
-            return NextResponse.json({ error: 'Failed to fetch admins' }, { status: 500 });
-        }
+        // Transform to expected format
+        const formattedAdmins = admins.map(admin => ({
+            id: admin._id.toString(),
+            full_name: admin.fullName,
+            email: admin.email,
+            member_id: admin.memberId,
+            created_at: admin.createdAt
+        }));
 
-        return NextResponse.json({ admins: admins || [] });
+        return NextResponse.json({ admins: formattedAdmins });
     } catch (error) {
         console.error('Get admins error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -60,46 +62,28 @@ export async function POST(
             return NextResponse.json({ error: 'Email, password, and full name are required' }, { status: 400 });
         }
 
-        const supabase = await createAnonClient();
-        const supabaseAdmin = createAdminClient();
-
         // Verify user is super admin
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
+        const currentUser = await getCurrentUser();
+        if (!currentUser) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
         }
 
-        const { data: profile } = await supabaseAdmin
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
-
-        if (profile?.role !== 'super_admin') {
+        if (currentUser.role !== 'super_admin') {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
 
-        // Get college to generate member ID
-        const { data: college } = await supabaseAdmin
-            .from('colleges')
-            .select('name')
-            .eq('id', collegeId)
-            .single();
+        await connectDB();
 
-        if (!college) {
-            return NextResponse.json({ error: 'College not found' }, { status: 404 });
+        // Check if email already exists
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return NextResponse.json({ error: 'Email already in use' }, { status: 400 });
         }
 
-        // Create auth user
-        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-            email,
-            password,
-            email_confirm: true,
-        });
-
-        if (authError) {
-            console.error('Create auth user error:', authError);
-            return NextResponse.json({ error: authError.message }, { status: 400 });
+        // Get college to generate member ID
+        const college = await College.findById(collegeId);
+        if (!college) {
+            return NextResponse.json({ error: 'College not found' }, { status: 404 });
         }
 
         // Generate member ID
@@ -113,28 +97,30 @@ export async function POST(
         const randomNum = Math.floor(1000 + Math.random() * 9000);
         const memberId = `OF-${collegeCode}-${year}-${randomNum}`;
 
-        // Create profile
-        const { data: newAdmin, error: profileError } = await supabaseAdmin
-            .from('profiles')
-            .insert({
-                id: authData.user.id,
-                email,
-                full_name: fullName,
-                role: 'admin',
-                college_id: collegeId,
-                member_id: memberId,
-            })
-            .select()
-            .single();
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 12);
 
-        if (profileError) {
-            console.error('Create profile error:', profileError);
-            // Rollback auth user
-            await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-            return NextResponse.json({ error: 'Failed to create admin profile' }, { status: 500 });
-        }
+        // Create admin user
+        const newAdmin = await User.create({
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            fullName,
+            role: 'admin',
+            collegeId,
+            memberId,
+        });
 
-        return NextResponse.json({ admin: newAdmin });
+        return NextResponse.json({ 
+            admin: {
+                id: newAdmin._id.toString(),
+                email: newAdmin.email,
+                full_name: newAdmin.fullName,
+                role: newAdmin.role,
+                college_id: newAdmin.collegeId,
+                member_id: newAdmin.memberId,
+                created_at: newAdmin.createdAt
+            }
+        });
     } catch (error) {
         console.error('Create admin error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

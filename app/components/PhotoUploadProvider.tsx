@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import PhotoUploadModal from './PhotoUploadModal';
 
 interface UserProfile {
@@ -47,25 +46,30 @@ export default function PhotoUploadProvider({ children }: { children: React.Reac
         if (hasInitializedRef.current) return;
 
         const initializeFromSession = async () => {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            if (!user) {
-                setLoading(false);
-                hasInitializedRef.current = true;
-                return;
-            }
+            try {
+                const response = await fetch('/api/auth/me');
+                
+                if (!response.ok) {
+                    setLoading(false);
+                    hasInitializedRef.current = true;
+                    return;
+                }
 
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('id, full_name, photo_url, role')
-                .eq('id', user.id)
-                .single();
+                const data = await response.json();
+                const user = data.user;
 
-            if (profile) {
-                setUserProfile(profile);
-                const shouldShowModal = !profile.photo_url && ['participant', 'team_lead'].includes(profile.role);
-                setShowUploadModal(shouldShowModal);
+                if (user) {
+                    setUserProfile({
+                        id: user.id || user._id,
+                        full_name: user.fullName || '',
+                        photo_url: user.photoUrl || null,
+                        role: user.role
+                    });
+                    const shouldShowModal = !user.photoUrl && ['participant', 'team_lead'].includes(user.role);
+                    setShowUploadModal(shouldShowModal);
+                }
+            } catch (error) {
+                console.error('Session init error:', error);
             }
             
             setLoading(false);
@@ -73,18 +77,6 @@ export default function PhotoUploadProvider({ children }: { children: React.Reac
         };
 
         initializeFromSession();
-
-        // Listen for sign out
-        const supabase = createClient();
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-            if (event === 'SIGNED_OUT') {
-                setUserProfile(null);
-                setShowUploadModal(false);
-                hasInitializedRef.current = false;
-            }
-        });
-
-        return () => subscription.unsubscribe();
     }, []);
 
     const handleModalClose = useCallback(() => {

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import connectDB from '@/lib/mongodb/connection';
+import { User } from '@/lib/mongodb/models';
+import { getCurrentUser } from '@/lib/mongodb/auth';
 import crypto from 'crypto';
 
 const QR_SECRET = process.env.QR_SECRET || 'onlyfounders-qr-secret-key-2026';
@@ -19,12 +21,12 @@ function generateQRToken(entityId: string): string {
 // POST: Refresh QR token for a user
 export async function POST(request: NextRequest) {
     try {
-        const supabase = await createClient();
+        await connectDB();
 
         // Get current authenticated user
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const currentUser = await getCurrentUser();
 
-        if (authError || !user) {
+        if (!currentUser) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -32,13 +34,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Get user's entity_id
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('entity_id')
-            .eq('id', user.id)
-            .single();
+        const user = await User.findById(currentUser.id).select('entityId');
 
-        if (profileError || !profile?.entity_id) {
+        if (!user?.entityId) {
             return NextResponse.json(
                 { error: 'Entity ID not found. Please complete onboarding first.' },
                 { status: 400 }
@@ -46,29 +44,18 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate new QR token
-        const qrToken = generateQRToken(profile.entity_id);
+        const qrToken = generateQRToken(user.entityId);
 
-        // Update profile with new QR token
-        const { error: updateError } = await supabase
-            .from('profiles')
-            .update({
-                qr_token: qrToken,
-                qr_generated_at: new Date().toISOString(),
-            })
-            .eq('id', user.id);
-
-        if (updateError) {
-            console.error('QR token update error:', updateError);
-            return NextResponse.json(
-                { error: 'Failed to refresh QR token' },
-                { status: 500 }
-            );
-        }
+        // Update user with new QR token
+        await User.findByIdAndUpdate(currentUser.id, {
+            qrToken: qrToken,
+            qrGeneratedAt: new Date(),
+        });
 
         return NextResponse.json({
             success: true,
             qrToken,
-            entityId: profile.entity_id,
+            entityId: user.entityId,
         });
     } catch (error) {
         console.error('QR refresh error:', error);
@@ -82,12 +69,12 @@ export async function POST(request: NextRequest) {
 // GET: Get current QR token
 export async function GET(request: NextRequest) {
     try {
-        const supabase = await createClient();
+        await connectDB();
 
         // Get current authenticated user
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const currentUser = await getCurrentUser();
 
-        if (authError || !user) {
+        if (!currentUser) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -95,20 +82,16 @@ export async function GET(request: NextRequest) {
         }
 
         // Get user's QR data
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('entity_id, qr_token, qr_generated_at')
-            .eq('id', user.id)
-            .single();
+        const user = await User.findById(currentUser.id).select('entityId qrToken qrGeneratedAt');
 
-        if (profileError || !profile) {
+        if (!user) {
             return NextResponse.json(
                 { error: 'Profile not found' },
                 { status: 404 }
             );
         }
 
-        if (!profile.entity_id || !profile.qr_token) {
+        if (!user.entityId || !user.qrToken) {
             return NextResponse.json(
                 { error: 'Please complete onboarding first' },
                 { status: 400 }
@@ -116,9 +99,9 @@ export async function GET(request: NextRequest) {
         }
 
         return NextResponse.json({
-            entityId: profile.entity_id,
-            qrToken: profile.qr_token,
-            generatedAt: profile.qr_generated_at,
+            entityId: user.entityId,
+            qrToken: user.qrToken,
+            generatedAt: user.qrGeneratedAt,
         });
     } catch (error) {
         console.error('QR fetch error:', error);

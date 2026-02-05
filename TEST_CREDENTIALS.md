@@ -1,23 +1,13 @@
-# Test User Credentials - OnlyFounders
+Copy the data below:
 
-### Team: FinFlow (Fintech)
-- **Team Lead:** finflow.lead@test.com / `ra%Hwqa43bvT` / Entity ID: `OF-2026-9407`
-- **Member 1:** finflow.member1@test.com / `f4yT2Tz5@upD` / Entity ID: `OF-2026-110F`
-- **Member 2:** finflow.member2@test.com / `#zcg%8wAbJCK` / Entity ID: `OF-2026-A986`
-
-### Team: EduMentor (Edtech)
-- **Team Lead:** edumentor.lead@test.com / `a&c9$94LHt2&` / Entity ID: `OF-2026-07DE`
-- **Member 1:** edumentor.member1@test.com / `3pM#Vx6PRbxU` / Entity ID: `OF-2026-2B40`
-
-### Team: HealthHub (Healthtech)
-- **Team Lead:** healthhub.lead@test.com / `#8Cpg6XF457q` / Entity ID: `OF-2026-4715`
-- **Member 1:** healthhub.member1@test.com / `Z$q2mhp@UjLt` / Entity ID: `OF-2026-77D0`
-
-### Team: AgriGrow (Agritech)
-- **Team Lead:** agrigrow.lead@test.com / `Xwxfjqru#6Sw` / Entity ID: `OF-2026-1546`
-- **Member 1:** agrigrow.member1@test.com / `@jn&3B$L3vpL` / Entity ID: `OF-2026-75A9`
-
-### Team: CloudOps (SaaS)
-- **Team Lead:** cloudops.lead@test.com / `%trf%fNP9uCa` / Entity ID: `OF-2026-7D12`
-
-[{"email":"finflow.member2@test.com","team":"FinFlow","password":"4RyApvvE$Kd&","entity_id":"OF-2026-3E44"},{"email":"edumentor.lead@test.com","team":"EduMentor","password":"Rwe4*M5CeQW6","entity_id":"OF-2026-942E"},{"email":"edumentor.member1@test.com","team":"EduMentor","password":"vKa#38zRz%mf","entity_id":"OF-2026-CA01"},{"email":"healthhub.lead@test.com","team":"HealthHub","password":"2Z7tnmA&$fkD","entity_id":"OF-2026-E4DC"},{"email":"healthhub.member1@test.com","team":"HealthHub","password":"4J*vzEJqChwV","entity_id":"OF-2026-894C"},{"email":"agrigrow.lead@test.com","team":"AgriGrow","password":"Qbr5k@ZZXJVv","entity_id":"OF-2026-623A"},{"email":"agrigrow.member1@test.com","team":"AgriGrow","password":"*tef4wmQE*Gw","entity_id":"OF-2026-E948"},{"email":"cloudops.lead@test.com","team":"CloudOps","password":"%7ecg5RDR8FL","entity_id":"OF-2026-D0FE"}]
+Email,Password,EntityId,FullName,Team,College
+vt.gowreesh43@gmail.com,uWX69B2Exg&D,OF-2026-DB62,Gowreesh,FinFlow,MIT Manipal
+gousemoideen2@gmail.com,qG@z7ef#4Lkk,OF-2026-5888,Gouse Moideen,FinFlow,MIT Manipal
+finflow.member2@test.com,23f&Mc%e%gad,OF-2026-F807,Amit Kumar,FinFlow,MIT Manipal
+edumentor.lead@test.com,83FYX8fCCt@Y,OF-2026-F75E,Sneha Reddy,EduMentor,NIT Surathkal
+edumentor.member1@test.com,3U9xGRz&ahJ2,OF-2026-9F53,Vikram Singh,EduMentor,NIT Surathkal
+healthhub.lead@test.com,&vH6F$$s8Q4K,OF-2026-E989,Anjali Mehta,HealthHub,RVCE Bangalore
+healthhub.member1@test.com,uhZWWJbeX85*,OF-2026-F5CE,Rohan Desai,HealthHub,RVCE Bangalore
+agrigrow.lead@test.com,&VK9YAxQmDRq,OF-2026-CB1B,Kavya Nair,AgriGrow,PESU Bangalore
+agrigrow.member1@test.com,2FtA#xELX9w2,OF-2026-9697,Arjun Rao,AgriGrow,PESU Bangalore
+cloudops.lead@test.com,f23$Xp8tTN*f,OF-2026-4E91,Divya Iyer,CloudOps,BMS College

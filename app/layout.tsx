@@ -39,7 +39,6 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-import NotificationManager from "@/components/NotificationManager";
 import PhotoUploadProvider from "./components/PhotoUploadProvider";
 
 export default function RootLayout({
@@ -55,7 +54,6 @@ export default function RootLayout({
         <Providers>
           <PhotoUploadProvider>
             {children}
-            <NotificationManager />
           </PhotoUploadProvider>
         </Providers>
       </body>

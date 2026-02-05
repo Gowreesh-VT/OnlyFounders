@@ -360,8 +360,8 @@ export default function ClusterShufflePage() {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <span className={`tech-text text-[10px] px-2 py-1 border ${getStageColor(cluster.current_stage)}`}>
-                                                {cluster.current_stage.toUpperCase()}
+                                            <span className={`tech-text text-[10px] px-2 py-1 border ${getStageColor(cluster.current_stage || 'onboarding')}`}>
+                                                {(cluster.current_stage || 'onboarding').toUpperCase()}
                                             </span>
                                             <p className="tech-text text-gray-500 text-[10px] mt-1">
                                                 {cluster.teams.length}/{cluster.max_teams} TEAMS

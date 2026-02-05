@@ -1,21 +1,35 @@
-import { createAnonClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { destroySession, getSession } from '@/lib/mongodb/auth';
 
+/**
+ * POST /api/auth/logout
+ * Destroys the current user's session
+ * 
+ * Returns:
+ *   - 200: { success: true, message: "Logged out successfully" }
+ *   - 500: { error: "Internal server error" }
+ */
 export async function POST() {
     try {
-        const supabase = await createAnonClient();
-
-        const { error } = await supabase.auth.signOut();
-
-        if (error) {
-            return NextResponse.json(
-                { error: error.message },
-                { status: 400 }
-            );
+        // Check if there's an active session first
+        const session = await getSession();
+        
+        if (!session) {
+            // No session to destroy, but still return success
+            return NextResponse.json({
+                success: true,
+                message: 'No active session'
+            });
         }
 
-        return NextResponse.json({ success: true });
-    } catch (error) {
+        // Destroy the session cookie
+        await destroySession();
+        
+        return NextResponse.json({
+            success: true,
+            message: 'Logged out successfully'
+        });
+    } catch (error: unknown) {
         console.error('Logout error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
