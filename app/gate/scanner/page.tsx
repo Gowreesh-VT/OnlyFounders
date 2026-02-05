@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Fingerprint, Zap, Check, X, Keyboard, LogOut } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
+import { getOptimizedImageUrl } from '@/lib/utils/imageCompression';
 
 interface ScanRecord {
   id: string;
@@ -367,9 +368,10 @@ export default function GateScannerPage() {
                       <div className="relative shrink-0">
                         {scan.success && scan.participant?.photoUrl ? (
                           <img
-                            src={scan.participant.photoUrl}
+                            src={getOptimizedImageUrl(scan.participant.photoUrl, 'thumbnail') || scan.participant.photoUrl}
                             alt={scan.participant.fullName}
                             className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover"
+                            loading="lazy"
                           />
                         ) : (
                           <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${
@@ -457,9 +459,10 @@ export default function GateScannerPage() {
                 <div className="shrink-0 mx-auto sm:mx-0">
                   {participant.photoUrl ? (
                     <img
-                      src={participant.photoUrl}
+                      src={getOptimizedImageUrl(participant.photoUrl, 'medium') || participant.photoUrl}
                       alt={participant.fullName}
                       className="w-32 h-32 sm:w-40 sm:h-40 object-cover border-2 border-gray-700 rounded"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="w-32 h-32 sm:w-40 sm:h-40 bg-gray-800 border-2 border-gray-700 rounded flex items-center justify-center">

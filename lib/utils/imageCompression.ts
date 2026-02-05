@@ -2,6 +2,41 @@
 // Max file size: 1MB
 // Output format: JPEG
 
+/**
+ * Get optimized image URL for Supabase Storage
+ * Adds transformation parameters for lower resolution and faster loading
+ */
+export function getOptimizedImageUrl(url: string | null | undefined, size: 'thumbnail' | 'small' | 'medium' = 'small'): string | null {
+    if (!url) return null;
+    
+    // If it's a Supabase URL, add transformation parameters
+    if (url.includes('supabase')) {
+        const params = new URLSearchParams();
+        
+        switch (size) {
+            case 'thumbnail':
+                params.append('width', '80');
+                params.append('height', '80');
+                params.append('quality', '60');
+                break;
+            case 'small':
+                params.append('width', '200');
+                params.append('height', '200');
+                params.append('quality', '70');
+                break;
+            case 'medium':
+                params.append('width', '400');
+                params.append('height', '400');
+                params.append('quality', '80');
+                break;
+        }
+        
+        return `${url}?${params.toString()}`;
+    }
+    
+    return url;
+}
+
 export interface CompressionOptions {
     maxSizeMB: number;
     maxWidthOrHeight: number;

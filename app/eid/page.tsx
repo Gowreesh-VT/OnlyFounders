@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, RefreshCw, Loader2 } from 'lucide-react';
+import { ChevronLeft, RefreshCw, Loader2, X, ZoomIn } from 'lucide-react';
 import StudentBottomNav from '../components/StudentBottomNav';
 import QRCode from 'qrcode';
 
@@ -11,7 +11,9 @@ export default function EIDPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [largeQrDataUrl, setLargeQrDataUrl] = useState<string>('');
   const [refreshing, setRefreshing] = useState(false);
+  const [showEnlargedQR, setShowEnlargedQR] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -49,17 +51,29 @@ export default function EIDPage() {
 
   const generateQRCode = async (token: string) => {
     try {
-      // Generate golden QR code on dark background
+      // Generate normal size QR code
       const url = await QRCode.toDataURL(token, {
         width: 280,
         margin: 2,
         color: {
-          dark: '#000000', // More golden color
+          dark: '#000000',
           light: '#FFFFFF',
         },
         errorCorrectionLevel: 'H',
       });
       setQrDataUrl(url);
+
+      // Generate larger QR code for modal
+      const largeUrl = await QRCode.toDataURL(token, {
+        width: 500,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF',
+        },
+        errorCorrectionLevel: 'H',
+      });
+      setLargeQrDataUrl(largeUrl);
     } catch (error) {
       console.error('QR generation error:', error);
     }
@@ -168,16 +182,34 @@ export default function EIDPage() {
 
             {/* QR Code with Golden Border */}
             <div className="flex justify-center mb-8">
-              <div className="relative p-1 bg-gradient-to-br from-primary/50 via-primary to-primary/50">
-                <div className="bg-white p-3">
+              <div 
+                className="relative p-1 bg-gradient-to-br from-primary/50 via-primary to-primary/50 cursor-pointer group"
+                onClick={() => setShowEnlargedQR(true)}
+              >
+                <div className="bg-white p-3 relative">
                   {qrDataUrl ? (
-                    <img src={qrDataUrl} alt="QR Code" className="w-56 h-56" />
+                    <>
+                      <img src={qrDataUrl} alt="QR Code" className="w-56 h-56" />
+                      {/* Tap to enlarge hint */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <div className="bg-black/70 px-3 py-1.5 rounded flex items-center gap-2">
+                          <ZoomIn size={16} className="text-primary" />
+                          <span className="text-white text-xs">Tap to enlarge</span>
+                        </div>
+                      </div>
+                    </>
                   ) : (
                     <div className="w-56 h-56 bg-gray-100 flex items-center justify-center">
                       <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
                     </div>
                   )}
                 </div>
+                {/* Small hint below QR */}
+                {qrDataUrl && (
+                  <p className="text-center tech-text text-primary/70 text-[10px] mt-1 tracking-wider">
+                    TAP TO ENLARGE
+                  </p>
+                )}
               </div>
             </div>
 
@@ -208,6 +240,57 @@ export default function EIDPage() {
       </div>
 
       <StudentBottomNav />
+
+      {/* Enlarged QR Modal */}
+      {showEnlargedQR && (
+        <div 
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowEnlargedQR(false)}
+        >
+          {/* Close button */}
+          <button 
+            className="absolute top-4 right-4 text-gray-400 hover:text-white p-2"
+            onClick={() => setShowEnlargedQR(false)}
+          >
+            <X size={28} />
+          </button>
+
+          {/* Enlarged QR */}
+          <div className="flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+            {/* Entity ID */}
+            <div className="mb-4 text-center">
+              <p className="tech-text text-gray-500 text-xs mb-1">ENTITY ID</p>
+              <p className="tech-text text-primary text-xl tracking-wider">{profile?.entityId || 'PENDING'}</p>
+            </div>
+
+            {/* Large QR with golden border */}
+            <div className="p-2 bg-gradient-to-br from-primary/50 via-primary to-primary/50">
+              <div className="bg-white p-4">
+                {largeQrDataUrl ? (
+                  <img 
+                    src={largeQrDataUrl} 
+                    alt="QR Code Enlarged" 
+                    className="w-72 h-72 sm:w-80 sm:h-80"
+                  />
+                ) : (
+                  <div className="w-72 h-72 sm:w-80 sm:h-80 bg-gray-100 flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Name */}
+            <div className="mt-4 text-center">
+              <p className="text-white text-xl font-serif">{profile?.fullName}</p>
+              <p className="tech-text text-gray-500 text-xs mt-1">{team?.name || 'No Team'}</p>
+            </div>
+
+            {/* Tap anywhere hint */}
+            <p className="mt-6 tech-text text-gray-600 text-xs">TAP ANYWHERE TO CLOSE</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

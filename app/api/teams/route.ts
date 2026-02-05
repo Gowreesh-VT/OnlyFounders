@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
         }
 
         const members = await User.find({ teamId: team._id })
-            .select('_id fullName email role photoUrl');
+            .select('_id fullName email role photoUrl entityId');
 
         return NextResponse.json({
             team: {
@@ -113,7 +113,8 @@ export async function GET(request: NextRequest) {
                     full_name: m.fullName,
                     email: m.email,
                     role: m.role,
-                    photo_url: m.photoUrl
+                    photo_url: m.photoUrl,
+                    entity_id: m.entityId
                 }))
             }
         });
