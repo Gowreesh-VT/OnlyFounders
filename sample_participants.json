@@ -1,13 +1,14 @@
 {
   "participants": [
     {
-      "fullName": "Mithil",
-      "email": "srisaidhakshiniv@gmail.com",
+      "fullName": "rakshana",
+      "email": "rakshana3110@gmail.com",
       "collegeName": "MIT Manipal",
       "teamName": "FinFlow",
       "role": "participant",
-      "phoneNumber": "1264443234",
+      "phoneNumber": "1269443234",
       "domain": "fintech"
     }
-  ]
+  ],
+  "sendEmails": true
 }

@@ -19,7 +19,6 @@ export async function sendLoginCredentials(
     fullName: string,
     email: string,
     password: string,
-    entityId?: string
 ) {
     const transporter = createEmailTransporter();
 
@@ -106,12 +105,11 @@ export async function sendLoginCredentials(
 </head>
 <body>
     <div class="container">
-        <div class="header"></div>
-        <div class="subtitle">Investment Simulation Event</div>
+        <div class="header"><img src="public/icons/onlyfounders-logo.png" alt="OnlyFounders Logo" style="max-width: 200px; margin: 0 auto; display: block;"></div>
         
         <p>Dear ${fullName},</p>
         
-        <p>Welcome to the OnlyFounders Investment Simulation! Your account has been created.</p>
+        <p>Welcome to the OnlyFounders App! Your account has been created.</p>
         
         <div class="credentials-box">
             <div class="credential-row">
@@ -122,33 +120,13 @@ export async function sendLoginCredentials(
                 <div class="credential-label">Temporary Password</div>
                 <div class="credential-value">${password}</div>
             </div>
-            ${entityId ? `
-            <div class="credential-row">
-                <div class="credential-label">Entity ID</div>
-                <div class="credential-value">${entityId}</div>
-            </div>
-            ` : ''}
         </div>
         
         <center>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/login" class="button">
+            <a href="https://only-founders-omega.vercel.app/" class="button">
                 LOGIN NOW
             </a>
         </center>
-        
-        <div class="warning">
-            <strong>⚠️ Security Notice:</strong><br>
-            Please change your password after first login. Keep your credentials secure and do not share them with anyone.
-        </div>
-        
-        <h3 style="color: #FFD700;">Event Details:</h3>
-        <ul style="color: #A1A1AA;">
-            <li>You will receive ₹10,00,000 virtual capital</li>
-            <li>Invest in other teams based on their pitch presentations</li>
-            <li>Top team per cluster qualifies for the finals</li>
-        </ul>
-        
-        <p>Download your E-ID after logging in for entry validation at the venue.</p>
         
         <div class="footer">
             © 2026 OnlyFounders - The Exclusive Network<br>
@@ -167,17 +145,15 @@ export async function sendLoginCredentials(
         text: `
 Dear ${fullName},
 
-Welcome to OnlyFounders Investment Simulation Event!
+Welcome to OnlyFounders App!
 
 Your Login Credentials:
 -----------------------
 Email: ${email}
 Password: ${password}
-${entityId ? `Entity ID: ${entityId}` : ''}
 
-Login here: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/login
+Login here: https://only-founders-omega.vercel.app/
 
-Please change your password after first login.
 
 © 2026 OnlyFounders
         `.trim(),
@@ -206,8 +182,7 @@ export async function sendBulkCredentials(
                 recipient.email,
                 recipient.fullName,
                 recipient.email,
-                recipient.password,
-                recipient.entityId
+                recipient.password
             );
             results.success.push(recipient.email);
             // Rate limit to avoid SMTP throttling

@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb/connection';
 import { User } from '@/lib/mongodb/models';
 import { getSession } from '@/lib/mongodb/auth';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { createAdminClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
+
+// Supabase storage bucket name
+const BUCKET_NAME = 'participant-photos';
 
 // Allowed MIME types for photos
 const ALLOWED_MIME_TYPES = [
@@ -110,17 +112,51 @@ export async function POST(request: NextRequest) {
         const uniqueId = crypto.randomBytes(8).toString('hex');
         const fileName = `${session.userId}_${uniqueId}.${fileExtension}`;
         
-        // Save to public/uploads directory
-        const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'photos');
-        await mkdir(uploadsDir, { recursive: true });
+        // Upload to Supabase Storage
+        const supabase = createAdminClient();
         
-        const filePath = path.join(uploadsDir, fileName);
-        await writeFile(filePath, Buffer.from(fileBuffer));
-        
-        // Generate public URL
-        const photoUrl = `/uploads/photos/${fileName}`;
+        // Get current user to check for old photo to delete
+        const currentUser = await User.findById(session.userId);
+        const oldPhotoUrl = currentUser?.photoUrl;
 
-        // Update user profile
+        // Delete old photo from Supabase if it exists
+        if (oldPhotoUrl && oldPhotoUrl.includes('supabase')) {
+            try {
+                // Extract the file path from the URL
+                const urlParts = oldPhotoUrl.split('/storage/v1/object/public/participant-photos/');
+                if (urlParts.length > 1) {
+                    const oldFilePath = urlParts[1];
+                    await supabase.storage.from(BUCKET_NAME).remove([oldFilePath]);
+                }
+            } catch (deleteError) {
+                console.warn('Failed to delete old photo:', deleteError);
+            }
+        }
+
+        // Upload new photo
+        const { data, error } = await supabase.storage
+            .from(BUCKET_NAME)
+            .upload(fileName, Buffer.from(fileBuffer), {
+                contentType: file.type,
+                upsert: true // Overwrite if exists
+            });
+
+        if (error) {
+            console.error('Supabase upload error:', error);
+            return NextResponse.json(
+                { error: 'Failed to upload photo' },
+                { status: 500 }
+            );
+        }
+
+        // Get the public URL
+        const { data: urlData } = supabase.storage
+            .from(BUCKET_NAME)
+            .getPublicUrl(fileName);
+
+        const photoUrl = urlData.publicUrl;
+
+        // Update user profile in MongoDB
         await User.findByIdAndUpdate(session.userId, {
             photoUrl,
             photoUploadedAt: new Date()
