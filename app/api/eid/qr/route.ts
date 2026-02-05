@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createAdminSupabase } from "@supabase/supabase-js";
 import crypto from 'crypto';
+
+// Admin client for bypassing RLS
+const supabaseAdmin = createAdminSupabase(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const QR_SECRET = process.env.QR_SECRET || 'onlyfounders-qr-secret-key-2026';
 
@@ -12,7 +19,7 @@ function generateQRToken(entityId: string): string {
         .createHmac('sha256', QR_SECRET)
         .update(message)
         .digest('hex');
-    
+
     return `${entityId}:${timestamp}:${signature}`;
 }
 
@@ -31,8 +38,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get user's entity_id
-        const { data: profile, error: profileError } = await supabase
+        // Get user's entity_id (using admin client to bypass RLS)
+        const { data: profile, error: profileError } = await supabaseAdmin
             .from('profiles')
             .select('entity_id')
             .eq('id', user.id)
@@ -48,8 +55,8 @@ export async function POST(request: NextRequest) {
         // Generate new QR token
         const qrToken = generateQRToken(profile.entity_id);
 
-        // Update profile with new QR token
-        const { error: updateError } = await supabase
+        // Update profile with new QR token (using admin client)
+        const { error: updateError } = await supabaseAdmin
             .from('profiles')
             .update({
                 qr_token: qrToken,
@@ -94,8 +101,8 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Get user's QR data
-        const { data: profile, error: profileError } = await supabase
+        // Get user's QR data (using admin client to bypass RLS)
+        const { data: profile, error: profileError } = await supabaseAdmin
             .from('profiles')
             .select('entity_id, qr_token, qr_generated_at')
             .eq('id', user.id)

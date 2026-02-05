@@ -21,7 +21,15 @@ DROP TYPE IF EXISTS event_stage CASCADE;
 DROP TYPE IF EXISTS user_role CASCADE;
 
 -- Create types
-CREATE TYPE user_role AS ENUM ('participant', 'team_lead', 'cluster_monitor', 'gate_volunteer', 'super_admin');
+CREATE TYPE user_role AS ENUM (
+    'participant', 
+    'team_lead', 
+    'admin',
+    'cluster_monitor', 
+    'gate_volunteer', 
+    'event_coordinator',
+    'super_admin'
+);
 CREATE TYPE event_stage AS ENUM ('onboarding', 'entry_validation', 'pitching', 'bidding', 'locked', 'results_published');
 CREATE TYPE entry_status AS ENUM ('valid', 'invalid', 'expired');
 CREATE TYPE pitch_status AS ENUM ('scheduled', 'in_progress', 'completed', 'cancelled');
@@ -478,7 +486,7 @@ CREATE POLICY "Teams viewable by cluster members and admins" ON teams FOR SELECT
 CREATE POLICY "Pitch schedule viewable by authenticated" ON pitch_schedule FOR SELECT
     USING (auth.role() = 'authenticated');
 CREATE POLICY "Admins can manage pitch schedule" ON pitch_schedule FOR ALL
-    USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('cluster_monitor', 'super_admin')));
+    USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'cluster_monitor', 'super_admin')));
 
 -- Investments: Team members can view/create their team's investments
 CREATE POLICY "Team can view investments" ON investments FOR SELECT
@@ -544,7 +552,7 @@ CREATE POLICY "Staff can view entry logs" ON entry_logs FOR SELECT
         EXISTS (
             SELECT 1 FROM profiles 
             WHERE id = auth.uid() 
-            AND role IN ('gate_volunteer', 'cluster_monitor', 'super_admin')
+            AND role IN ('admin', 'gate_volunteer', 'cluster_monitor', 'super_admin')
         )
         OR profile_id = auth.uid()
     );
@@ -577,7 +585,7 @@ CREATE POLICY "Results viewable by authenticated" ON cluster_results FOR SELECT
 CREATE POLICY "Announcements viewable by authenticated" ON announcements FOR SELECT
     USING (auth.role() = 'authenticated' AND is_active = TRUE);
 CREATE POLICY "Admins can manage announcements" ON announcements FOR ALL
-    USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('cluster_monitor', 'super_admin')));
+    USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'cluster_monitor', 'super_admin')));
 
 -- Event state: Super admin only
 CREATE POLICY "Super admin can manage event state" ON event_state FOR ALL

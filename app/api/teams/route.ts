@@ -1,12 +1,42 @@
-import { createAnonClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+
+// Admin client for bypassing RLS
+const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// Create authenticated client (same pattern as invest API)
+async function createAuthClient() {
+    const cookieStore = await cookies();
+    return createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll() {
+                    return cookieStore.getAll();
+                },
+                setAll(cookiesToSet) {
+                    try {
+                        cookiesToSet.forEach(({ name, value, options }) =>
+                            cookieStore.set(name, value, options)
+                        );
+                    } catch { }
+                },
+            },
+        }
+    );
+}
 
 // GET /api/teams - Fetch user's team information
 export async function GET(request: NextRequest) {
     try {
-        const supabase = await createAnonClient();
-
-        // Get current user
+        // Get current user using auth client
+        const supabase = await createAuthClient();
         const { data: { user }, error: userError } = await supabase.auth.getUser();
 
         if (userError || !user) {
@@ -16,8 +46,8 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Get user's profile
-        const { data: profile, error: profileError } = await supabase
+        // Get user's profile using admin client (bypass RLS)
+        const { data: profile, error: profileError } = await supabaseAdmin
             .from('profiles')
             .select('*')
             .eq('id', user.id)
@@ -26,7 +56,7 @@ export async function GET(request: NextRequest) {
         if (profileError) {
             console.error('Profile fetch error:', profileError);
             return NextResponse.json(
-                { error: 'Failed to fetch team information' },
+                { error: 'Failed to fetch profile' },
                 { status: 500 }
             );
         }
@@ -35,8 +65,8 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ team: null });
         }
 
-        // Get team info with cluster and college
-        const { data: team, error: teamError } = await supabase
+        // Get team info with cluster and college using admin client
+        const { data: team, error: teamError } = await supabaseAdmin
             .from('teams')
             .select(`
                 *,
@@ -61,8 +91,8 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Get all team members
-        const { data: members, error: membersError } = await supabase
+        // Get all team members using admin client
+        const { data: members, error: membersError } = await supabaseAdmin
             .from('profiles')
             .select('id, full_name, email, role, entity_id')
             .eq('team_id', profile.team_id);

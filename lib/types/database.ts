@@ -2,7 +2,7 @@
 // OnlyFounders Investment Event - TypeScript Types V2
 // ============================================
 
-export type UserRole = 'participant' | 'team_lead' | 'cluster_monitor' | 'gate_volunteer' | 'super_admin';
+export type UserRole = 'participant' | 'team_lead' | 'admin' | 'cluster_monitor' | 'gate_volunteer' | 'event_coordinator' | 'super_admin';
 export type EventStage = 'onboarding' | 'entry_validation' | 'pitching' | 'bidding' | 'locked' | 'results_published';
 export type EntryStatus = 'valid' | 'invalid' | 'expired';
 export type PitchStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
