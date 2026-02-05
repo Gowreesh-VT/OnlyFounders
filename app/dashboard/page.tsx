@@ -31,11 +31,22 @@ import {
 } from "lucide-react";
 import StudentBottomNav from "../components/StudentBottomNav";
 import { useCache } from "@/lib/cache/CacheProvider";
-import type { Team as BaseTeam, Profile } from "@/lib/types/database";
+import type { Team as BaseTeam } from "@/lib/types/database";
 
 // Extend Team type with code field used in this page
 type Team = BaseTeam & {
   code?: string;
+};
+
+type CurrentUser = {
+  id?: string;
+  fullName?: string;
+  email?: string;
+  role?: string;
+  photoUrl?: string;
+  entityId?: string;
+  team?: Team | null;
+  college?: { name?: string } | null;
 };
 
 // Local types for schedule
@@ -88,7 +99,7 @@ export default function DashboardPage() {
   const [clusterId, setClusterId] = useState<string | null>(null);
 
   // User data
-  const [user, setUser] = useState<{ profile: Profile; team: Team | null } | null>(null);
+  const [user, setUser] = useState<CurrentUser | null>(null);
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
   const [tasks, setTasks] = useState<TaskWithStatus[]>([]);
   const [homeData, setHomeData] = useState<any>(null);
@@ -274,7 +285,7 @@ export default function DashboardPage() {
       if (response.ok) {
         setUser(prev => prev ? {
           ...prev,
-          profile: { ...prev.profile, full_name: editNameValue.trim() }
+          fullName: editNameValue.trim()
         } : null);
         setShowEditName(false);
       }
