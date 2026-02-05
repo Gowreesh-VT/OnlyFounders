@@ -138,7 +138,11 @@ export default function GateScannerPage() {
   const stopCamera = () => {
     if (qrScannerRef.current) {
       qrScannerRef.current.stop().catch(() => {});
-      qrScannerRef.current.clear().catch(() => {});
+      try {
+        qrScannerRef.current.clear();
+      } catch {
+        // ignore clear errors
+      }
     }
   };
 
