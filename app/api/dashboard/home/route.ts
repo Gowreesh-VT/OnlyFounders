@@ -15,7 +15,7 @@ export async function GET() {
       teamsActive: 42,
     },
     valuation: {
-      total: 4250000,
+      total: 1000000,
       changePercent: 12.5,
     },
   });

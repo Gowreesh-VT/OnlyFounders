@@ -325,8 +325,15 @@ export default function DashboardPage() {
       <main className="min-h-screen bg-[#0A0A0A] px-4 py-6 pb-28 relative overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-full h-2/3 opacity-10"
-            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')" }} />
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-15"
+            style={{ 
+              backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')",
+              backgroundPosition: 'top center'
+            }} 
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-transparent to-[#0A0A0A]" />
+          <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent" />
         </div>
         <div className="max-w-md mx-auto relative z-10">
           {/* Header Skeleton */}
@@ -400,59 +407,62 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-[#0A0A0A] px-4 py-6 pb-28 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 z-0 pointer-events-none">
+        {/* Winter/Snowy Background Image */}
         <div
-          className="absolute top-0 right-0 w-full h-2/3 bg-cover bg-center opacity-10 mix-blend-color-dodge"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')" }}
+          className="absolute inset-0 bg-cover bg-center opacity-15"
+          style={{ 
+            backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')",
+            backgroundPosition: 'top center'
+          }}
         />
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent z-10" />
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#0A0A0A]/80 via-transparent to-[#0A0A0A] z-10" />
-        <div className="absolute top-1/4 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
+        {/* Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-transparent to-[#0A0A0A]" />
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent" />
+        {/* Golden Accent Glow */}
+        <div className="absolute top-20 right-0 w-72 h-72 bg-primary/5 rounded-full blur-[100px]" />
+        <div className="absolute bottom-40 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px]" />
       </div>
 
       <div className="relative z-10 max-w-md mx-auto">
         {/* Top Status Bar */}
         {hasTeam && (
-          <div className="flex items-center justify-between mb-6">
-            <Menu className="text-gray-400" />
-
+          <div className="flex items-center justify-center mb-6 px-2">
             <div className="text-center">
-              <p className="text-[9px] tracking-[0.3em] text-gray-500 uppercase">
+              <p className="text-[8px] tracking-[0.3em] text-gray-600 uppercase">
                 Event Status
               </p>
-              <p className="text-[10px] tracking-widest text-primary font-bold">
+              <p className="text-[10px] tracking-[0.2em] text-primary font-bold">
                 PHASE 02 · HACKING
               </p>
             </div>
-
-            <Bell className="text-gray-400" />
           </div>
         )}
 
 
         {/* Header */}
-        <header className="mt-6 flex justify-between items-start">
+        <header className="mt-4 flex justify-between items-start">
           <div>
-            <p className="text-[10px] tracking-[0.3em] uppercase text-primary font-bold">
+            <p className="text-[9px] tracking-[0.3em] uppercase text-primary/80 font-medium mb-1">
               Student Dashboard
             </p>
             {hasTeam ? (
-              <h1 className="mt-2 text-3xl font-serif font-bold leading-tight text-white">
-                Hello, <span className="italic font-medium text-gray-300">{firstName}</span>
+              <h1 className="text-3xl font-serif font-bold leading-tight text-white">
+                Hello, <span className="italic font-normal text-gray-300">{firstName}</span>
               </h1>
             ) : (
-              <h1 className="mt-2 text-3xl font-serif font-bold leading-tight text-white">
+              <h1 className="text-3xl font-serif font-bold leading-tight text-white">
                 {user?.fullName || 'Welcome'}
               </h1>
             )}
-            <p className="mt-2 flex items-center gap-2 text-gray-400 text-sm">
-              {hasTeam && <GraduationCap size={16} className="text-primary" />}
+            <p className="mt-2 flex items-center gap-2 text-gray-500 text-sm">
+              {hasTeam && <GraduationCap size={14} className="text-primary/70" />}
               {user?.college?.name || 'Your College'}
             </p>
           </div>
           <div className="relative">
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="h-14 w-14 rounded-full border-2 border-primary/30 bg-gradient-to-br from-primary/20 to-[#121212] flex items-center justify-center text-primary font-serif text-xl shadow-[0_0_20px_rgba(255,215,0,0.1)] hover:border-primary/50 transition-colors cursor-pointer"
+              className="h-14 w-14 rounded-full border border-primary/40 bg-gradient-to-br from-primary/10 via-[#121212] to-[#0A0A0A] flex items-center justify-center text-primary font-serif text-xl shadow-[0_0_30px_rgba(255,215,0,0.08)] hover:border-primary/60 hover:shadow-[0_0_40px_rgba(255,215,0,0.15)] transition-all duration-300 cursor-pointer"
             >
               {firstName.charAt(0)}
             </button>
@@ -502,108 +512,59 @@ export default function DashboardPage() {
         {/* Has Team State */}
         {hasTeam && (
           <>
-              {/* Team Code */}
-              <button
-                onClick={handleCopyCode}
-                className="w-full mt-4 bg-[#121212] border border-[#262626] rounded-xl p-4 flex items-center justify-between hover:border-primary/50 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[9px] text-gray-500 uppercase tracking-widest">Team Code</p>
-                    <p className="font-mono text-lg text-white tracking-widest">{teamCode}</p>
-                  </div>
-                </div>
-                <div className={`p-2 rounded-lg transition-all ${copied ? "bg-green-500/20" : "bg-[#0A0A0A]"}`}>
-                  {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />}
-                </div>
-              </button>
 
             {/* Main Countdown */}
-            <section className="mt-6 text-center">
-              <p className="text-[10px] tracking-[0.3em] uppercase text-gray-500">
-                Time Remaining
-              </p>
+            <section className="mt-8 text-center">
+              <div className="inline-block px-4 py-1.5 bg-[#121212]/80 border border-[#262626] rounded-full mb-4">
+                <p className="text-[9px] tracking-[0.3em] uppercase text-gray-500">
+                  Time Remaining
+                </p>
+              </div>
 
-              <h1 className="mt-3 text-5xl font-bold font-mono text-white">
-                {String(countdown.hours).padStart(2, "0")}:
-                {String(countdown.minutes).padStart(2, "0")}:
+              <h1 className="text-6xl font-bold font-mono text-white tracking-tight">
+                {String(countdown.hours).padStart(2, "0")}
+                <span className="text-primary">:</span>
+                {String(countdown.minutes).padStart(2, "0")}
+                <span className="text-primary">:</span>
                 {String(countdown.seconds).padStart(2, "0")}
               </h1>
 
-              <div className="mt-4 h-1 w-24 mx-auto bg-primary rounded" />
-            </section>
-
-            {/* Next Milestone */}
-            <section className="mt-8 bg-[#121212] border border-[#262626] rounded-xl p-4">
-              <div className="flex justify-between items-center mb-2">
-                <p className="text-[9px] tracking-widest text-gray-500 uppercase">
-                  Next Milestone
-                </p>
-                <span className="text-yellow-400 text-xs font-semibold">
-                  {homeData?.milestone?.status ?? ""}
-                </span>
-
-              </div>
-
-              <p className="text-white font-semibold">
-                {homeData?.milestone?.title ?? "--"}
-              </p>
-
-              <div className="mt-2 flex justify-between text-xs text-gray-400">
-                <span>Until Deadline</span>
-                <span className="text-yellow-400">
-                  {milestoneRemaining !== null ? `${milestoneRemaining}m` : "--"}
-                </span>
-
-              </div>
-
-              <div className="mt-2 h-1 bg-gray-700 rounded">
-                <div
-                  className="h-1 bg-primary rounded transition-all"
-                  style={{
-                    width:
-                      milestoneRemaining !== null
-                        ? `${Math.max(5, 100 - milestoneRemaining)}%`
-                        : "0%",
-                  }}
-                />
-
-              </div>
+              <div className="mt-5 h-0.5 w-32 mx-auto bg-gradient-to-r from-transparent via-primary to-transparent rounded" />
             </section>
 
             {/* Live Pitch - Real-time updates */}
             {activePitch ? (
-              <section className={`mt-6 border-2 rounded-xl p-4 bg-black transition-all ${
-                pitchTimeRemaining <= 30 ? 'border-red-500 animate-pulse' : 'border-primary'
+              <section className={`mt-8 rounded-xl p-5 bg-[#0A0A0A]/80 backdrop-blur-sm transition-all ${
+                pitchTimeRemaining <= 30 
+                  ? 'border-2 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.15)]' 
+                  : 'border border-primary/30 shadow-[0_0_30px_rgba(255,215,0,0.08)]'
               }`}>
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <p className="text-[9px] tracking-widest text-green-500 uppercase">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <div className={`w-2 h-2 rounded-full animate-pulse ${pitchTimeRemaining <= 30 ? 'bg-red-500' : 'bg-green-500'}`}></div>
+                  <p className={`text-[9px] tracking-[0.2em] uppercase font-medium ${pitchTimeRemaining <= 30 ? 'text-red-400' : 'text-green-400'}`}>
                     Live Now
                   </p>
                 </div>
 
-                <h2 className="text-center text-2xl font-bold text-primary">
+                <h2 className={`text-center text-2xl font-serif font-bold ${pitchTimeRemaining <= 30 ? 'text-red-400' : 'text-primary'}`}>
                   {activePitch.team?.name || 'Unknown Team'}
                 </h2>
 
-                <p className="text-center text-xs text-gray-400 mt-1">
+                <p className="text-center text-xs text-gray-500 mt-1">
                   {activePitch.pitch_title || activePitch.team?.domain || 'Pitching...'}
                 </p>
 
                 <div className={`mt-4 rounded-lg py-4 text-center ${
                   pitchTimeRemaining <= 30 ? 'bg-red-500/10' : 'bg-[#121212]'
                 }`}>
-                  <p className={`text-4xl font-mono font-bold ${
+                  <p className={`text-5xl font-mono font-bold tracking-tight ${
                     pitchTimeRemaining <= 30 ? 'text-red-500' : 'text-white'
                   }`}>
-                    {String(Math.floor(pitchTimeRemaining / 60)).padStart(2, '0')}:
+                    {String(Math.floor(pitchTimeRemaining / 60)).padStart(2, '0')}
+                    <span className={pitchTimeRemaining <= 30 ? 'text-red-400' : 'text-primary'}>:</span>
                     {String(pitchTimeRemaining % 60).padStart(2, '0')}
                   </p>
-                  <p className={`text-[9px] tracking-widest uppercase mt-1 ${
+                  <p className={`text-[9px] tracking-widest uppercase mt-2 ${
                     pitchTimeRemaining <= 30 ? 'text-red-400' : 'text-primary'
                   }`}>
                     {pitchTimeRemaining <= 30 ? 'Almost Done!' : 'Time Remaining'}
@@ -620,107 +581,57 @@ export default function DashboardPage() {
                 )}
               </section>
             ) : (
-              <section className="mt-6 border border-[#262626] rounded-xl p-4 bg-[#0A0A0A]">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Clock className="w-4 h-4 text-gray-500" />
-                  <p className="text-[9px] tracking-widest text-gray-500 uppercase">
+              <section className="mt-8 rounded-xl p-5 bg-[#0A0A0A]/80 backdrop-blur-sm border border-[#262626]">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <Clock className="w-4 h-4 text-gray-600" />
+                  <p className="text-[9px] tracking-[0.2em] text-gray-600 uppercase">
                     No Active Pitch
                   </p>
                 </div>
 
-                <p className="text-center text-sm text-gray-400">
+                <p className="text-center text-sm text-gray-500">
                   Waiting for next team to present...
                 </p>
               </section>
             )}
             {/* Syndicate Valuation */}
-            <section className="mt-8 bg-[#121212] border border-[#262626] rounded-xl p-5">
-              <p className="text-[9px] tracking-widest text-gray-500 uppercase mb-2">
+            <section className="mt-8 bg-[#121212]/80 backdrop-blur-sm border border-[#262626] rounded-xl p-5">
+              <p className="text-[9px] tracking-[0.2em] text-gray-600 uppercase mb-3">
                 Syndicate Valuation
               </p>
 
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-xs text-gray-400">Total Portfolio Value</p>
-                  <h2 className="text-3xl font-bold text-primary mt-1">
-                    ${homeData?.valuation?.total?.toLocaleString() ?? "--"}
-
+                  <p className="text-xs text-gray-500">Total Portfolio Value</p>
+                  <h2 className="text-3xl font-bold text-primary mt-1 tracking-tight">
+                    ₹10,00,000
                   </h2>
                 </div>
-
-                <div className="text-right">
-                  <p className="text-green-400 text-xs font-semibold">+12.5%</p>
-                  <p className="text-[10px] text-gray-500">Since Start</p>
-                </div>
               </div>
 
-              {/* Fake graph bar (UI only) */}
-              <div className="mt-4 h-10 w-full bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10 rounded" />
             </section>
-
-
-
-
-
-
-            {/* Action Cards */}
-            <section className="mt-6 grid grid-cols-2 gap-4">
-              <button
-                onClick={() => setShowTasks(true)}
-                className="bg-[#121212] border border-[#262626] rounded-xl p-4 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,215,0,0.05)] transition-all group text-left"
-              >
-                <ClipboardList className="text-primary" />
-                <h4 className="mt-4 font-semibold text-white">Pending Tasks</h4>
-                <p className="text-sm text-gray-500 mt-1">{tasks.filter(t => t.teamStatus === "pending").length} remaining</p>
-                <div className="mt-3 flex items-center gap-1 text-primary text-[9px] uppercase tracking-widest font-bold">
-                  <span>View</span>
-                  <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </button>
-            </section>
-            {/* Commits & Teams Active */}
-            <section className="mt-8 grid grid-cols-2 gap-4">
-              {/* Commits */}
-              <div className="bg-[#121212] border border-[#262626] rounded-xl p-4">
-                <p className="text-[9px] tracking-widest uppercase text-gray-500">
-                  Commits
-                </p>
-                <h3>{homeData?.stats?.commits ?? "--"}</h3>
-                <p className="mt-1 text-xs text-green-400 font-semibold">
-                  +24/hr
-                </p>
-              </div>
-
-              {/* Teams Active */}
-              <div className="bg-[#121212] border border-[#262626] rounded-xl p-4">
-                <p className="text-[9px] tracking-widest uppercase text-gray-500">
-                  Teams Active
-                </p>
-                <h3>{homeData?.stats?.teamsActive ?? "--"}</h3>
-                <p className="mt-1 text-xs text-green-400 font-semibold">
-                  100% Online
-                </p>
-              </div>
-            </section>             
+        
           </>
         )}
         {/* Schedule */}
         <section className="mt-8">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-serif text-2xl font-bold text-white flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
+            <h3 className="font-serif text-xl font-bold text-white flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-primary" />
+              </div>
               Schedule
             </h3>
             <button
               onClick={() => setShowSchedule(true)}
-              className="text-primary text-[9px] uppercase tracking-[0.2em] font-bold"
+              className="text-primary text-[9px] uppercase tracking-[0.2em] font-medium hover:text-primary/80 transition-colors"
             >
-              View All
+              View All →
             </button>
           </div>
 
           {scheduleItems.length === 0 ? (
-            <div className="bg-[#121212] border border-[#262626] rounded-xl p-6 text-center text-gray-500">
+            <div className="bg-[#121212]/80 backdrop-blur-sm border border-[#262626] rounded-xl p-6 text-center text-gray-600">
               No upcoming events
             </div>
           ) : (
@@ -728,28 +639,29 @@ export default function DashboardPage() {
               <button
                 key={item.id}
                 onClick={() => setShowSchedule(true)}
-                className="w-full mb-3 bg-[#121212] border border-[#262626] rounded-xl p-4 flex justify-between items-center text-left"
+                className="w-full mb-3 bg-[#121212]/80 backdrop-blur-sm border border-[#262626] hover:border-primary/30 rounded-xl p-4 flex justify-between items-center text-left transition-all duration-300"
               >
                 <div className="flex gap-4 items-center">
-                  <div className="text-center px-3 py-2 rounded-lg bg-[#0A0A0A]">
-                    <p className="text-[9px] font-bold tracking-widest text-gray-500">{item.month}</p>
+                  <div className="text-center px-3 py-2 rounded-lg bg-[#0A0A0A] border border-[#1A1A1A]">
+                    <p className="text-[8px] font-bold tracking-widest text-gray-600">{item.month}</p>
                     <p className="text-lg font-bold text-white">{item.date}</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-white">{item.title}</p>
-                    <p className="text-sm text-gray-500 mt-1">{item.time}</p>
+                    <p className="font-medium text-white">{item.title}</p>
+                    <p className="text-xs text-gray-500 mt-1">{item.time}</p>
                   </div>
                 </div>
+                <ChevronRight className="w-4 h-4 text-gray-600" />
               </button>
             ))
           )}
         </section>
 
-        <footer className="mt-12 text-center">
-          <div className="flex items-center justify-center gap-3 text-[10px] text-gray-600 tracking-widest">
-            <span className="w-12 h-px bg-[#262626]" />
+        <footer className="mt-12 text-center pb-4">
+          <div className="flex items-center justify-center gap-4 text-[9px] text-gray-700 tracking-[0.2em]">
+            <span className="w-16 h-px bg-gradient-to-r from-transparent to-[#262626]" />
             <span>© 2026 ONLYFOUNDERS</span>
-            <span className="w-12 h-px bg-[#262626]" />
+            <span className="w-16 h-px bg-gradient-to-l from-transparent to-[#262626]" />
           </div>
         </footer>
       </div>

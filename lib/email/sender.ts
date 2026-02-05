@@ -149,7 +149,7 @@ export async function sendLoginCredentials(
     `.trim();
 
     const mailOptions = {
-        from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
+        from: process.env.SMTP_FROM || `"${process.env.SMTP_FROM_NAME || 'OnlyFounders'}" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
         to,
         subject: 'OnlyFounders Event - Your Login Credentials',
         html: htmlContent,
@@ -182,6 +182,8 @@ export async function sendBulkCredentials(
         entityId?: string;
     }>
 ) {
+    console.log(`📬 sendBulkCredentials called with ${recipients.length} recipients`);
+    
     const results = {
         success: [] as string[],
         failed: [] as { email: string; error: string }[],
@@ -189,16 +191,19 @@ export async function sendBulkCredentials(
 
     for (const recipient of recipients) {
         try {
-            await sendLoginCredentials(
+            console.log(`📤 Attempting to send email to: ${recipient.email}`);
+            const mailResult = await sendLoginCredentials(
                 recipient.email,
                 recipient.fullName,
                 recipient.email,
                 recipient.password
             );
+            console.log(`✅ Email sent to ${recipient.email}, messageId: ${mailResult?.messageId}`);
             results.success.push(recipient.email);
             // Rate limit to avoid SMTP throttling
             await new Promise(resolve => setTimeout(resolve, 100));
         } catch (error: any) {
+            console.error(`❌ Email failed for ${recipient.email}:`, error.message);
             results.failed.push({
                 email: recipient.email,
                 error: error.message,
@@ -206,6 +211,7 @@ export async function sendBulkCredentials(
         }
     }
 
+    console.log(`📊 Email results: ${results.success.length} success, ${results.failed.length} failed`);
     return results;
 }
 

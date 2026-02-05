@@ -46,8 +46,19 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="text-primary tech-text">LOADING...</div>
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center relative overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-15"
+            style={{ 
+              backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')",
+              backgroundPosition: 'top center'
+            }} 
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-transparent to-[#0A0A0A]" />
+        </div>
+        <div className="text-primary tech-text relative z-10">LOADING...</div>
       </div>
     );
   }
@@ -55,9 +66,23 @@ export default function ProfilePage() {
   const profile = user;
 
   return (
-    <div className="min-h-screen bg-[#3a3a2e] text-white pb-24">
+    <div className="min-h-screen bg-[#0A0A0A] text-white pb-24 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-15"
+          style={{ 
+            backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')",
+            backgroundPosition: 'top center'
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-transparent to-[#0A0A0A]" />
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent" />
+        <div className="absolute top-20 right-0 w-72 h-72 bg-primary/5 rounded-full blur-[100px]" />
+      </div>
+
       {/* Header */}
-      <div className="bg-[#2a2a20] border-b border-primary/20 px-4 py-4 sticky top-0 z-40">
+      <div className="bg-[#0A0A0A]/80 backdrop-blur-sm border-b border-[#262626] px-4 py-4 sticky top-0 z-40">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-300">
             <ChevronLeft size={24} />
@@ -68,11 +93,11 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Content */}
-      <div className="max-w-lg mx-auto px-6 py-8">
+      <div className="max-w-lg mx-auto px-6 py-8 relative z-10">
         {/* Photo Section */}
         <div className="flex justify-center mb-8">
           <div className="relative">
-            <div className="w-48 h-48 border-2 border-primary border-dashed p-2">
+            <div className="w-48 h-48 border-2 border-primary border-dashed p-2 bg-[#0A0A0A]/50 backdrop-blur-sm">
               {profile?.photoUrl ? (
                 <img 
                   src={profile.photoUrl} 
@@ -80,7 +105,7 @@ export default function ProfilePage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-[#4a4a3e] flex items-center justify-center">
+                <div className="w-full h-full bg-[#121212] flex items-center justify-center">
                   <span className="text-gray-500 text-4xl">{profile?.fullName?.[0] || '?'}</span>
                 </div>
               )}

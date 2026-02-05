@@ -182,15 +182,19 @@ export async function POST(request: NextRequest) {
                 // Send credentials email if requested
                 if (sendEmails) {
                     try {
-                        await sendBulkCredentials([{
+                        console.log(`📧 Sending email to ${participant.email}...`);
+                        const emailResult = await sendBulkCredentials([{
                             email: participant.email,
                             fullName: participant.fullName,
                             password,
                             entityId
                         }]);
+                        console.log(`✅ Email result for ${participant.email}:`, emailResult);
                     } catch (emailError) {
-                        console.error(`Failed to send email to ${participant.email}:`, emailError);
+                        console.error(`❌ Failed to send email to ${participant.email}:`, emailError);
                     }
+                } else {
+                    console.log(`⏭️ Skipping email for ${participant.email} (sendEmails=${sendEmails})`);
                 }
 
             } catch (error: any) {

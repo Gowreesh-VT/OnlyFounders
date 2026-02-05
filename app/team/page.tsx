@@ -126,15 +126,27 @@ export default function TeamPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#3a3a2e] text-white pb-24">
+            <div className="min-h-screen bg-[#0A0A0A] text-white pb-24 relative overflow-hidden">
+                {/* Background */}
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                    <div 
+                        className="absolute inset-0 bg-cover bg-center opacity-15"
+                        style={{ 
+                            backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')",
+                            backgroundPosition: 'top center'
+                        }} 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-transparent to-[#0A0A0A]" />
+                    <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent" />
+                </div>
                 {/* Header */}
-                <div className="bg-[#2a2a20] border-b border-primary/20 px-4 py-4 sticky top-0 z-40">
+                <div className="bg-[#0A0A0A]/80 backdrop-blur-sm border-b border-[#262626] px-4 py-4 sticky top-0 z-40 relative">
                     <div className="max-w-lg mx-auto flex items-center justify-center">
                         <h1 className="tech-text text-white tracking-widest text-sm">ONLYFOUNDERS</h1>
                     </div>
                 </div>
 
-                <div className="max-w-lg mx-auto px-6 py-8">
+                <div className="max-w-lg mx-auto px-6 py-8 relative z-10">
                     {/* Loading Card */}
                     <div className="border-4 border-primary p-6 bg-black animate-pulse">
                         <div className="h-4 bg-gray-800 rounded mb-4 w-1/3 mx-auto"></div>
@@ -153,9 +165,23 @@ export default function TeamPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#3a3a2e] text-white pb-24">
+        <div className="min-h-screen bg-[#0A0A0A] text-white pb-24 relative overflow-hidden">
+            {/* Background Effects */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <div
+                    className="absolute inset-0 bg-cover bg-center opacity-15"
+                    style={{ 
+                        backgroundImage: "url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?q=80&w=2444&auto=format&fit=crop')",
+                        backgroundPosition: 'top center'
+                    }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-transparent to-[#0A0A0A]" />
+                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent" />
+                <div className="absolute top-20 right-0 w-72 h-72 bg-primary/5 rounded-full blur-[100px]" />
+            </div>
+
             {/* Header */}
-            <div className="bg-[#2a2a20] border-b border-primary/20 px-4 py-4 sticky top-0 z-40">
+            <div className="bg-[#0A0A0A]/80 backdrop-blur-sm border-b border-[#262626] px-4 py-4 sticky top-0 z-40 relative">
                 <div className="max-w-lg mx-auto flex items-center justify-between">
                     <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-300">
                         <ChevronLeft size={24} />
@@ -165,7 +191,7 @@ export default function TeamPage() {
                 </div>
             </div>
 
-            <div className="max-w-lg mx-auto px-6 py-8">
+            <div className="max-w-lg mx-auto px-6 py-8 relative z-10">
                 {/* Main Card with Golden Border */}
                 <div className="border-4 border-primary p-0 bg-black">
                     {/* Online Status Indicator */}
