@@ -168,6 +168,7 @@ export async function POST(request: NextRequest) {
                 entityId: participant.entityId,
                 fullName: participant.fullName,
                 email: participant.email,
+                phoneNumber: participant.phoneNumber || null,
                 role: participant.role,
                 photoUrl: participant.photoUrl,
                 team: participant.teamId ? {

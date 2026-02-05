@@ -48,6 +48,14 @@ export async function sendLoginCredentials(
             margin-bottom: 20px;
             text-align: center;
         }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo img {
+            max-width: 180px;
+            height: auto;
+        }
         .subtitle {
             font-size: 16px;
             color: #A1A1AA;
@@ -105,7 +113,10 @@ export async function sendLoginCredentials(
 </head>
 <body>
     <div class="container">
-        <div class="header"><img src="public/icons/onlyfounders-logo.png" alt="OnlyFounders Logo" style="max-width: 200px; margin: 0 auto; display: block;"></div>
+        <div class="logo">
+            <img src="https://only-founders-omega.vercel.app/icons/icon-192x192.png" alt="OnlyFounders" />
+        </div>
+        <div class="header">ONLYFOUNDERS</div>
         
         <p>Dear ${fullName},</p>
         

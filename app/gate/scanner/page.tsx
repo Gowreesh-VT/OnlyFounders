@@ -530,7 +530,7 @@ export default function GateScannerPage() {
                 <p className="tech-text text-gray-500 text-xs mb-2">ENTITY ID</p>
                 <div className="flex items-center justify-between gap-2">
                   <p className="tech-text text-white text-lg sm:text-2xl tracking-wider truncate">
-                    {participant.entity_id || 'N/A'}
+                    {participant.entityId || 'N/A'}
                   </p>
                   <Fingerprint className="text-gray-600 shrink-0" size={24} />
                 </div>
