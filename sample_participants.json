@@ -1,13 +1,2272 @@
 {
   "participants": [
     {
-      "fullName": "Prasanth V",
-      "email": "prasanth.v2023@vitstudent.ac.in",
-      "collegeName": "VIT Chennai",
-      "teamName": "Test Team",
+      "teamName": "Neural Crew",
+      "domain": "EdTech",
+      "fullName": "S Nigamanth",
+      "role": "team_lead",
+      "email": "snigamanth1403@gmail.com",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 8754453335
+    },
+    {
+      "teamName": "Neural Crew",
+      "domain": "EdTech",
+      "fullName": "Pranesh J S",
       "role": "participant",
-      "phoneNumber": "1269443234",
-      "domain": "fintech"
+      "email": "pranesh25110140@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 8610249257
+    },
+    {
+      "teamName": "Neural Crew",
+      "domain": "EdTech",
+      "fullName": "Nihitha Srinivasan",
+      "role": "participant",
+      "email": "nihitha25110058@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 8073263252
+    },
+    {
+      "teamName": "Neural Crew",
+      "domain": "EdTech",
+      "fullName": "Sarvesh Jawahar",
+      "role": "participant",
+      "email": "sarvesh25110396@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 7695872299
+    },
+    {
+      "teamName": "Neural Crew",
+      "domain": "EdTech",
+      "fullName": "Subithrasri Karthikeyan",
+      "role": "participant",
+      "email": "subithrasri25110158@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 8148740883
+    },
+    {
+      "teamName": "NEEDIFY",
+      "domain": "EdTech",
+      "fullName": "KEERTHANA R",
+      "role": "team_lead",
+      "email": "ravichandrankeerthi2007@gmail.com",
+      "collegeName": "SAVEETHA ENGINEERING COLLEGE",
+      "phoneNumber": 8939324624
+    },
+    {
+      "teamName": "NEEDIFY",
+      "domain": "EdTech",
+      "fullName": "DIPESH RAM D",
+      "role": "participant",
+      "email": "dipeshram0917@gmail.com",
+      "collegeName": "SAVEETHA ENGINEERING COLLEGE",
+      "phoneNumber": 9363974203
+    },
+    {
+      "teamName": "NEEDIFY",
+      "domain": "EdTech",
+      "fullName": "SRIKANIMOZHI L",
+      "role": "participant",
+      "email": "srikanimozhisrima@gmail.com",
+      "collegeName": "SAVEETHA ENGINEERING COLLEGE",
+      "phoneNumber": 9944493103
+    },
+    {
+      "teamName": "NEEDIFY",
+      "domain": "EdTech",
+      "fullName": "YUGANDHIRAN P S",
+      "role": "participant",
+      "email": "yugandhiransec@gmail.com",
+      "collegeName": "SAVEETHA ENGINEERING COLLEGE",
+      "phoneNumber": 6369724289
+    },
+    {
+      "teamName": "BLUE HORIZON",
+      "domain": "AI & Automation",
+      "fullName": "K.N.KARUMUHILARSU",
+      "role": "team_lead",
+      "email": "Karumuhil2008@gmail.com",
+      "collegeName": "CHENNAI INSTITUTE OF TECHNOLOGY",
+      "phoneNumber": 9344512579
+    },
+    {
+      "teamName": "BLUE HORIZON",
+      "domain": "AI & Automation",
+      "fullName": "ASHWIN GAUTHAM B",
+      "role": "participant",
+      "email": "ashwingautham3@gmail.com",
+      "collegeName": "CHENNAI INSTITUTE OF TECHNOLOGY",
+      "phoneNumber": 6374588155
+    },
+    {
+      "teamName": "BLUE HORIZON",
+      "domain": "AI & Automation",
+      "fullName": "LAKSHMANAN K",
+      "role": "participant",
+      "email": "lakshmanankandhan8888@gmail.com",
+      "collegeName": "CHENNAI INSTITUTE OF TECHNOLOGY",
+      "phoneNumber": 6382602668
+    },
+    {
+      "teamName": "BLUE HORIZON",
+      "domain": "AI & Automation",
+      "fullName": "RAMAN K",
+      "role": "participant",
+      "email": "ramankandhan2008@gmail.com",
+      "collegeName": "CHENNAI INSTITUTE OF TECHNOLOGY",
+      "phoneNumber": 6382605739
+    },
+    {
+      "teamName": "VECTOR",
+      "domain": "EdTech",
+      "fullName": "SELVA KRISHNA S J",
+      "role": "team_lead",
+      "email": "selvakrishna.s2024@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9789564678
+    },
+    {
+      "teamName": "VECTOR",
+      "domain": "EdTech",
+      "fullName": "BHARANIDHARAN R",
+      "role": "participant",
+      "email": "bharanidharan.2024@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9345588995
+    },
+    {
+      "teamName": "VECTOR",
+      "domain": "EdTech",
+      "fullName": "SRI ANISH G",
+      "role": "participant",
+      "email": "srianish.g2024@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7200520901
+    },
+    {
+      "teamName": "VECTOR",
+      "domain": "EdTech",
+      "fullName": "AAKASH T",
+      "role": "participant",
+      "email": "aakash.t2024a@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7845910108
+    },
+    {
+      "teamName": "VECTOR",
+      "domain": "EdTech",
+      "fullName": "JYOSHIKA R",
+      "role": "participant",
+      "email": "jyoshika.r2024@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 6385650806
+    },
+    {
+      "teamName": "VECTOR",
+      "domain": "EdTech",
+      "fullName": "BHAVESH S",
+      "role": "participant",
+      "email": "bhavesh.s2024@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8610208306
+    },
+    {
+      "teamName": "Xilver",
+      "domain": "Gaming & Entertainment",
+      "fullName": "Syed Abdul Kareem K",
+      "role": "team_lead",
+      "email": "syedabdulkareem042007@gmail.com",
+      "collegeName": "Chennai Institute of Technology",
+      "phoneNumber": 9043246959
+    },
+    {
+      "teamName": "Xilver",
+      "domain": "Gaming & Entertainment",
+      "fullName": "Surya S",
+      "role": "participant",
+      "email": "surys6800@gmail.com",
+      "collegeName": "Chennai institute of technology",
+      "phoneNumber": 6385733107
+    },
+    {
+      "teamName": "Xilver",
+      "domain": "Gaming & Entertainment",
+      "fullName": "TAMIZHKUMARAN R",
+      "role": "participant",
+      "email": "tamizhkumaran2006@gmail.com",
+      "collegeName": "Chennai Institute of Technology",
+      "phoneNumber": 8668190350
+    },
+    {
+      "teamName": "Xilver",
+      "domain": "Gaming & Entertainment",
+      "fullName": "Varun Priyan Palani",
+      "role": "participant",
+      "email": "vishal7112006@gmail.com",
+      "collegeName": "Chennai Institute Of Technology",
+      "phoneNumber": 9150002166
+    },
+    {
+      "teamName": "Team Guru",
+      "domain": "AI & Automation",
+      "fullName": "Kamlesh TJ",
+      "role": "team_lead",
+      "email": "kamlesh24110001@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 7550105405
+    },
+    {
+      "teamName": "Team Guru",
+      "domain": "AI & Automation",
+      "fullName": "Atharsh SU",
+      "role": "participant",
+      "email": "atharsh24110049@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": "93445 99503"
+    },
+    {
+      "teamName": "Team Guru",
+      "domain": "AI & Automation",
+      "fullName": "Guru Divya Darshini U",
+      "role": "participant",
+      "email": "gurudivyadarshini24110362@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": "93610 12740"
+    },
+    {
+      "teamName": "Team Guru",
+      "domain": "AI & Automation",
+      "fullName": "Srinithi A",
+      "role": "participant",
+      "email": "srinithi24110318@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": "94894 74085"
+    },
+    {
+      "teamName": "potato.json",
+      "domain": "EdTech",
+      "fullName": "Angelin Anto",
+      "role": "team_lead",
+      "email": "angelin25110410@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 9791166036
+    },
+    {
+      "teamName": "potato.json",
+      "domain": "EdTech",
+      "fullName": "Gowtham V",
+      "role": "participant",
+      "email": "gowtham25110224@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 9789132842
+    },
+    {
+      "teamName": "potato.json",
+      "domain": "EdTech",
+      "fullName": "Dhanya V",
+      "role": "participant",
+      "email": "dhanya25110250@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 8148180265
+    },
+    {
+      "teamName": "potato.json",
+      "domain": "EdTech",
+      "fullName": "Kailesh S",
+      "role": "participant",
+      "email": "kailesh25110032@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 9790319383
+    },
+    {
+      "teamName": "potato.json",
+      "domain": "EdTech",
+      "fullName": "Harish Rajan",
+      "role": "participant",
+      "email": "harish25110141@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 9944218184
+    },
+    {
+      "teamName": "potato.json",
+      "domain": "EdTech",
+      "fullName": "N P Shrinidhi Vyairavi",
+      "role": "participant",
+      "email": "shrinidhi25110387@snuchennai.edu.in",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 9840907684
+    },
+    {
+      "teamName": "Humanity OS",
+      "domain": "Health & Wellness",
+      "fullName": "Nandavelan SPS",
+      "role": "team_lead",
+      "email": "nandaveland85@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": 9840811854
+    },
+    {
+      "teamName": "Humanity OS",
+      "domain": "Health & Wellness",
+      "fullName": "Balaji K",
+      "role": "participant",
+      "email": "balaji061196@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": 7845923859
+    },
+    {
+      "teamName": "Humanity OS",
+      "domain": "Health & Wellness",
+      "fullName": "Manjushri RG",
+      "role": "participant",
+      "email": "manjushriraja0528@gmail.com",
+      "collegeName": "saveetha engineering college",
+      "phoneNumber": 9384613345
+    },
+    {
+      "teamName": "Humanity OS",
+      "domain": "Health & Wellness",
+      "fullName": "Yogesh P",
+      "role": "participant",
+      "email": "yogeshdeepan15@gmail.com",
+      "collegeName": "saveetha engineering college",
+      "phoneNumber": 9176150577
+    },
+    {
+      "teamName": "Humanity OS",
+      "domain": "Health & Wellness",
+      "fullName": "Royce Niran George A",
+      "role": "participant",
+      "email": "aj.roycenirangeorge@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": 7200296705
+    },
+    {
+      "teamName": "Sparklers",
+      "domain": "FinTech",
+      "fullName": "Ganesh Kumar T",
+      "role": "team_lead",
+      "email": "ganesh957kumar@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": 7825083996
+    },
+    {
+      "teamName": "Sparklers",
+      "domain": "FinTech",
+      "fullName": "Aman Singh",
+      "role": "participant",
+      "email": "amansingh102006@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": 7358520180
+    },
+    {
+      "teamName": "Sparklers",
+      "domain": "FinTech",
+      "fullName": "Vinothini T",
+      "role": "participant",
+      "email": "vinoism1703@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": 9042785843
+    },
+    {
+      "teamName": "Sparklers",
+      "domain": "FinTech",
+      "fullName": "Paul Shervin P",
+      "role": "participant",
+      "email": "paulshervin77@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": 7092986140
+    },
+    {
+      "teamName": "Sparklers",
+      "domain": "FinTech",
+      "fullName": "A .Sherwin Infano",
+      "role": "participant",
+      "email": "sherwin.infano@gmail.com",
+      "collegeName": "Saveetha engineering college",
+      "phoneNumber": 8300160708
+    },
+    {
+      "teamName": "Sparklers",
+      "domain": "FinTech",
+      "fullName": "Nanda Kishor Suresh Priya",
+      "role": "participant",
+      "email": "nandakishorsureshpriya@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": 7868914236
+    },
+    {
+      "teamName": "FlashC",
+      "domain": "FinTech",
+      "fullName": "Harini V S",
+      "role": "team_lead",
+      "email": "Harinivs.cse2023@citchennai.net",
+      "collegeName": "Chennai institute of technology",
+      "phoneNumber": 9841430552
+    },
+    {
+      "teamName": "FlashC",
+      "domain": "FinTech",
+      "fullName": "Saran Lingesh M",
+      "role": "participant",
+      "email": "Saranlingeshm.cse2023@citchennai.net",
+      "collegeName": "Chennai institute of technology",
+      "phoneNumber": 7010787988
+    },
+    {
+      "teamName": "FlashC",
+      "domain": "FinTech",
+      "fullName": "Valarmathi B",
+      "role": "participant",
+      "email": "Valarmathib.cse2023@citchennai.net",
+      "collegeName": "Cit",
+      "phoneNumber": 9342790394
+    },
+    {
+      "teamName": "FlashC",
+      "domain": "FinTech",
+      "fullName": "Rakshaa S",
+      "role": "participant",
+      "email": "Rakshaas.cse2023@citchennai.net",
+      "collegeName": "CIT",
+      "phoneNumber": 959118474
+    },
+    {
+      "teamName": "FlashC",
+      "domain": "FinTech",
+      "fullName": "C Hameshwaran",
+      "role": "participant",
+      "email": "Chameshwaran.cse2023@citchennai.net",
+      "collegeName": "CIT",
+      "phoneNumber": 9360651431
+    },
+    {
+      "teamName": "FlashC",
+      "domain": "FinTech",
+      "fullName": "Jaikrish R",
+      "role": "participant",
+      "email": "Jaikrishr.cse2023@citchennai.net",
+      "collegeName": "CIT",
+      "phoneNumber": 6383735994
+    },
+    {
+      "teamName": "Zero Latency",
+      "domain": "AI & Automation",
+      "fullName": "Uvanesh R",
+      "role": "team_lead",
+      "email": "r.uvanesh2005@gmail.com",
+      "collegeName": "Mgr university",
+      "phoneNumber": 9042577230
+    },
+    {
+      "teamName": "Zero Latency",
+      "domain": "AI & Automation",
+      "fullName": "Pranava Kumar. I",
+      "role": "participant",
+      "email": "pranavakumar.it@gmail.com",
+      "collegeName": "Dr. M.G.R. Educational and Research Institute",
+      "phoneNumber": 7358674753
+    },
+    {
+      "teamName": "Zero Latency",
+      "domain": "AI & Automation",
+      "fullName": "Abdul Ghaffar S",
+      "role": "participant",
+      "email": "abdulghaffars7777@gmail.com",
+      "collegeName": "DR.MGR EDUCATIONAL AND RESEARCH INSTITUTE",
+      "phoneNumber": 8939730456
+    },
+    {
+      "teamName": "Zero Latency",
+      "domain": "AI & Automation",
+      "fullName": "Rithvik R",
+      "role": "participant",
+      "email": "rithvik07.it@gmail.com",
+      "collegeName": "Dr.MGR University",
+      "phoneNumber": 9952949042
+    },
+    {
+      "teamName": "Zero Latency",
+      "domain": "AI & Automation",
+      "fullName": "Sweety N",
+      "role": "participant",
+      "email": "Sweetyn1020@gmail.com",
+      "collegeName": "Dr.Mgr educational and research institute",
+      "phoneNumber": 9514718008
+    },
+    {
+      "teamName": "Mindstacks",
+      "domain": "EdTech",
+      "fullName": "Devashish S H",
+      "role": "team_lead",
+      "email": "saidevashish2021@gmail.com",
+      "collegeName": "Sastra Deemed to be University",
+      "phoneNumber": 7010588941
+    },
+    {
+      "teamName": "Mindstacks",
+      "domain": "EdTech",
+      "fullName": "Mithun Raj D",
+      "role": "participant",
+      "email": "mithundurairaju@gmail.com",
+      "collegeName": "Sastra Deemed to be University",
+      "phoneNumber": 9600259859
+    },
+    {
+      "teamName": "Mindstacks",
+      "domain": "EdTech",
+      "fullName": "Deepak C",
+      "role": "participant",
+      "email": "deepakcm27@gmail.com",
+      "collegeName": "Sastra Deemed To be University",
+      "phoneNumber": 6374721812
+    },
+    {
+      "teamName": "Mindstacks",
+      "domain": "EdTech",
+      "fullName": "Tharun D K",
+      "role": "participant",
+      "email": "tharunmarshall95@gmail.com",
+      "collegeName": "Sastra Deemed to be University",
+      "phoneNumber": 9363021201
+    },
+    {
+      "teamName": "GINGER",
+      "domain": "Health & Wellness",
+      "fullName": "Dhaval Gupta",
+      "role": "team_lead",
+      "email": "Dhaval.gupta2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7009017934
+    },
+    {
+      "teamName": "GINGER",
+      "domain": "Health & Wellness",
+      "fullName": "Ishmeet Singh Chadha",
+      "role": "participant",
+      "email": "ishmeet.singhchadha2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8817766292
+    },
+    {
+      "teamName": "GINGER",
+      "domain": "Health & Wellness",
+      "fullName": "Mohith Krishna",
+      "role": "participant",
+      "email": "Mohith.krishna2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9526883655
+    },
+    {
+      "teamName": "GINGER",
+      "domain": "Health & Wellness",
+      "fullName": "Prabjot Singh",
+      "role": "participant",
+      "email": "prabjot.singh2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7006933519
+    },
+    {
+      "teamName": "GINGER",
+      "domain": "Health & Wellness",
+      "fullName": "Akshay",
+      "role": "participant",
+      "email": "akshay.r2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 6282098707
+    },
+    {
+      "teamName": "Gardizaa",
+      "domain": "FinTech",
+      "fullName": "Arun K S",
+      "role": "team_lead",
+      "email": "arunsubramani70105@gmail.com",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": "98427 53938"
+    },
+    {
+      "teamName": "Gardizaa",
+      "domain": "FinTech",
+      "fullName": "Divya Sree N",
+      "role": "participant",
+      "email": "divyasreen31@gmail.com",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": "97901 56915"
+    },
+    {
+      "teamName": "Gardizaa",
+      "domain": "FinTech",
+      "fullName": "Akshay Lavan S",
+      "role": "participant",
+      "email": "akshaylavan783@gmail.com",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9843076688
+    },
+    {
+      "teamName": "Gardizaa",
+      "domain": "FinTech",
+      "fullName": "Padmapriyaa M A",
+      "role": "participant",
+      "email": "mapadmapriyaa@gmail.com",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": "95789 10444"
+    },
+    {
+      "teamName": "HackSquad",
+      "domain": "AI & Automation",
+      "fullName": "Ragul Madhavan S",
+      "role": "team_lead",
+      "email": "ragulmadhavans.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9047693022
+    },
+    {
+      "teamName": "HackSquad",
+      "domain": "AI & Automation",
+      "fullName": "Midunavarshini S",
+      "role": "participant",
+      "email": "midunavarshinis.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9345077747
+    },
+    {
+      "teamName": "HackSquad",
+      "domain": "AI & Automation",
+      "fullName": "Pavisha S",
+      "role": "participant",
+      "email": "pavishas.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9344951896
+    },
+    {
+      "teamName": "HackSquad",
+      "domain": "AI & Automation",
+      "fullName": "Pradakshina B",
+      "role": "participant",
+      "email": "pradakshinab.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 7539997480
+    },
+    {
+      "teamName": "HackSquad",
+      "domain": "AI & Automation",
+      "fullName": "Rathidevi K",
+      "role": "participant",
+      "email": "rathidevik.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9344667918
+    },
+    {
+      "teamName": "HackSquad",
+      "domain": "AI & Automation",
+      "fullName": "Rohinvarshini S P",
+      "role": "participant",
+      "email": "rohinvarshinisp.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9043167592
+    },
+    {
+      "teamName": "Lays",
+      "domain": "AI & Automation",
+      "fullName": "Aditya Chavali",
+      "role": "team_lead",
+      "email": "adityachavali2013@gmail.com",
+      "collegeName": "SNU Chennai",
+      "phoneNumber": 9398306351
+    },
+    {
+      "teamName": "Lays",
+      "domain": "AI & Automation",
+      "fullName": "Akhil E",
+      "role": "participant",
+      "email": "akhil23110476@snuchennai.edu.in",
+      "collegeName": "SNU Chennai",
+      "phoneNumber": 8925512707
+    },
+    {
+      "teamName": "Lays",
+      "domain": "AI & Automation",
+      "fullName": "Arnav Vadlapatla",
+      "role": "participant",
+      "email": "arnav23110443@snuchennai.edu.in",
+      "collegeName": "SNU Chennai",
+      "phoneNumber": 8008147151
+    },
+    {
+      "teamName": "Lays",
+      "domain": "AI & Automation",
+      "fullName": "M Harinee",
+      "role": "participant",
+      "email": "harineemanikandan@gmail.com",
+      "collegeName": "SNU Chennai",
+      "phoneNumber": 7550110045
+    },
+    {
+      "teamName": "Lays",
+      "domain": "AI & Automation",
+      "fullName": "P Jyoshitha Reddy",
+      "role": "participant",
+      "email": "p23110507@snuchennai.edu.in",
+      "collegeName": "SNU Chennai",
+      "phoneNumber": 7386184365
+    },
+    {
+      "teamName": "Lays",
+      "domain": "AI & Automation",
+      "fullName": "Hari Prathyumnan K",
+      "role": "participant",
+      "email": "hari23110511@snuchennai.edu.in",
+      "collegeName": "SNU Chennai",
+      "phoneNumber": 7010884848
+    },
+    {
+      "teamName": "LEGENDERS",
+      "domain": "Health & Wellness",
+      "fullName": "JAGADEESH B",
+      "role": "participant",
+      "email": "240220.EC@rmkec.ac.in",
+      "collegeName": "R M K ENGINEERING COLLEGE",
+      "phoneNumber": 9487264576
+    },
+    {
+      "teamName": "LEGENDERS",
+      "domain": "Health & Wellness",
+      "fullName": "LOHIT S",
+      "role": "participant",
+      "email": "240317.ec@rmkec.ac.in",
+      "collegeName": "RMK ENGINEERING COLLEGE",
+      "phoneNumber": 9444847830
+    },
+    {
+      "teamName": "LEGENDERS",
+      "domain": "Health & Wellness",
+      "fullName": "MITHRAN VS",
+      "role": "participant",
+      "email": "240733.ec@rmkec.ac.in",
+      "collegeName": "RMK ENGINEERING COLLEGE",
+      "phoneNumber": 7358013321
+    },
+    {
+      "teamName": "LEGENDERS",
+      "domain": "Health & Wellness",
+      "fullName": "jagadeesh m",
+      "role": "team_lead",
+      "email": "240057.ec@rmkec.ac.in",
+      "collegeName": "R.M.K Engineering College",
+      "phoneNumber": 9940524646
+    },
+    {
+      "teamName": "LEGENDERS",
+      "domain": "Health & Wellness",
+      "fullName": "Edmund Jonathan E",
+      "role": "participant",
+      "email": "240890.ec@rmkec.ac.in",
+      "collegeName": "R.M.K Enginnering College",
+      "phoneNumber": 9841329395
+    },
+    {
+      "teamName": "LEGENDERS",
+      "domain": "Health & Wellness",
+      "fullName": "Arun Kumar K S",
+      "role": "participant",
+      "email": "240250.ea@rmkec.ac.in",
+      "collegeName": "R.M.K Engineering College",
+      "phoneNumber": 9486683803
+    },
+    {
+      "teamName": "genesis of disruption",
+      "domain": "AI & Automation",
+      "fullName": "S.Aman Ahmmed",
+      "role": "team_lead",
+      "email": "amannazeer49@gmail.com",
+      "collegeName": "Simats(Saveetha School Of Engineering",
+      "phoneNumber": "98499 31954"
+    },
+    {
+      "teamName": "genesis of disruption",
+      "domain": "AI & Automation",
+      "fullName": "Nikhil Kumar Reddy Kadiveti",
+      "role": "participant",
+      "email": "sowjanyakadiveti1037@gmail.com",
+      "collegeName": "SIMATS(Saveetha School of Engineering)",
+      "phoneNumber": 9618120426
+    },
+    {
+      "teamName": "genesis of disruption",
+      "domain": "AI & Automation",
+      "fullName": "Sanjay.C",
+      "role": "participant",
+      "email": "chinnisanjay2007@gmail.com",
+      "collegeName": "SIMATS(Saveetha School of Engineering)",
+      "phoneNumber": 9100909776
+    },
+    {
+      "teamName": "genesis of disruption",
+      "domain": "AI & Automation",
+      "fullName": "Slochana Reddy",
+      "role": "participant",
+      "email": "sulochanaready9658@gmail.com",
+      "collegeName": "SIMtATS(Saveetha School of Saveetha)",
+      "phoneNumber": "83411 77970"
+    },
+    {
+      "teamName": "RideGood",
+      "domain": "AI & Automation",
+      "fullName": "Dharshan S P",
+      "role": "team_lead",
+      "email": "dharshansp.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9080105868
+    },
+    {
+      "teamName": "RideGood",
+      "domain": "AI & Automation",
+      "fullName": "Jivi Ashwin B",
+      "role": "participant",
+      "email": "jiviashwinb.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 6380722121
+    },
+    {
+      "teamName": "RideGood",
+      "domain": "AI & Automation",
+      "fullName": "Karthik Pranav Sivaraj",
+      "role": "participant",
+      "email": "karthikpranavsivaraj.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9994961323
+    },
+    {
+      "teamName": "RideGood",
+      "domain": "AI & Automation",
+      "fullName": "Deva C",
+      "role": "participant",
+      "email": "devac.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9345468449
+    },
+    {
+      "teamName": "RideGood",
+      "domain": "AI & Automation",
+      "fullName": "Harsadh Perumal",
+      "role": "participant",
+      "email": "harsadhperumal.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9629475581
+    },
+    {
+      "teamName": "RideGood",
+      "domain": "AI & Automation",
+      "fullName": "Danush P",
+      "role": "participant",
+      "email": "danushp.23cse@kongu.edu",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 9655233606
+    },
+    {
+      "teamName": "ASAAS",
+      "domain": "AI & Automation",
+      "fullName": "Shubh Gupta",
+      "role": "team_lead",
+      "email": "shubh.gupta2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7974449201
+    },
+    {
+      "teamName": "ASAAS",
+      "domain": "AI & Automation",
+      "fullName": "Abhay Mutha",
+      "role": "participant",
+      "email": "abhay.prafulmutha2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9356884951
+    },
+    {
+      "teamName": "ASAAS",
+      "domain": "AI & Automation",
+      "fullName": "satyajeet pawar",
+      "role": "participant",
+      "email": "satyajeet.sachin2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7558557803
+    },
+    {
+      "teamName": "ASAAS",
+      "domain": "AI & Automation",
+      "fullName": "abhichandra uday Chettiyar",
+      "role": "participant",
+      "email": "abhichandra.uday2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9924628590
+    },
+    {
+      "teamName": "ASAAS",
+      "domain": "AI & Automation",
+      "fullName": "Aniket Khemnar",
+      "role": "participant",
+      "email": "aniket.subhash2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8999930902
+    },
+    {
+      "teamName": "The Code Squad",
+      "domain": "FinTech",
+      "fullName": "Asma Zainul Abidin",
+      "role": "team_lead",
+      "email": "asma.zainulabidin2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9176068787
+    },
+    {
+      "teamName": "The Code Squad",
+      "domain": "FinTech",
+      "fullName": "Yeseswini L",
+      "role": "participant",
+      "email": "yeseswini.l2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7550036124
+    },
+    {
+      "teamName": "The Code Squad",
+      "domain": "FinTech",
+      "fullName": "Shivkumar S",
+      "role": "participant",
+      "email": "cryptictitan022@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 6385162882
+    },
+    {
+      "teamName": "The Code Squad",
+      "domain": "FinTech",
+      "fullName": "Yashwant Gokul P",
+      "role": "participant",
+      "email": "yashwanthgokul.p2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8248059760
+    },
+    {
+      "teamName": "ARA",
+      "domain": "FinTech",
+      "fullName": "K NANDESH",
+      "role": "participant",
+      "email": "nandeshkanagaraju08@gmail.com",
+      "collegeName": "SASTRA",
+      "phoneNumber": 8282826266
+    },
+    {
+      "teamName": "ARA",
+      "domain": "FinTech",
+      "fullName": "GOKUL S",
+      "role": "team_lead",
+      "email": "educationgokul@gmail.com",
+      "collegeName": "SASTRA",
+      "phoneNumber": 6383188575
+    },
+    {
+      "teamName": "ARA",
+      "domain": "FinTech",
+      "fullName": "HARI R",
+      "role": "participant",
+      "email": "harirajkumar2023@gmail.com",
+      "collegeName": "SASTRA",
+      "phoneNumber": 8122113661
+    },
+    {
+      "teamName": "ARA",
+      "domain": "FinTech",
+      "fullName": "SOUNDAR S",
+      "role": "participant",
+      "email": "soundarsundaram2512@gmail.com",
+      "collegeName": "SASTRA",
+      "phoneNumber": 8610246949
+    },
+    {
+      "teamName": "ARA",
+      "domain": "FinTech",
+      "fullName": "LOKESH SANKER G",
+      "role": "participant",
+      "email": "lokeshsankerggunasekaran@gmail.com",
+      "collegeName": "SASTRA",
+      "phoneNumber": 9080599803
+    },
+    {
+      "teamName": "Bitspace",
+      "domain": "AI & Automation",
+      "fullName": "Yagav Akhilesh S R",
+      "role": "participant",
+      "email": "yagavakhilesh.sr2023@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9843153342
+    },
+    {
+      "teamName": "Bitspace",
+      "domain": "AI & Automation",
+      "fullName": "Shakthi",
+      "role": "team_lead",
+      "email": "shakthi.r2023@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8526494411
+    },
+    {
+      "teamName": "Bitspace",
+      "domain": "AI & Automation",
+      "fullName": "Ashwin Dayanand",
+      "role": "participant",
+      "email": "Ashwindayanand.k2023@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8056764518
+    },
+    {
+      "teamName": "Bitspace",
+      "domain": "AI & Automation",
+      "fullName": "Sudhansriram Manibalan",
+      "role": "participant",
+      "email": "Sudhansriram.2023@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8807576306
+    },
+    {
+      "teamName": "Bitspace",
+      "domain": "AI & Automation",
+      "fullName": "Allen Bersho A P",
+      "role": "participant",
+      "email": "allenbersho.ap2023@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9381998797
+    },
+    {
+      "teamName": "InsightOps",
+      "domain": "AI & Automation",
+      "fullName": "SHYAM S",
+      "role": "team_lead",
+      "email": "shyamsridhar935@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": 9043757855
+    },
+    {
+      "teamName": "InsightOps",
+      "domain": "AI & Automation",
+      "fullName": "YUVAN M",
+      "role": "participant",
+      "email": "yuvvanmuthu@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": 8838699755
+    },
+    {
+      "teamName": "InsightOps",
+      "domain": "AI & Automation",
+      "fullName": "SHREYA V",
+      "role": "participant",
+      "email": "shreya.vixm@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": "93618 90576"
+    },
+    {
+      "teamName": "InsightOps",
+      "domain": "AI & Automation",
+      "fullName": "JYOTSHANA S R",
+      "role": "participant",
+      "email": "jyo6niaa@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": "90801 70017"
+    },
+    {
+      "teamName": "InsightOps",
+      "domain": "AI & Automation",
+      "fullName": "SASHMITHA SREE K V",
+      "role": "participant",
+      "email": "sashmithasreekv2007@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": "97916 20364"
+    },
+    {
+      "teamName": "InsightOps",
+      "domain": "AI & Automation",
+      "fullName": "SUDHISHNA P",
+      "role": "participant",
+      "email": "sudhipremanand07@gmail.com",
+      "collegeName": "Saveetha Engineering College",
+      "phoneNumber": "99625 85500"
+    },
+    {
+      "teamName": "TOP-G",
+      "domain": "Health & Wellness",
+      "fullName": "Krit Lunkad",
+      "role": "team_lead",
+      "email": "krit.lunkad@gmail.com",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 9043044776
+    },
+    {
+      "teamName": "TOP-G",
+      "domain": "Health & Wellness",
+      "fullName": "Ch Viduradh Reddy",
+      "role": "participant",
+      "email": "viduradh2006@gmail.com",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 7358474874
+    },
+    {
+      "teamName": "TOP-G",
+      "domain": "Health & Wellness",
+      "fullName": "Shrihari Gururajan",
+      "role": "participant",
+      "email": "shrinathan006@gmail.com",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 9444481255
+    },
+    {
+      "teamName": "TOP-G",
+      "domain": "Health & Wellness",
+      "fullName": "R Sunil",
+      "role": "participant",
+      "email": "sunilseervi6095@gmail.com",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 9003256008
+    },
+    {
+      "teamName": "TOP-G",
+      "domain": "Health & Wellness",
+      "fullName": "Yashaswini.D",
+      "role": "participant",
+      "email": "yashaswinidevarinti@gmail.com",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 8328618603
+    },
+    {
+      "teamName": "TOP-G",
+      "domain": "Health & Wellness",
+      "fullName": "Saajan Varghese",
+      "role": "participant",
+      "email": "saajan.varghese.2006@gmail.com",
+      "collegeName": "Shiv Nadar University Chennai",
+      "phoneNumber": 9444082981
+    },
+    {
+      "teamName": "Hack Daniels",
+      "domain": "FinTech",
+      "fullName": "Aaryan Pratap Singh",
+      "role": "team_lead",
+      "email": "aaryan.p.singh2502@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8217652265
+    },
+    {
+      "teamName": "Hack Daniels",
+      "domain": "FinTech",
+      "fullName": "Ayush Gupta",
+      "role": "participant",
+      "email": "g.ayush2k07@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9625489960
+    },
+    {
+      "teamName": "Hack Daniels",
+      "domain": "FinTech",
+      "fullName": "Sagnik Sen",
+      "role": "participant",
+      "email": "sen.sagnik9@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9734187782
+    },
+    {
+      "teamName": "Hack Daniels",
+      "domain": "FinTech",
+      "fullName": "Tashmit Podder",
+      "role": "participant",
+      "email": "tashmitpodder@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8697222085
+    },
+    {
+      "teamName": "Hack Daniels",
+      "domain": "FinTech",
+      "fullName": "Ishita Chauhan",
+      "role": "participant",
+      "email": "ishitachauhan1501@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9223434490
+    },
+    {
+      "teamName": "Hack Daniels",
+      "domain": "FinTech",
+      "fullName": "Ranveer Kapoor",
+      "role": "participant",
+      "email": "kapoor.ranveerlmb@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9831097545
+    },
+    {
+      "teamName": "THE G.O.A.T",
+      "domain": "FinTech",
+      "fullName": "YUVAN CHANDAR T",
+      "role": "team_lead",
+      "email": "240901.ec@rmkec.ac.in",
+      "collegeName": "R.M.K ENGINEERING COLLEGE",
+      "phoneNumber": 7598344134
+    },
+    {
+      "teamName": "THE G.O.A.T",
+      "domain": "FinTech",
+      "fullName": "A YOHITH SRI AADITHYA",
+      "role": "participant",
+      "email": "240788.ec@rmkec.ac.in",
+      "collegeName": "R.M.K ENGINEERING COLLEGE",
+      "phoneNumber": 8939743213
+    },
+    {
+      "teamName": "THE G.O.A.T",
+      "domain": "FinTech",
+      "fullName": "MOHITH CHANDAR M",
+      "role": "participant",
+      "email": "240199.ec@rmkec.ac.in",
+      "collegeName": "R.M.K ENGINEERING COLLEGE",
+      "phoneNumber": 9443549390
+    },
+    {
+      "teamName": "THE G.O.A.T",
+      "domain": "FinTech",
+      "fullName": "MOGUL KANNA T S",
+      "role": "participant",
+      "email": "240210.ec@rmkec.ac.in",
+      "collegeName": "R.M.K ENGINEERING COLLEGE",
+      "phoneNumber": 9344044156
+    },
+    {
+      "teamName": "THE G.O.A.T",
+      "domain": "FinTech",
+      "fullName": "KAVIN BARATH S",
+      "role": "participant",
+      "email": "240889.ec@rmkec.ac.in",
+      "collegeName": "R.M.K ENGINEERING COLLEGE",
+      "phoneNumber": 7305198655
+    },
+    {
+      "teamName": "THE G.O.A.T",
+      "domain": "FinTech",
+      "fullName": "LALITH ANEESHWAR M",
+      "role": "participant",
+      "email": "241100.ec@rmkec.ac.in",
+      "collegeName": "R.M.K ENGINEERING COLLEGE",
+      "phoneNumber": 9840125052
+    },
+    {
+      "teamName": "Whitehat",
+      "domain": "Health & Wellness",
+      "fullName": "Geethanjali SP",
+      "role": "team_lead",
+      "email": "129181015@sastra.ac.in",
+      "collegeName": "Sastra University",
+      "phoneNumber": 8122221284
+    },
+    {
+      "teamName": "Whitehat",
+      "domain": "Health & Wellness",
+      "fullName": "Dibiha N",
+      "role": "participant",
+      "email": "129005011@sastra.ac.in",
+      "collegeName": "Sastra University",
+      "phoneNumber": 8072408778
+    },
+    {
+      "teamName": "Whitehat",
+      "domain": "Health & Wellness",
+      "fullName": "Sudharshini S",
+      "role": "participant",
+      "email": "129014061@sastra.ac.in",
+      "collegeName": "Sastra University",
+      "phoneNumber": 8529235188
+    },
+    {
+      "teamName": "Whitehat",
+      "domain": "Health & Wellness",
+      "fullName": "Yogasri K",
+      "role": "participant",
+      "email": "129002052@sastra.ac.in",
+      "collegeName": "Sastra University",
+      "phoneNumber": 9043764226
+    },
+    {
+      "teamName": "Level up",
+      "domain": "EdTech",
+      "fullName": "R.Sainaath",
+      "role": "team_lead",
+      "email": "Sainaath.r2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": "98948 63166"
+    },
+    {
+      "teamName": "Level up",
+      "domain": "EdTech",
+      "fullName": "Raaghav adhittya",
+      "role": "participant",
+      "email": "Raaghavadhittya.mj2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9380527307
+    },
+    {
+      "teamName": "Level up",
+      "domain": "EdTech",
+      "fullName": "Chandana.sa",
+      "role": "participant",
+      "email": "Chandana.sa2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9789214245
+    },
+    {
+      "teamName": "Level up",
+      "domain": "EdTech",
+      "fullName": "Varun Kumar.M",
+      "role": "participant",
+      "email": "varunkumar.m2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7397602966
+    },
+    {
+      "teamName": "Level up",
+      "domain": "EdTech",
+      "fullName": "Ragashri.A",
+      "role": "participant",
+      "email": "ragashri.a2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8610596182
+    },
+    {
+      "teamName": "Level up",
+      "domain": "EdTech",
+      "fullName": "Yashwanth Bharadwaj",
+      "role": "participant",
+      "email": "yashwanthbharadwaj2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7780168174
+    },
+    {
+      "teamName": "Fantastic Five",
+      "domain": "AI & Automation",
+      "fullName": "H Naveed Ahamed",
+      "role": "team_lead",
+      "email": "Naveedahamed.dsai@gmail.com",
+      "collegeName": "Dr MGR University",
+      "phoneNumber": 8946056229
+    },
+    {
+      "teamName": "Fantastic Five",
+      "domain": "AI & Automation",
+      "fullName": "R. Karthikeyan",
+      "role": "participant",
+      "email": "rhkarthikeyan21@gmail.com",
+      "collegeName": "Dr MGR University",
+      "phoneNumber": 9840495892
+    },
+    {
+      "teamName": "Fantastic Five",
+      "domain": "AI & Automation",
+      "fullName": "GokulRaj S",
+      "role": "participant",
+      "email": "gokulsenthil0906@gmail.com",
+      "collegeName": "Dr MGR University",
+      "phoneNumber": 9025815749
+    },
+    {
+      "teamName": "Fantastic Five",
+      "domain": "AI & Automation",
+      "fullName": "Jashran Mohamed S",
+      "role": "participant",
+      "email": "jashranmgr@gmail.com",
+      "collegeName": "Dr MGR University",
+      "phoneNumber": 8925705407
+    },
+    {
+      "teamName": "Fantastic Five",
+      "domain": "AI & Automation",
+      "fullName": "Samuel Paul A",
+      "role": "participant",
+      "email": "samuelpaul.amardeep@gmail.com",
+      "collegeName": "Dr MGR University",
+      "phoneNumber": 8637653656
+    },
+    {
+      "teamName": "SaveVertex 2.0",
+      "domain": "AI & Automation",
+      "fullName": "Vignesh S",
+      "role": "team_lead",
+      "email": "vickymsd3157@gmail.com",
+      "collegeName": "SIMATS Engineering",
+      "phoneNumber": 7550020525
+    },
+    {
+      "teamName": "SaveVertex 2.0",
+      "domain": "AI & Automation",
+      "fullName": "Anto Chriswin G",
+      "role": "participant",
+      "email": "antochriswin5@gmail.com",
+      "collegeName": "SIMATS Engineering",
+      "phoneNumber": 6380627872
+    },
+    {
+      "teamName": "SaveVertex 2.0",
+      "domain": "AI & Automation",
+      "fullName": "M Surya Narayanan",
+      "role": "participant",
+      "email": "muthukumar9941666@gmail.com",
+      "collegeName": "SIMATS Engineering",
+      "phoneNumber": 8939759385
+    },
+    {
+      "teamName": "SaveVertex 2.0",
+      "domain": "AI & Automation",
+      "fullName": "Laxmi Narayanan D",
+      "role": "participant",
+      "email": "laxminarayanandurai05@gmail.com",
+      "collegeName": "SIMATS Engineering",
+      "phoneNumber": 9043788127
+    },
+    {
+      "teamName": "SaveVertex 2.0",
+      "domain": "AI & Automation",
+      "fullName": "Ajmal Rahman A",
+      "role": "participant",
+      "email": "rahmanaj2005@gmail.com",
+      "collegeName": "SIMATS Engineering",
+      "phoneNumber": 9372832653
+    },
+    {
+      "teamName": "Sky Grazers",
+      "domain": "AI & Automation",
+      "fullName": "Dev Datya Pratap Bansal",
+      "role": "team_lead",
+      "email": "dev25bansal@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8619511358
+    },
+    {
+      "teamName": "Sky Grazers",
+      "domain": "AI & Automation",
+      "fullName": "Krishna Puri",
+      "role": "participant",
+      "email": "shubhukrishna16@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8953177604
+    },
+    {
+      "teamName": "Sky Grazers",
+      "domain": "AI & Automation",
+      "fullName": "Joshua Chittilapilly",
+      "role": "participant",
+      "email": "-",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7738677987
+    },
+    {
+      "teamName": "Sky Grazers",
+      "domain": "AI & Automation",
+      "fullName": "Shashank Mergu",
+      "role": "participant",
+      "email": "-",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9922970837
+    },
+    {
+      "teamName": "Unsinkables",
+      "domain": "AI & Automation",
+      "fullName": "Swarnabala K",
+      "role": "team_lead",
+      "email": "swarnabalak.cse2024@citchennai.net",
+      "collegeName": "Chennai Institute of Technology",
+      "phoneNumber": 7010635918
+    },
+    {
+      "teamName": "Unsinkables",
+      "domain": "AI & Automation",
+      "fullName": "TARUN AADARSH B",
+      "role": "participant",
+      "email": "tarunaadarshb.cse2024@citchennai.net",
+      "collegeName": "Chennai institute of technology",
+      "phoneNumber": 9043013467
+    },
+    {
+      "teamName": "Unsinkables",
+      "domain": "AI & Automation",
+      "fullName": "Abijith U",
+      "role": "participant",
+      "email": "abijithu0245@gmail.com",
+      "collegeName": "Chennai Institute of Technology",
+      "phoneNumber": 9566462518
+    },
+    {
+      "teamName": "Unsinkables",
+      "domain": "AI & Automation",
+      "fullName": "V Rishitharan",
+      "role": "participant",
+      "email": "vrishi1207@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9025062322
+    },
+    {
+      "teamName": "Unsinkables",
+      "domain": "AI & Automation",
+      "fullName": "MAHATHI M",
+      "role": "participant",
+      "email": "mahathim.csbe2024@citchennai.net",
+      "collegeName": "Chennai Institute of technology",
+      "phoneNumber": 9840751242
+    },
+    {
+      "teamName": "Unsinkables",
+      "domain": "AI & Automation",
+      "fullName": "RATHISH KUMAR R",
+      "role": "participant",
+      "email": "rathishkumarr.act2024@citchennai.net",
+      "collegeName": "Chennai Institute of technology",
+      "phoneNumber": 8428024725
+    },
+    {
+      "teamName": "BIT COMMUNERS",
+      "domain": "EdTech",
+      "fullName": "S GOWTHAMAN",
+      "role": "participant",
+      "email": "gowthamansiva.tech@gmail.com",
+      "collegeName": "DR MGR EDUCATIONAL AND RESEARCH INSITIUDE",
+      "phoneNumber": 8637684573
+    },
+    {
+      "teamName": "BIT COMMUNERS",
+      "domain": "EdTech",
+      "fullName": "DINESH KUMAR M",
+      "role": "participant",
+      "email": "mdks.cse@gmail.com",
+      "collegeName": "DR MGR EDUCATIONAL AND RESEARCH INSITIUDE",
+      "phoneNumber": 9342320104
+    },
+    {
+      "teamName": "BIT COMMUNERS",
+      "domain": "EdTech",
+      "fullName": "MOHANA DIVYA s",
+      "role": "team_lead",
+      "email": "mohanadivya2@gmail.com",
+      "collegeName": "DR MGR EDUCATIONAL AND RESEARCH INSITIUDE",
+      "phoneNumber": 8056249956
+    },
+    {
+      "teamName": "BIT COMMUNERS",
+      "domain": "EdTech",
+      "fullName": "Mohammad Shakeel athar .J",
+      "role": "participant",
+      "email": "shakeelj33447@gmail.com",
+      "collegeName": "Dr.M.G.R Educational and Research Institute",
+      "phoneNumber": 8015251650
+    },
+    {
+      "teamName": "BIT COMMUNERS",
+      "domain": "EdTech",
+      "fullName": "Gopika Y",
+      "role": "participant",
+      "email": "yuvrajpirigopika@gmail.com",
+      "collegeName": "Dr.M.G.R.Educational and Research Institute",
+      "phoneNumber": 9360154779
+    },
+    {
+      "teamName": "Save vertex",
+      "domain": "Health & Wellness",
+      "fullName": "Aravind.S",
+      "role": "team_lead",
+      "email": "aravindsmailoff@gmail.com",
+      "collegeName": "SIMATS Engineering",
+      "phoneNumber": 9444533340
+    },
+    {
+      "teamName": "Save vertex",
+      "domain": "Health & Wellness",
+      "fullName": "Mann",
+      "role": "participant",
+      "email": "mannprajapati07@gmail.com",
+      "collegeName": "SIMATS Engineering",
+      "phoneNumber": 8939113758
+    },
+    {
+      "teamName": "Save vertex",
+      "domain": "Health & Wellness",
+      "fullName": "Vimal Mahendran",
+      "role": "participant",
+      "email": "vimalmahendran1974@gmail.com",
+      "collegeName": "SIMATS Engineering",
+      "phoneNumber": 9894605553
+    },
+    {
+      "teamName": "Save vertex",
+      "domain": "Health & Wellness",
+      "fullName": "C V Kewin Wilkins",
+      "role": "participant",
+      "email": "kewinwilkins@gmail.com",
+      "collegeName": "SIMATS Engineering",
+      "phoneNumber": 9087789136
+    },
+    {
+      "teamName": "Save vertex",
+      "domain": "Health & Wellness",
+      "fullName": "R. Harsha Kyle",
+      "role": "participant",
+      "email": "harshakyle1@gmail.com",
+      "collegeName": "SIMATS ENGINEERING COLLEGE",
+      "phoneNumber": 9043544279
+    },
+    {
+      "teamName": "Save vertex",
+      "domain": "Health & Wellness",
+      "fullName": "Haresh Bharadwaj R",
+      "role": "participant",
+      "email": "hesh2512006@gmail.com",
+      "collegeName": "SIMATS ENGINEERING",
+      "phoneNumber": 8754593267
+    },
+    {
+      "teamName": "Hackie-chan crew",
+      "domain": "FinTech",
+      "fullName": "Shamseena shabnam",
+      "role": "team_lead",
+      "email": "shamseenashabnam1@gmail.com",
+      "collegeName": "Dr.M.G.R Educational and Research Institute",
+      "phoneNumber": 9344890260
+    },
+    {
+      "teamName": "Hackie-chan crew",
+      "domain": "FinTech",
+      "fullName": "Sanjai.P.A",
+      "role": "participant",
+      "email": "sanjaiarunraju791@gmail.com",
+      "collegeName": "Dr.M.G.R Educational and Research Institute",
+      "phoneNumber": 9487826286
+    },
+    {
+      "teamName": "Hackie-chan crew",
+      "domain": "FinTech",
+      "fullName": "Akash S",
+      "role": "participant",
+      "email": "leoakash1909@gmail.com",
+      "collegeName": "Dr. MGR Educational And Research Institute",
+      "phoneNumber": 8940034542
+    },
+    {
+      "teamName": "Hackie-chan crew",
+      "domain": "FinTech",
+      "fullName": "Hackie chan",
+      "role": "participant",
+      "email": "Rmanikandan1903@gmail.com",
+      "collegeName": "DR MGR EDUCATION AND RESEARCH INSTITUTE",
+      "phoneNumber": 6380111823
+    },
+    {
+      "teamName": "Hackie-chan crew",
+      "domain": "FinTech",
+      "fullName": "Jayan.J",
+      "role": "participant",
+      "email": "Jeyan5426@gmail.com",
+      "collegeName": "Dr.M.G.R University",
+      "phoneNumber": 8056166408
+    },
+    {
+      "teamName": "Hackie-chan crew",
+      "domain": "FinTech",
+      "fullName": "Karthik.S",
+      "role": "participant",
+      "email": "Karthikbe2006@gmail.com",
+      "collegeName": "Dr mgr university",
+      "phoneNumber": 8667382148
+    },
+    {
+      "teamName": "EUFORIYEAH",
+      "domain": "Health & Wellness",
+      "fullName": "Durika PR",
+      "role": "team_lead",
+      "email": "durika.pr2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9741404039
+    },
+    {
+      "teamName": "EUFORIYEAH",
+      "domain": "Health & Wellness",
+      "fullName": "MEENA SENTHIL",
+      "role": "participant",
+      "email": "meena.senthil2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9940635799
+    },
+    {
+      "teamName": "EUFORIYEAH",
+      "domain": "Health & Wellness",
+      "fullName": "Sadhana Meenachi Sundaram",
+      "role": "participant",
+      "email": "sadhana.meenachi2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9688211133
+    },
+    {
+      "teamName": "EUFORIYEAH",
+      "domain": "Health & Wellness",
+      "fullName": "sivadarshan",
+      "role": "participant",
+      "email": "sivadarshan.2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9952278685
+    },
+    {
+      "teamName": "EUFORIYEAH",
+      "domain": "Health & Wellness",
+      "fullName": "Raghav Sharma",
+      "role": "participant",
+      "email": "raghav.sharma2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": "+91 98188 73170"
+    },
+    {
+      "teamName": "BehenCode",
+      "domain": "AI & Automation",
+      "fullName": "Siddhartha Banerjee",
+      "role": "team_lead",
+      "email": "siddhartha.banerjee2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9791198128
+    },
+    {
+      "teamName": "BehenCode",
+      "domain": "AI & Automation",
+      "fullName": "Ananya C",
+      "role": "participant",
+      "email": "ananya.c2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9445014249
+    },
+    {
+      "teamName": "BehenCode",
+      "domain": "AI & Automation",
+      "fullName": "Rakshita Senthilraj",
+      "role": "participant",
+      "email": "rakshitha.2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9894312205
+    },
+    {
+      "teamName": "BehenCode",
+      "domain": "AI & Automation",
+      "fullName": "Kavya Sri",
+      "role": "participant",
+      "email": "kavyasri.k2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9500071286
+    },
+    {
+      "teamName": "BehenCode",
+      "domain": "AI & Automation",
+      "fullName": "Abhinav S",
+      "role": "participant",
+      "email": "abhinav.s2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": "7397 439 876"
+    },
+    {
+      "teamName": "BehenCode",
+      "domain": "AI & Automation",
+      "fullName": "Shalini S",
+      "role": "participant",
+      "email": "shalini.saravana2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9972575680
+    },
+    {
+      "teamName": "VFARM",
+      "domain": "AI & Automation",
+      "fullName": "HARI KIRUTHIK G R",
+      "role": "team_lead",
+      "email": "grharikiruthik@gmail.com",
+      "collegeName": "KONGU ENGINEERING COLLEGE",
+      "phoneNumber": 9486822978
+    },
+    {
+      "teamName": "VFARM",
+      "domain": "AI & Automation",
+      "fullName": "GOPI SANKAR M",
+      "role": "participant",
+      "email": "reach4gopisankar@gmail.com",
+      "collegeName": "KONGU ENGINEERING COLLEGE",
+      "phoneNumber": 8025840181
+    },
+    {
+      "teamName": "VFARM",
+      "domain": "AI & Automation",
+      "fullName": "GOWTHAM C D",
+      "role": "participant",
+      "email": "gowthamcd.23cse@kongu.edu",
+      "collegeName": "KONGU ENGINEERING COLLEGE",
+      "phoneNumber": 9003538851
+    },
+    {
+      "teamName": "VFARM",
+      "domain": "AI & Automation",
+      "fullName": "JAYARAJ M",
+      "role": "participant",
+      "email": "jayarajm.23cse@kongu.edu",
+      "collegeName": "KONGU ENGINEERING COLLEGE",
+      "phoneNumber": 8248383907
+    },
+    {
+      "teamName": "VFARM",
+      "domain": "AI & Automation",
+      "fullName": "MANOJH B",
+      "role": "participant",
+      "email": "manojhb7640@gmail.com",
+      "collegeName": "KONGU ENGINEERING COLLEGE",
+      "phoneNumber": 6383648034
+    },
+    {
+      "teamName": "VFARM",
+      "domain": "AI & Automation",
+      "fullName": "YUGA BHARATHI J",
+      "role": "participant",
+      "email": "Yuga.bharathijai2106@gmail.com",
+      "collegeName": "Kongu Engineering College",
+      "phoneNumber": 8838144028
+    },
+    {
+      "teamName": "AlyneLabs",
+      "domain": "FinTech",
+      "fullName": "Jai Kishore N H",
+      "role": "team_lead",
+      "email": "jaikishore.n2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9551155198
+    },
+    {
+      "teamName": "AlyneLabs",
+      "domain": "FinTech",
+      "fullName": "Yogit G",
+      "role": "participant",
+      "email": "beauteousillustrations@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9566058295
+    },
+    {
+      "teamName": "AlyneLabs",
+      "domain": "FinTech",
+      "fullName": "Lalith Adhithiya Saravanan",
+      "role": "participant",
+      "email": "lalith.adhithiya2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9943575326
+    },
+    {
+      "teamName": "AlyneLabs",
+      "domain": "FinTech",
+      "fullName": "F Fawwaz Ahamed",
+      "role": "participant",
+      "email": "fawwazahamed.f2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9629138749
+    },
+    {
+      "teamName": "AlyneLabs",
+      "domain": "FinTech",
+      "fullName": "Aaditya Menon K",
+      "role": "participant",
+      "email": "aadityamenon.k2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 6381572847
+    },
+    {
+      "teamName": "ZEROsense",
+      "domain": "Gaming & Entertainment",
+      "fullName": "Ridhima Thakur",
+      "role": "team_lead",
+      "email": "ridhithakur407@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8894558541
+    },
+    {
+      "teamName": "ZEROsense",
+      "domain": "Gaming & Entertainment",
+      "fullName": "Ayera Fatma",
+      "role": "participant",
+      "email": "ayera.fatma2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9354773308
+    },
+    {
+      "teamName": "ZEROsense",
+      "domain": "Gaming & Entertainment",
+      "fullName": "Swati Prasad",
+      "role": "participant",
+      "email": "swati.prasad2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7013522537
+    },
+    {
+      "teamName": "ZEROsense",
+      "domain": "Gaming & Entertainment",
+      "fullName": "Paridhi Totla",
+      "role": "participant",
+      "email": "paridhi.yatishtotla2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9324181405
+    },
+    {
+      "teamName": "ZEROsense",
+      "domain": "Gaming & Entertainment",
+      "fullName": "Keerti Krishna Likhita",
+      "role": "participant",
+      "email": "keerti.krishna2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7249755897
+    },
+    {
+      "teamName": "Oregent",
+      "domain": "AI & Automation",
+      "fullName": "Ishwariya. P",
+      "role": "team_lead",
+      "email": "ishwariyaishu100@gmail.com",
+      "collegeName": "SIMATS ENGINEERING",
+      "phoneNumber": 8270768841
+    },
+    {
+      "teamName": "Oregent",
+      "domain": "AI & Automation",
+      "fullName": "Sri Sayee K",
+      "role": "participant",
+      "email": "ksrisayee@gmail.com",
+      "collegeName": "SIMATS ENGINEERING",
+      "phoneNumber": 8778080037
+    },
+    {
+      "teamName": "Oregent",
+      "domain": "AI & Automation",
+      "fullName": "Sedhu Madhavan R",
+      "role": "participant",
+      "email": "madhavansedhu598@gmail.com",
+      "collegeName": "SIMATS ENGINEERING",
+      "phoneNumber": 9342452590
+    },
+    {
+      "teamName": "Oregent",
+      "domain": "AI & Automation",
+      "fullName": "Nitthyendren JS",
+      "role": "participant",
+      "email": "jsnitthyendren@gmail.com",
+      "collegeName": "SIMATS ENGINEERING",
+      "phoneNumber": 7373747578
+    },
+    {
+      "teamName": "Oregent",
+      "domain": "AI & Automation",
+      "fullName": "Harsh Limkar N",
+      "role": "participant",
+      "email": "harshlimkar23@gmail.com",
+      "collegeName": "SIMATS ENGINEERING",
+      "phoneNumber": 9445314998
+    },
+    {
+      "teamName": "Team Robert",
+      "domain": "AI & Automation",
+      "fullName": "Tejas",
+      "role": "team_lead",
+      "email": "tejas.241006@gmail.com",
+      "collegeName": "MBIT",
+      "phoneNumber": 6353655646
+    },
+    {
+      "teamName": "Team Robert",
+      "domain": "AI & Automation",
+      "fullName": "Yashvi Dave",
+      "role": "participant",
+      "email": "yashvidave1505@gmail.com",
+      "collegeName": "MBIT",
+      "phoneNumber": 9409402630
+    },
+    {
+      "teamName": "Team Robert",
+      "domain": "AI & Automation",
+      "fullName": "Pratvi Suthar",
+      "role": "participant",
+      "email": "sutharpratvi@gmail.com",
+      "collegeName": "MBIT",
+      "phoneNumber": 7778826258
+    },
+    {
+      "teamName": "Team Robert",
+      "domain": "AI & Automation",
+      "fullName": "Purva Vijaybhai Desai",
+      "role": "participant",
+      "email": "purvadesai3007@gmail.com",
+      "collegeName": "MBIT",
+      "phoneNumber": 9601274830
+    },
+    {
+      "teamName": "Team Robert",
+      "domain": "AI & Automation",
+      "fullName": "Dalwadi yatri chetanbhai",
+      "role": "participant",
+      "email": "yatridalwadi419@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9313584293
+    },
+    {
+      "teamName": "Team Robert",
+      "domain": "AI & Automation",
+      "fullName": "Parv Panchal",
+      "role": "participant",
+      "email": "parvpanchal168@gmail.com",
+      "collegeName": "MBIT",
+      "phoneNumber": 9106924139
+    },
+    {
+      "teamName": "Tiny coders",
+      "domain": "Health & Wellness",
+      "fullName": "S SRI POOJITHA",
+      "role": "team_lead",
+      "email": "poojithasudalagunta@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 6304834520
+    },
+    {
+      "teamName": "Tiny coders",
+      "domain": "Health & Wellness",
+      "fullName": "Leela chandana Apilagunta",
+      "role": "participant",
+      "email": "kesavchandana@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9441993695
+    },
+    {
+      "teamName": "Tiny coders",
+      "domain": "Health & Wellness",
+      "fullName": "Nakshatra shashidhar",
+      "role": "participant",
+      "email": "Nakshatra.Shasidhar@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7708946027
+    },
+    {
+      "teamName": "Tiny coders",
+      "domain": "Health & Wellness",
+      "fullName": "Sai Sahasra Ippili",
+      "role": "participant",
+      "email": "ippilisahasra.2007@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 6302344353
+    },
+    {
+      "teamName": "Tiny coders",
+      "domain": "Health & Wellness",
+      "fullName": "Miriyaala Sahasra",
+      "role": "participant",
+      "email": "sahasramiriyala08@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7794986979
+    },
+    {
+      "teamName": "Tiny coders",
+      "domain": "Health & Wellness",
+      "fullName": "Vakati Narayani Nayani",
+      "role": "participant",
+      "email": "nayanireddy9392@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9392558952
+    },
+    {
+      "teamName": "Bit communers",
+      "domain": "EdTech",
+      "fullName": "Mohana Divya S",
+      "role": "team_lead",
+      "email": "mohanadivya2@gmail.com",
+      "collegeName": "Dr.M.G.R Educational and research institute",
+      "phoneNumber": 8056249956
+    },
+    {
+      "teamName": "Bit communers",
+      "domain": "EdTech",
+      "fullName": "Dinesh Kumar M",
+      "role": "participant",
+      "email": "mdks.cse@gmail.com",
+      "collegeName": "Dr.M.G.R Educational and research institute",
+      "phoneNumber": 9342320104
+    },
+    {
+      "teamName": "Bit communers",
+      "domain": "EdTech",
+      "fullName": "Gowthaman S",
+      "role": "participant",
+      "email": "gowthamansiva.tech@gmail.com",
+      "collegeName": "Dr.M.G.R Educational and research institute",
+      "phoneNumber": 8637684573
+    },
+    {
+      "teamName": "Bit communers",
+      "domain": "EdTech",
+      "fullName": "Gopika Y",
+      "role": "participant",
+      "email": "yuvrajpirigopika@gmail.com",
+      "collegeName": "Dr.M.G.R Educational and research institute",
+      "phoneNumber": 9360154779
+    },
+    {
+      "teamName": "Bit communers",
+      "domain": "EdTech",
+      "fullName": "Mohammad Shakeel athar J",
+      "role": "participant",
+      "email": "shakeelj33447@gmail.com",
+      "collegeName": "Dr.M.G.R Educational and research institute",
+      "phoneNumber": 8015251650
+    },
+    {
+      "teamName": "Crack Coders",
+      "domain": "FinTech",
+      "fullName": "Tallam Sai Sriya",
+      "role": "participant",
+      "email": "tallam.saisriya2024@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9363719197
+    },
+    {
+      "teamName": "Crack Coders",
+      "domain": "FinTech",
+      "fullName": "Vetcha Sivani",
+      "role": "participant",
+      "email": "vetcha.sivani2024@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 7093601750
+    },
+    {
+      "teamName": "Crack Coders",
+      "domain": "FinTech",
+      "fullName": "Thanishka S",
+      "role": "participant",
+      "email": "thanishka.s2024@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9043110762
+    },
+    {
+      "teamName": "Crack Coders",
+      "domain": "FinTech",
+      "fullName": "S chandana",
+      "role": "participant",
+      "email": "Sigirimola.chandana2024@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9121838359
+    },
+    {
+      "teamName": "Crack Coders",
+      "domain": "FinTech",
+      "fullName": "Stefina Arul Princy A",
+      "role": "team_lead",
+      "email": "stefinaa2006@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9655511193
+    },
+    {
+      "teamName": "PRIME SYNDICATE",
+      "domain": "Health & Wellness",
+      "fullName": "FAHEEM ABDULLAH A",
+      "role": "team_lead",
+      "email": "faheemabdullah.a2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": "91505 26725"
+    },
+    {
+      "teamName": "PRIME SYNDICATE",
+      "domain": "Health & Wellness",
+      "fullName": "Sachu Joseph",
+      "role": "participant",
+      "email": "sachu.joseph2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8072366915
+    },
+    {
+      "teamName": "PRIME SYNDICATE",
+      "domain": "Health & Wellness",
+      "fullName": "Chouhan Tej",
+      "role": "participant",
+      "email": "ct1651@srmist.edu.in",
+      "collegeName": "SRM Ramapuram",
+      "phoneNumber": 8248429137
+    },
+    {
+      "teamName": "PRIME SYNDICATE",
+      "domain": "Health & Wellness",
+      "fullName": "Gunit kumar",
+      "role": "participant",
+      "email": "gunit.kumar2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9779066900
+    },
+    {
+      "teamName": "PRIME SYNDICATE",
+      "domain": "Health & Wellness",
+      "fullName": "JCKawin",
+      "role": "participant",
+      "email": "kawin.jc2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9487917876
+    },
+    {
+      "teamName": "PRIME SYNDICATE",
+      "domain": "Health & Wellness",
+      "fullName": "Adithiaya Murugan KS",
+      "role": "participant",
+      "email": "adithiayamurugan.k2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 8925025737
+    },
+    {
+      "teamName": "Voko",
+      "domain": "FinTech",
+      "fullName": "Tarun",
+      "role": "team_lead",
+      "email": "tarun.jayakumar2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": "+91 95357 95496"
+    },
+    {
+      "teamName": "Voko",
+      "domain": "FinTech",
+      "fullName": "Balakrishnan A",
+      "role": "participant",
+      "email": "balakrishnan.a2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9884006590
+    },
+    {
+      "teamName": "Voko",
+      "domain": "FinTech",
+      "fullName": "Vaibhav gopinath",
+      "role": "participant",
+      "email": "Vaibhav.gopinath2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": 9600032764
+    },
+    {
+      "teamName": "Voko",
+      "domain": "FinTech",
+      "fullName": "Sri Charan Ashok",
+      "role": "participant",
+      "email": "sricharan.ashok2025@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": "+91 93618 84917"
+    },
+    {
+      "teamName": "Voko",
+      "domain": "FinTech",
+      "fullName": "Anirudh",
+      "role": "participant",
+      "email": "Anirudh.2025a@vitstudent.ac.in",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": "+91 96004 92379"
+    },
+    {
+      "teamName": "Voko",
+      "domain": "FinTech",
+      "fullName": "Kriya",
+      "role": "participant",
+      "email": "Kriya.mugambika.b2025@gmail.com",
+      "collegeName": "VIT Chennai",
+      "phoneNumber": "+91 90438 95645"
     }
   ],
   "sendEmails": true

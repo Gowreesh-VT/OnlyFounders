@@ -114,7 +114,7 @@ export async function sendLoginCredentials(
 <body>
     <div class="container">
         <div class="logo">
-            <img src="https://only-founders-omega.vercel.app/icons/icon-192x192.png" alt="OnlyFounders" />
+            <img src="https://main.onlyfounders.in/icons/only-founders-logo.png" alt="OnlyFounders" />
         </div>
         <div class="header">ONLYFOUNDERS</div>
         
@@ -134,7 +134,7 @@ export async function sendLoginCredentials(
         </div>
         
         <center>
-            <a href="https://only-founders-omega.vercel.app/" class="button">
+            <a href="https://main.onlyfounders.in" class="button">
                 LOGIN NOW
             </a>
         </center>
@@ -163,7 +163,7 @@ Your Login Credentials:
 Email: ${email}
 Password: ${password}
 
-Login here: https://only-founders-omega.vercel.app/
+Login here: https://main.onlyfounders.in/
 
 
 © 2026 OnlyFounders
