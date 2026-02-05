@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Fingerprint, Zap, Check, X, Keyboard, LogOut } from 'lucide-react';
-import { BrowserMultiFormatReader } from '@zxing/library';
+import { Html5Qrcode } from 'html5-qrcode';
 
 interface ScanRecord {
   id: string;
@@ -15,8 +15,8 @@ interface ScanRecord {
 
 export default function GateScannerPage() {
   const router = useRouter();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
+  const qrRegionRef = useRef<HTMLDivElement>(null);
+  const qrScannerRef = useRef<Html5Qrcode | null>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(true);
@@ -37,7 +37,7 @@ export default function GateScannerPage() {
   }, []);
 
   useEffect(() => {
-    if (!loading && scanning && !verified && !error && !showManualEntry && videoRef.current) {
+    if (!loading && scanning && !verified && !error && !showManualEntry && qrRegionRef.current) {
       setIsCameraReady(true);
       const timer = setTimeout(() => {
         startCamera();
@@ -81,46 +81,52 @@ export default function GateScannerPage() {
     try {
       console.log('Starting camera...');
       setCameraError(null);
-      
-      if (!videoRef.current) {
-        console.error('Video ref not ready');
-        return;
-      }
-      
-      if (!codeReaderRef.current) {
-        codeReaderRef.current = new BrowserMultiFormatReader();
-      }
 
-      console.log('Listing video devices...');
-      const videoInputDevices = await codeReaderRef.current.listVideoInputDevices();
-      console.log('Found devices:', videoInputDevices.length);
-      
-      if (videoInputDevices.length === 0) {
-        setCameraError('No camera found');
-        return;
-      }
-
-      // Prefer back camera on mobile
-      const selectedDevice = videoInputDevices.find(device => 
-        device.label.toLowerCase().includes('back') || 
-        device.label.toLowerCase().includes('rear')
-      ) || videoInputDevices[0];
-
-      console.log('Starting camera with device:', selectedDevice.label);
-      
-      await codeReaderRef.current.decodeFromVideoDevice(
-        selectedDevice.deviceId,
-        videoRef.current,
-        (result, error) => {
-          if (result) {
-            const qrText = result.getText();
-            console.log('QR Code detected:', qrText);
-            if (qrText) {
-              handleScan(qrText);
-            }
-          }
+      // Camera requires secure context on mobile
+      if (typeof window !== 'undefined') {
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (window.location.protocol !== 'https:' && !isLocalhost) {
+          setCameraError('Camera requires HTTPS. Please use a secure connection.');
+          return;
         }
-      );
+      }
+      
+      if (!qrRegionRef.current) {
+        console.error('QR region not ready');
+        return;
+      }
+
+      if (!qrScannerRef.current) {
+        qrScannerRef.current = new Html5Qrcode('qr-reader', { verbose: false });
+      }
+
+      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+      try {
+        await qrScannerRef.current.start(
+          { facingMode: 'environment' },
+          config,
+          (decodedText) => {
+            if (decodedText) {
+              console.log('QR Code detected:', decodedText);
+              handleScan(decodedText);
+            }
+          },
+          () => {}
+        );
+      } catch {
+        await qrScannerRef.current.start(
+          { facingMode: 'user' },
+          config,
+          (decodedText) => {
+            if (decodedText) {
+              console.log('QR Code detected:', decodedText);
+              handleScan(decodedText);
+            }
+          },
+          () => {}
+        );
+      }
       
       console.log('Camera started successfully');
     } catch (err: any) {
@@ -130,8 +136,9 @@ export default function GateScannerPage() {
   };
 
   const stopCamera = () => {
-    if (codeReaderRef.current) {
-      codeReaderRef.current.reset();
+    if (qrScannerRef.current) {
+      qrScannerRef.current.stop().catch(() => {});
+      qrScannerRef.current.clear().catch(() => {});
     }
   };
 
@@ -263,12 +270,10 @@ export default function GateScannerPage() {
             {/* Scanner Frame */}
             <div className="relative w-full aspect-square sm:aspect-4/3 mb-4 sm:mb-6 bg-black rounded-lg overflow-hidden">
               {/* Camera Video */}
-              <video
-                ref={videoRef}
+              <div
+                id="qr-reader"
+                ref={qrRegionRef}
                 className="w-full h-full object-cover"
-                autoPlay
-                playsInline
-                muted
               />
               
               {/* Camera Error Overlay */}

@@ -54,7 +54,7 @@ export default function EIDPage() {
         width: 280,
         margin: 2,
         color: {
-          dark: '#D4AF37', // More golden color
+          dark: '#000000', // More golden color
           light: '#FFFFFF',
         },
         errorCorrectionLevel: 'H',
