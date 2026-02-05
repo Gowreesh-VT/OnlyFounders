@@ -31,8 +31,6 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
-.env.local
 
 # vercel
 .vercel
@@ -53,3 +51,4 @@ TEST_CREDENTIALS.md
 ORGANIZING_COMMITTEE_CREDENTIALS.md
 *.credentials
 *_credentials.json
+config.bat
