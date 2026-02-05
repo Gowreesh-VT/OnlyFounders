@@ -4,7 +4,7 @@ import { User, EntryLog, ScanSession } from '@/lib/mongodb/models';
 import { getSession } from '@/lib/mongodb/auth';
 import crypto from 'crypto';
 
-const QR_SECRET = process.env.QR_SECRET;
+const QR_SECRET = process.env.QR_SECRET || 'onlyfounders-qr-secret-key-2026';
 
 export async function POST(request: NextRequest) {
     try {

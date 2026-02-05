@@ -15,20 +15,35 @@ export async function POST() {
         const session = await getSession();
         
         if (!session) {
-            // No session to destroy, but still return success
-            return NextResponse.json({
+            const response = NextResponse.json({
                 success: true,
                 message: 'No active session'
             });
+            response.cookies.set('auth_session', '', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 0,
+                path: '/',
+            });
+            return response;
         }
 
         // Destroy the session cookie
         await destroySession();
-        
-        return NextResponse.json({
+
+        const response = NextResponse.json({
             success: true,
             message: 'Logged out successfully'
         });
+        response.cookies.set('auth_session', '', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 0,
+            path: '/',
+        });
+        return response;
     } catch (error: unknown) {
         console.error('Logout error:', error);
         return NextResponse.json(
