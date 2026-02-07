@@ -53,3 +53,4 @@ TEST_CREDENTIALS.md
 ORGANIZING_COMMITTEE_CREDENTIALS.md
 *.credentials
 *_credentials.json
+config.bat
